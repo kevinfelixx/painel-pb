@@ -389,6 +389,7 @@ table.pcl tr.saiu td{border-top:1px dashed var(--line);color:var(--ink-2)}
   :root[data-dir="lv"] .tema span{display:none}
   :root[data-dir="lv"] nav.tabs{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:30;justify-content:space-around;gap:0;padding:8px 6px;border-radius:20px;background:var(--glass);border:1px solid var(--glass-b);backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%);box-shadow:0 14px 34px -14px rgba(0,0,0,.45)}
   :root[data-dir="lv"] nav.tabs a{font-size:12.5px;padding:6px 4px}
+  @media (max-width:420px){:root[data-dir="lv"] nav.tabs{padding:8px 4px}:root[data-dir="lv"] nav.tabs a{font-size:11.5px;padding:6px 2px}}
   :root[data-dir="lv"] main .wrap{padding-bottom:110px}
 }
 /* vidro nos cartões */
@@ -551,6 +552,26 @@ table.ads th:first-child{z-index:3}
 .pg>i{box-shadow:none!important}.pg>i::after{display:none}.pg>.mk{animation:none!important;box-shadow:none}
 .pg>.tk{background:var(--line)}
 .rumo-b details.how{margin-top:4px}
+/* v5.5: simulador (DESIGN.md: card liso com borda superior na cor da operação, sem brilho) */
+.sim{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:var(--gap)}
+.sim-op{display:flex;flex-direction:column;gap:16px;padding:20px 22px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--opc);min-width:0}
+:root[data-dir="lv"][data-mode="dark"] .sim-op{background:#17181D}
+.sim-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.sim-h h3{margin:0;font-size:16px;font-weight:700}
+.sim-res{margin:0;font-size:20px;line-height:1.35;font-weight:700;color:var(--ink);text-wrap:pretty}
+.sim-res b{font-weight:900;white-space:nowrap}
+.sim .c-good{color:var(--good)}.sim .c-warn{color:var(--warn)}.sim .c-bad{color:var(--bad)}
+.sim-prec{display:flex;flex-direction:column;gap:4px;padding-top:12px;border-top:1px solid var(--line)}
+.sim-prec p{margin:0;font-size:14.5px;color:var(--ink-2)}.sim-prec p b{color:var(--ink);font-weight:900;white-space:nowrap}
+.sim-prec .sim-n{font-size:12.5px;color:var(--ink-3);margin-top:2px}
+.sim-cs{display:flex;flex-direction:column;gap:14px;padding-top:12px;border-top:1px solid var(--line)}
+.sim-c{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:baseline}
+.sim-c label{font-size:13.5px;font-weight:700;color:var(--ink-2)}
+.sim-c output{font-size:18px;font-weight:900;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.sim-c input{grid-column:1/-1;width:100%;margin:2px 0;accent-color:var(--opc);height:22px;cursor:pointer}
+.sim-c input:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px}
+.sim-c small{grid-column:1/-1;font-size:11.5px;color:var(--ink-3)}
+@media (max-width:700px){.sim-op{padding:16px}.sim-res{font-size:17px}}
 </style>
 
 <header class="top">
@@ -775,6 +796,7 @@ gfgLNctbXnnw0KFF++BnlbuZvhSB2MGDNzXEUkhuPt1E4CYCNxG4icBNBP4/QuD/Ah9MKdT+/YBuAAAA
       <a href="#closers" data-v="closers">Closers</a>
       <a href="#anuncios" data-v="anuncios">Anúncios</a>
       <a href="#motivos" data-v="motivos">Motivos</a>
+      <a href="#simulador" data-v="simulador">Simulador</a>
     </nav>
   </div>
 </header>
@@ -985,7 +1007,7 @@ addEventListener("hashchange",()=>{route();render()});
 /* Abas por clique: dentro do Apps Script a página roda numa moldura e o link "#aba" não pode mudar o endereço */
 document.querySelectorAll("nav.tabs a").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();st.v=a.dataset.v;window.scrollTo(0,0);render()}));
 matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",()=>{aplicarTema();render()});
-function route(){const h=location.hash.slice(1);st.v=["comercial","operacoes","closers","anuncios","motivos"].includes(h)?h:"comercial"}
+function route(){const h=location.hash.slice(1);st.v=["comercial","operacoes","closers","anuncios","motivos","simulador"].includes(h)?h:"comercial"}
 document.getElementById("protoBar").hidden=!PROTOTIPO;
 
 /* ===== gráficos ===== */
@@ -1144,6 +1166,64 @@ function manchete(p){
   const leg=ref?ref.t:op==="ALL"?"":"traço: meta do mês";
   return `<section class="man"><span class="lbl">${lbl}</span><h2>${h2}</h2><p class="sub">${sub}</p>
     <div class="mms" role="img" aria-label="Contratos líquidos mês a mês em ${y}">${bars}</div>${leg?`<p class="mms-l">${p.parcial?"Mês em andamento até "+brc(DADOS_ATE)+" · ":""}${leg}</p>`:`<p class="mms-l">${p.parcial?"Mês em andamento até "+brc(DADOS_ATE):""}</p>`}</section>`;
+}
+/* ===== v5.5 (17/11/2026) Simulador "e se" (decisões do Kevin): só o mês em andamento; começa no ritmo do mês até ontem
+   (no começo do mês, com menos de 5 dias úteis, usa os últimos 30 dias e avisa); alavancas por operação: qualificados por dia útil,
+   % de fechamento (contratos ÷ qualificados) e % de churn (churns ÷ contratos), que desconta os líquidos dos dias que faltam.
+   Projeção = líquidos até o corte + qualif/dia × fechamento × (1 − churn) × dias úteis que restam (hoje incluído, igual ao "por dia útil").
+   Nos dois sentidos: mostra a projeção e o que precisa para bater a meta. Nada é salvo. */
+function simBase(p,op){
+  const r=rumoMeta(p,op),f=x=>x.op===op;let a=p.ini,b=p.fim,du=r.duFeitos,janela="mes";
+  if(du<5){a=addDias(p.fim,-29);du=diasUteisF(a,b);janela="30d"}
+  const k=kpis(a,b,f),qd=du?k.q/du:0,fe=k.q?k.c/k.q:0,ch=k.c?k.ch/k.c:0;
+  return {op,r,qd,fe:Math.min(fe,1),ch,janela,a,b,du};
+}
+function simCalc(B,v){
+  const r=B.r,liqDia=v.qd*v.fe*(1-v.ch),prev=r.real+liqDia*r.duResta,falta=Math.max(r.meta-r.real,0);
+  const base=r.duResta*(1-v.ch);
+  return {prev,pm:div(prev,r.meta),falta,liqDia,
+    qdPrec:falta&&base&&v.fe?falta/(base*v.fe):falta?null:0,
+    fePrec:falta&&base&&v.qd?falta/(base*v.qd):falta?null:0};
+}
+function simOut(B,v){
+  const c=simCalc(B,v),r=B.r,f1=x=>x==null?"—":x.toLocaleString("pt-BR",{maximumFractionDigits:1}),mes=MESES_L[+st.simP.k.slice(5,7)-1];
+  const cl=c.pm==null?"":c.pm>=1?"c-good":c.pm>=.9?"c-warn":"c-bad";
+  const feL=c.fePrec==null?`com ${f1(v.qd)} qualificados por dia útil, nenhum fechamento chega lá`:c.fePrec>1?`com ${f1(v.qd)} qualificados por dia útil, nem 100% de fechamento chega lá`:`ou <b>${fmtP(c.fePrec)}</b> de fechamento com ${f1(v.qd)} qualificados por dia útil`;
+  return `<p class="sim-res">Nesse ritmo, ${B.op} fecha ${mes} com <b class="${cl}">${fmtN(Math.round(c.prev))}</b> contratos líquidos, <b class="${cl}">${fmtP(c.pm)}</b> da meta de ${fmtN(r.meta)}.</p>
+    ${c.falta?`<div class="sim-prec"><span class="lbl">Para bater a meta</span>
+      <p>${c.qdPrec==null?`com ${fmtP(v.fe)} de fechamento, nenhum volume de qualificados chega lá`:`<b>${f1(c.qdPrec)}</b> qualificados por dia útil com o fechamento de ${fmtP(v.fe)}`}</p>
+      <p>${feL}</p>
+      <p class="sim-n">Faltam ${fmtN(Math.ceil(c.falta))} líquidos em ${fmtN(r.duResta)} dias úteis (hoje incluído).</p></div>`
+      :`<div class="sim-prec"><p><b>Meta do mês já batida</b> com ${fmtN(r.real)} líquidos.</p></div>`}`;
+}
+function vSimulador(){
+  const p=P.find(x=>x.parcial);
+  let h=`<div class="sec-h"><h2>Simulador · ${p?mesNome(p.k):"—"}</h2><p>${p?`E se o ritmo mudar até ${br(ultimoDia(p.k))}? Começa no ritmo real de ${br(p.ini)} a ${br(p.fim)}. Nada é salvo.`:""}</p></div>`;
+  if(!p){document.getElementById("view").innerHTML=h+`<p class="note">Não há mês em andamento nos dados.</p>`;return}
+  if(st.p!==p)h+=`<p class="note">O simulador olha só o mês em andamento (${mesNome(p.k)}), qualquer que seja o mês escolhido no topo.</p>`;
+  st.simP=p;st.sim=st.sim||{};
+  const Bs=opsSel().map(op=>simBase(p,op)).filter(B=>B.r.meta);
+  h+=`<div class="sim">${Bs.map(B=>{const op=B.op,v=st.sim[op]||(st.sim[op]={qd:B.qd,fe:B.fe,ch:B.ch});
+    const ctl=(k,t,min,max,step,val,txt,real)=>`<div class="sim-c"><label for="sim-${op}-${k}">${t}</label><output id="o-${op}-${k}">${txt}</output>
+      <input type="range" id="sim-${op}-${k}" data-op="${op}" data-k="${k}" min="${min}" max="${max}" step="${step}" value="${val}"><small>real: ${real}</small></div>`;
+    const f1=x=>x.toLocaleString("pt-BR",{maximumFractionDigits:1});
+    return `<section class="sim-op" style="--opc:var(${op==="BPC"?"--bpc":"--aa"})">
+      <div class="sim-h"><h3>${op==="BPC"?"BPC / LOAS":"Auxílio-Acidente"}</h3><button type="button" class="ordbtn sim-reset" data-op="${op}">Voltar ao real</button></div>
+      ${B.janela==="30d"?`<p class="note">Poucos dias úteis no mês: o ritmo real usa os últimos 30 dias (${br(B.a)} a ${br(B.b)}).</p>`:""}
+      <div class="sim-out" id="out-${op}">${simOut(B,v)}</div>
+      <div class="sim-cs">
+        ${ctl("qd","Qualificados por dia útil",0,Math.max(5,Math.ceil(B.qd*3)),.1,v.qd,f1(v.qd),f1(B.qd))}
+        ${ctl("fe","Fechamento",0,100,.5,v.fe*100,fmtP(v.fe),fmtP(B.fe))}
+        ${ctl("ch","Churn",0,50,.5,v.ch*100,fmtP(v.ch),fmtP(B.ch))}
+      </div></section>`}).join("")}</div>
+    <details class="how"><summary>Como é calculado</summary><p class="note">Projeção = contratos líquidos até ${brc(p.fim)} + qualificados por dia útil × fechamento × (1 − churn) × dias úteis que restam no mês, contando hoje. Fechamento = contratos ÷ qualificados do mesmo período; churn = churns ÷ contratos. O ponto de partida é o ritmo de ${br(p.ini)} a ${br(p.fim)}. Meta do mês da operação no Tracker. Dia útil: segunda a sexta sem feriado nacional.</p></details>`;
+  document.getElementById("view").innerHTML=h;
+  const V=document.getElementById("view");
+  V.oninput=e=>{const t=e.target;if(!t.matches||!t.matches(".sim input[type=range]"))return;const op=t.dataset.op,k=t.dataset.k,v=st.sim[op];
+    v[k]=k==="qd"?+t.value:+t.value/100;
+    document.getElementById(`o-${op}-${k}`).textContent=k==="qd"?(+t.value).toLocaleString("pt-BR",{maximumFractionDigits:1}):fmtP(v[k]);
+    const B=Bs.find(x=>x.op===op);document.getElementById("out-"+op).innerHTML=simOut(B,v)};
+  V.onclick=e=>{const b=e.target.closest&&e.target.closest(".sim-reset");if(!b)return;delete st.sim[b.dataset.op];vSimulador()};
 }
 /* ===== Comercial ===== */
 function vComercial(){
@@ -1598,7 +1678,7 @@ function render(){
   document.getElementById("cut").innerHTML=`Dados até <strong>${br(DADOS_ATE)}</strong><span class="srcs"> · ${fonte("Tracker",DADOS_ATE)}${fonte("Funil TP",FUNIL_ATE)}${fonte("Meta por anúncio",AN_ATE)}</span> · ${ATUALIZADO?"atualizado em "+esc(ATUALIZADO):"atualiza às 08h00"}${AVISOS?` · <span class="d-bad" title="${esc(AVISOS)}">fonte com aviso</span>`:""}`;
   document.querySelectorAll("nav.tabs a").forEach(a=>a.setAttribute("aria-current",a.dataset.v===st.v?"page":"false"));
   document.getElementById("view").classList.toggle("largo",st.v==="anuncios");
-  ({comercial:vComercial,operacoes:vOperacoes,closers:vClosers,anuncios:vAnuncios,motivos:vMotivos})[st.v]();
+  ({comercial:vComercial,operacoes:vOperacoes,closers:vClosers,anuncios:vAnuncios,motivos:vMotivos,simulador:vSimulador})[st.v]();
   marcarZeros();desenharTopo();entrada();
 }
 function boot(json){
