@@ -271,7 +271,7 @@ details.how ul{margin:10px 0 0;padding-left:18px;color:var(--ink-2);font-size:13
 .rm b.c-good{color:var(--good)}.rm b.c-bad{color:var(--bad)}
 .rm-n div,.rm-r div{display:flex;flex-direction:column;gap:2px;min-width:0}
 .rm small{font-size:11.5px;color:var(--ink-3)}
-table.ads tr.conc td{color:var(--ink-2);font-style:italic;border-top:1px dashed var(--line)}
+table.wide tr.conc td,table.ads tr.conc td{color:var(--ink-2);font-style:italic;border-top:1px dashed var(--line)}
 table.pcl td.reg,table.pcl th.reg{border-left:1px dashed var(--line);color:var(--ink-2)}
 table.pcl tr.ia td{border-top:2px solid var(--line);font-style:italic}
 table.pcl tr.saiu td{border-top:1px dashed var(--line);color:var(--ink-2)}
@@ -1221,6 +1221,11 @@ function vClosers(){
     ${L.map(l=>`<tr><td class="who"><span class="dot" style="background:${css(l.c.cv)}"></span><span>${l.c.pessoa}${l.c.ate&&l.c.ate<p.fim?` <span class="hist">(histórico)</span>`:""}</span> <span class="tag">${l.c.cad}</span></td>
       <td>${fmtN(l.a.leads)}</td><td>${fmtN(l.a.q)}</td><td>${fmtP(l.a.pq)}</td><td>${fmtN(l.a.c)}</td><td>${fmtN(l.a.ch)}</td><td><b>${fmtN(l.a.liq)}</b></td><td>${fmtP(l.a.pf)}</td><td>${l.meta?fmtN(l.meta):"—"}</td><td>${l.meta?farol(l.pm):"—"}</td>${p.parcial?`<td>${(()=>{const v=l.c.cad==="LID"?null:previsao(p,x=>x.cad===l.c.cad,[l.c.cad]);return v&&v.meta?`${fmtN(v.prev)} de ${fmtN(v.meta)} ${farol(v.pm)}`:"—"})()}</td>`:""}<td>${fmtN(l.a.chk)}</td><td>${PEND[l.c.cad]?fmtN(PEND[l.c.cad].aberto):"—"}</td><td>${PEND[l.c.cad]&&PEND[l.c.cad].critico?`<span class="d-bad">${fmtN(PEND[l.c.cad].critico)}</span>`:PEND[l.c.cad]?"0":"—"}</td></tr>`).join("")}
     <tr class="tot"><td>Time</td><td>${fmtN(T.leads)}</td><td>${fmtN(T.q)}</td><td>${fmtP(T.pq)}</td><td>${fmtN(T.c)}</td><td>${fmtN(T.ch)}</td><td>${fmtN(T.liq)}</td><td>${fmtP(T.pf)}</td><td>${fmtN(Tm)}</td><td>${farol(div(T.liq,Tm))}</td>${p.parcial?`<td>${(()=>{const v=previsao(p,x=>lista.some(c=>c.cad===x.cad),lista.map(c=>c.cad));return v&&v.meta?`${fmtN(v.prev)} de ${fmtN(v.meta)} ${farol(v.pm)}`:"—"})()}</td>`:""}<td>${fmtN(T.chk)}</td><td>${fmtN(lista.reduce((s,c)=>s+(PEND[c.cad]?PEND[c.cad].aberto:0),0))}</td><td>${fmtN(lista.reduce((s,c)=>s+(PEND[c.cad]?PEND[c.cad].critico:0),0))}</td></tr>
+    ${(()=>{/* v5.2: líquidos fora das cadeiras (fecha com o total da operação; no mês fechado, pelo fechamento oficial) */
+      const OP=kpis(p.ini,p.fim,filtroOp(st.op)).liq,dif=OP-T.liq,nc=13+(p.parcial?1:0);if(!dif)return "";
+      const cel=v=>`<td></td><td></td><td></td><td></td><td></td><td><b>${fmtN(v)}</b></td>`+"<td></td>".repeat(nc-7);
+      return `<tr class="conc"><td>Fora das cadeiras / a conciliar<div class="sub2">${p.parcial?"líquidos da operação sem closer no recorte":"no fechamento, o total da operação é maior que a soma das cadeiras"}</div></td>${cel(dif)}</tr>
+      <tr class="tot"><td>Total ${st.op==="ALL"?"do comercial":st.op}${p.parcial?"":" (fechamento)"}</td>${cel(OP)}</tr>`})()}
   </tbody></table></div><p class="note">Leads = Datacrazy (responsável atual). Checklists = "o que vale para a comissão" da Central, pela data de conclusão. Kevin (líder) entra no total do time, sem meta. "Em aberto hoje" e "Críticos" são o retrato da Central na última atualização (risco crítico = 15 dias ou mais em aberto).</p>`;
   document.getElementById("view").innerHTML=h;
 }
