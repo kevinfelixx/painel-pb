@@ -892,8 +892,21 @@ function delta(a,b,menorMelhor){
   const v=a/b-1;if(Math.abs(v)<.005)return `<span class="d-flat">= 0%</span>`;
   const bom=menorMelhor?v<0:v>0;return `<span class="${bom?"d-good":"d-bad"}">${v>0?"▲":"▼"} ${Math.abs(v*100).toFixed(0)}%</span>`;
 }
+/* v5.2 (17/11, decisão da PL 00): mês fechado inteiro mostra o líquido do fechamento oficial (C2_LIQUIDOS, o número pago);
+   mês em andamento e recortes livres seguem a base. Por operação usa a coluna BPC/AA; por closer, a coluna da cadeira. */
+function liqFechado(a,b,f){
+  const k=a.slice(0,7);if(a!==k+"-01"||b!==ultimoDia(k)||k>=DADOS_ATE.slice(0,7))return null;
+  const L=LIQ_F&&LIQ_F[k];if(!L)return null;
+  if(!f)return (L.BPC||0)+(L.AA||0);
+  const fB=f({op:"BPC",cad:"__"}),fA=f({op:"AA",cad:"__"});
+  if(fB&&!fA)return L.BPC!=null?L.BPC:null;if(fA&&!fB)return L.AA!=null?L.AA:null;
+  let soma_=0,achou=false;
+  for(const cad in L){if(cad==="BPC"||cad==="AA")continue;const c=CAD.find(x=>x.cad===cad),op=c?c.op:(cad.startsWith("AA")?"AA":"BPC");
+    if(f({op,cad})){soma_+=L[cad];achou=true}}
+  return achou?soma_:null;
+}
 function kpis(a,b,f){
-  const t=soma(a,b,f),liq=(t.contratos||0)-(t.churns||0);
+  const t=soma(a,b,f),lf=liqFechado(a,b,f),liq=lf!=null?lf:(t.contratos||0)-(t.churns||0);
   return {inv:t.invest||0,conv:t.conversas||0,leads:t.leads||0,q:t.qualif||0,c:t.contratos||0,ch:t.churns||0,liq,chk:t.checklists||0,
     cpc:div(t.invest,t.conversas),cpq:div(t.invest,t.qualif),cac:div(t.invest,liq),pq:div(t.qualif,t.leads),pf:div(t.contratos,t.qualif)};
 }
