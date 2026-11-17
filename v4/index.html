@@ -268,8 +268,10 @@ details.how ul{margin:10px 0 0;padding-left:18px;color:var(--ink-2);font-size:13
 .rm{display:flex;flex-direction:column;gap:12px;padding:var(--card-pad);background:var(--surface);border-radius:var(--r);border:1px solid var(--line);border-top:3px solid var(--opc);min-width:0}
 .rm-h{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .rm-n,.rm-r{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px}
+.rm b.c-good{color:var(--good)}.rm b.c-bad{color:var(--bad)}
 .rm-n div,.rm-r div{display:flex;flex-direction:column;gap:2px;min-width:0}
 .rm small{font-size:11.5px;color:var(--ink-3)}
+table.ads tr.conc td{color:var(--ink-2);font-style:italic;border-top:1px dashed var(--line)}
 .rm b{font-family:var(--f-num);font-size:26px;font-weight:500;line-height:1.1;color:var(--ink)}
 .rm-r b{font-size:22px}
 .pv .pill{align-self:flex-start}
@@ -590,6 +592,11 @@ const fmtR0=n=>n==null||!isFinite(n)?"—":"R$ "+Math.round(n).toLocaleString("p
 const fmtP=n=>n==null||!isFinite(n)?"—":(n*100).toLocaleString("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1})+"%";
 const div=(a,b)=>(a==null||!b)?null:a/b;
 const ultimoDia=k=>{const [y,m]=k.split("-").map(Number);return iso(new Date(y,m,0,12))};
+/* v4.0: dia útil da ficha da IC (segunda a sexta sem feriado nacional), usado só no bloco "Vamos bater a meta" (V4.4 a V4.7).
+   O rateio da meta e a página Closers seguem sem feriados, como no Tracker. Carnaval e Corpus Christi são ponto facultativo e não entram. */
+const FERIADOS=new Set(["2026-01-01","2026-04-03","2026-04-21","2026-05-01","2026-09-07","2026-10-12","2026-11-02","2026-11-15","2026-11-20","2026-12-25",
+  "2027-01-01","2027-03-26","2027-04-21","2027-05-01","2027-09-07","2027-10-12","2027-11-02","2027-11-15","2027-11-20","2027-12-25"]);
+const diasUteisF=(a,b)=>{let n=0;for(let x=D(a);x<=D(b);x.setDate(x.getDate()+1)){const w=x.getDay();if(w&&w<6&&!FERIADOS.has(iso(x)))n++}return n};
 const diasUteis=(a,b)=>{let n=0;for(let x=D(a);x<=D(b);x.setDate(x.getDate()+1)){const w=x.getDay();if(w&&w<6)n++}return n};
 const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 const opCor=op=>css(op==="BPC"?"--bpc":"--aa");
@@ -735,14 +742,20 @@ function ring(p,color,titulo,linha){
 /* v4.0 (19/11/2026): "Vamos bater a meta" por operação. Realizado = contratos líquidos do mês até o corte; meta do mês (Tracker);
    falta = meta − realizado; precisa por dia útil = falta ÷ dias úteis que restam depois do corte; ritmo atual = realizado ÷ dias úteis até o corte.
    Farol = ritmo atual ÷ ritmo necessário (abaixo de 90% vermelho, 90 a 99,9% âmbar, 100%+ verde). Dias úteis sem feriados, como no rateio da meta. */
+const BASE_INI=()=>BASE.reduce((m,x)=>x.d<m?x.d:m,"9999");
 function rumoMeta(p,op){
-  const fimMes=ultimoDia(p.k),t=soma(p.ini,p.fim,x=>x.op===op),real=(t.contratos||0)-(t.churns||0);
-  /* meta da operação como no Tracker (coluna BPC/AA do C2_METAS); sem ela, soma das cadeiras */
-  const mCad=metaPeriodo(p.ini,fimMes,cadsOp(op)),meta=metaOpPeriodo(p.ini,fimMes,op);
-  const duFeitos=diasUteis(p.ini,p.fim),duResta=p.fim<fimMes?diasUteis(addDias(p.fim,1),fimMes):0,falta=Math.max(meta-real,0);
-  const ritmo=duFeitos?real/duFeitos:null,precisa=duResta?falta/duResta:null,prev=ritmo!=null?real+ritmo*duResta:null;
-  const pf=!falta?Math.max(1,div(real,meta)||1):precisa&&ritmo!=null?ritmo/precisa:null;
-  return {op,real,meta,mCad,falta,duFeitos,duResta,ritmo,precisa,prev,pf};
+  /* Fichas da IC (projetos/IC/fichas-metricas-dashboard.md): V4.1 realizado = contratos líquidos do mês até o corte (a meta do Tracker é de líquidos, C2_LIQUIDOS);
+     V4.2 meta da operação (C2_METAS); V4.4 ritmo realizado = V4.1 ÷ dias úteis decorridos; V4.5 ritmo necessário = (V4.2 − V4.1) ÷ dias úteis restantes;
+     V4.6 projeção = V4.1 + V4.4 × dias úteis restantes, farol = projeção ÷ meta; V4.7 = mês anterior no mesmo número de dias úteis. */
+  const flt=op==="ALL"?null:(x=>x.op===op),liqDe=(a,b)=>{const t=soma(a,b,flt);return (t.contratos||0)-(t.churns||0)};
+  const fimMes=ultimoDia(p.k),real=liqDe(p.ini,p.fim);
+  const mCad=op==="ALL"?null:metaPeriodo(p.ini,fimMes,cadsOp(op)),meta=metaOpPeriodo(p.ini,fimMes,op);
+  const duFeitos=diasUteisF(p.ini,p.fim),duResta=p.fim<fimMes?diasUteisF(addDias(p.fim,1),fimMes):0,falta=Math.max(meta-real,0);
+  const ritmo=duFeitos?real/duFeitos:null,precisa=duResta?falta/duResta:null,prev=ritmo!=null?real+ritmo*duResta:null,pf=div(prev,meta);
+  const [y,m]=p.k.split("-").map(Number),ki=iso(new Date(y,m-2,1,12)).slice(0,7),ai=ki+"-01",fi=ultimoDia(ki);
+  let bi=null;if(duFeitos){let n=0;for(let d=ai;d<=fi;d=addDias(d,1)){if(diasUteisF(d,d)){n++;if(n===duFeitos){bi=d;break}}}}
+  const ant=bi&&ai>=BASE_INI()?liqDe(ai,bi):null;
+  return {op,real,meta,mCad,falta,duFeitos,duResta,ritmo,precisa,prev,pf,ok:ritmo!=null&&(precisa==null||ritmo>=precisa),antIni:ai,antFim:bi,ant};
 }
 /* Previsão: líquidos até o corte + ritmo por dia útil × dias úteis que faltam (só no mês em andamento). */
 function previsao(p,filtro,cads){
@@ -776,15 +789,15 @@ function vComercial(){
     ${tile("Checklists concluídos",fmtN(a.chk),delta(a.chk,b.chk)+` <span>${fmtN(b.chk)} antes</span>`,"",kc,ledOf(a.chk,b.chk))}
   </div></div>`;
   if(p.parcial){const lin=[["Comercial inteiro",null,"ALL"],["BPC / LOAS",x=>x.op==="BPC","BPC"],["Auxílio-Acidente",x=>x.op==="AA","AA"]].filter((x,i)=>st.op==="ALL"||(st.op==="BPC"&&i===1)||(st.op==="AA"&&i===2));
-    const RM=opsSel().map(op=>rumoMeta(p,op)).filter(r=>r.meta);
+    const RM=opsSel().map(op=>rumoMeta(p,op)).filter(r=>r.meta),f1=v=>v==null?"—":v.toLocaleString("pt-BR",{maximumFractionDigits:1});
+    const TOT=st.op==="ALL"?rumoMeta(p,"ALL"):null;
     if(RM.length)h+=`<div class="blk"><span class="lbl">Vamos bater a meta · contratos líquidos de ${mesNome(p.k)} até ${brc(p.fim)}</span><div class="rumo">${RM.map(r=>`<div class="rm" style="--opc:var(${r.op==="BPC"?"--bpc":"--aa"})">
       <div class="rm-h"><span class="pvn">${r.op==="BPC"?"BPC / LOAS":"Auxílio-Acidente"}</span>${farol(r.pf)}</div>
-      <div class="rm-n"><div><small>Realizado</small><b>${fmtN(r.real)}</b></div><div><small>Meta</small><b>${fmtN(r.meta)}</b></div><div><small>Falta</small><b>${fmtN(Math.ceil(r.falta))}</b></div></div>
-      <div class="rm-r">${r.falta?`<div><small>Precisa por dia útil</small><b>${r.precisa!=null?r.precisa.toLocaleString("pt-BR",{maximumFractionDigits:1}):"—"}</b><small>${fmtN(r.duResta)} dias úteis restantes</small></div><div><small>Ritmo atual por dia útil</small><b>${r.ritmo!=null?r.ritmo.toLocaleString("pt-BR",{maximumFractionDigits:1}):"—"}</b><small>${fmtN(r.duFeitos)} dias úteis até ${brc(p.fim)}</small></div>`:`<div><small>Meta do mês</small><b>batida</b><small>${fmtN(r.real-r.meta)} acima</small></div>`}</div>
-      <p class="pvs">${r.falta&&r.duResta?`No ritmo atual, o mês fecha em ${fmtN(r.prev)}. ${r.pf>=1?"O ritmo cobre a meta.":`Para bater, faltam ${(r.precisa-r.ritmo).toLocaleString("pt-BR",{maximumFractionDigits:1})} contrato(s) a mais por dia útil.`}`:r.falta?"Sem dias úteis restantes no mês.":""}</p></div>`).join("")}</div>
-      <p class="note">Farol = ritmo atual ÷ ritmo necessário por dia útil (abaixo de 90% vermelho, 90 a 99,9% âmbar, a partir de 100% verde). Contratos líquidos = contratos − churns, como no Tracker. Meta = meta da operação no Tracker, a mesma das outras metas desta página${RM.filter(r=>Math.round(r.mCad)!==Math.round(r.meta)).map(r=>` (${r.op}: ${fmtN(r.meta)}; a soma das metas das closers dá ${fmtN(r.mCad)})`).join("")}. Dias úteis sem feriados.</p></div>`;
-    h+=`<div class="blk"><span class="lbl">Previsão do mês · no ritmo atual por dia útil</span><div class="prev">${lin.map(([nome,f,c])=>{const v=previsao(p,f,c);return v?`<div class="pv"><span class="pvn">${nome}</span><span class="pvv">${fmtN(v.prev)}</span><span class="pvs">de ${fmtN(v.meta)} na meta · ${fmtN(v.liq)} até ${brc(p.fim)}</span>${farol(v.pm)}</div>`:""}).join("")}</div>
-    <p class="note">É previsão, não resultado: muda a cada dia. Usa dias úteis sem feriados, igual ao rateio da meta do Tracker.</p></div>`}
+      <div class="rm-n"><div><small>Realizado</small><b>${fmtN(r.real)}</b><small>${fmtP(div(r.real,r.meta))} da meta</small></div><div><small>Meta</small><b>${fmtN(r.meta)}</b></div><div><small>Falta</small><b>${fmtN(Math.ceil(r.falta))}</b></div><div><small>Projeção do mês</small><b>${r.prev!=null?fmtN(r.prev):"—"}</b></div></div>
+      <div class="rm-r"><div><small>Ritmo realizado por dia útil</small><b class="${r.ok?"c-good":"c-bad"}">${f1(r.ritmo)}</b><small>${fmtN(r.duFeitos)} dias úteis até ${brc(p.fim)}</small></div><div><small>Ritmo necessário por dia útil</small><b>${r.falta?f1(r.precisa):"meta batida"}</b><small>${fmtN(r.duResta)} dias úteis restantes</small></div></div>
+      <p class="pvs">${r.ant!=null?`Mesmo número de dias úteis no mês anterior (${brc(r.antIni)} a ${brc(r.antFim)}): ${fmtN(r.ant)} · ${delta(r.real,r.ant)}`:"Mês anterior: sem base para comparar."}${r.falta&&r.duResta&&!r.ok?` · para bater, faltam ${f1(r.precisa-r.ritmo)} contrato(s) a mais por dia útil.`:""}</p></div>`).join("")}</div>
+      ${TOT?`<p class="note"><b>Comercial inteiro</b> (linha à parte, BPC + AA): ${fmtN(TOT.real)} de ${fmtN(TOT.meta)} · projeção ${fmtN(TOT.prev)} ${farol(TOT.pf)} · mês anterior nos mesmos dias úteis: ${TOT.ant!=null?fmtN(TOT.ant):"—"}</p>`:""}
+      <p class="note">Fichas V4.1 a V4.7 da IC. Farol = projeção ÷ meta (abaixo de 90% vermelho, 90 a 99,9% âmbar, a partir de 100% verde); ritmo realizado em verde quando cobre o necessário. Contratos líquidos = contratos − churns, a mesma conta do Tracker (C2_LIQUIDOS). Meta da operação no Tracker${RM.filter(r=>r.mCad!=null&&Math.round(r.mCad)!==Math.round(r.meta)).map(r=>` (${r.op}: ${fmtN(r.meta)}; a soma das metas das closers dá ${fmtN(r.mCad)})`).join("")}. Dia útil: segunda a sexta sem feriado nacional${(()=>{const fs=[...FERIADOS].filter(d=>d.slice(0,7)===p.k&&diasUteis(d,d));return fs.length?" ("+fs.map(brc).join(" e ")+" fora)":""})()}. É projeção, não resultado: muda a cada dia.</p></div>`}
   h+=`<div class="blk" id="semanasBlk"></div>`;
   h+=`<div class="two"><div class="card"><h3>Contratos líquidos acumulados no mês</h3><p class="sub">Tracejado: ritmo da meta pelos dias úteis</p><div class="legend" id="lgA"></div><div class="chart" id="chA"></div></div>
       <div class="card"><h3>Contratos líquidos · meses fechados</h3><p class="sub">O mês em andamento fica fora para não comparar parcial com fechado</p><div class="legend" id="lgB"></div><div class="chart" id="chB"></div></div></div>`;
@@ -987,6 +1000,10 @@ function vAnuncios(){
     const tot0=A0.reduce((t,o)=>({inv:t.inv+(o.inv||0),leads:t.leads+o.leads,q:t.q+o.q,c:t.c+o.c}),{inv:0,leads:0,q:0,c:0});
     const tot=A.reduce((t,o)=>({inv:t.inv+(o.inv||0),leads:t.leads+o.leads,q:t.q+o.q,c:t.c+o.c}),{inv:0,leads:0,q:0,c:0});
     const so=semOrig.find(o=>o.op===op),sc=semCod.find(o=>o.op===op),ou=outros.filter(o=>o.op===op);
+    /* v4.0 (ficha V1.6 da IC): contratos do Tracker no mesmo período − soma por anúncio (base da TP 04) = "sem anúncio / a conciliar".
+       Só pela data do contrato; pela data do lead o Tracker não tem o mesmo recorte. */
+    const trkC=porLead?null:(soma(ini,fim,x=>x.op===op).contratos||0),adsC=A0.reduce((t,o)=>t+o.c,0),difC=trkC==null?null:trkC-adsC;
+    const outC=ou.reduce((t,o)=>t+o.c,0)+(so?so.c:0)+(sc?sc.c:0);
     const allLeads=tot0.leads+(so?so.leads:0)+ou.reduce((s,o)=>s+o.leads,0);
     const med={cpl:div(tot0.inv,tot0.leads),cpq:div(tot0.inv,tot0.q),cpa:div(tot0.inv,tot0.c)};
     const cor=(v,m)=>v==null||m==null?"":v<=m*.85?"c-good":v>=m*1.25?"c-bad":"";
@@ -1006,6 +1023,8 @@ function vAnuncios(){
       <td><b>${fmtN(o.c)}</b></td><td class="${cor(o.cpa,med.cpa)}">${fmtR0(o.cpa)}</td>
       <td>${fmtP(o.pq)}</td><td class="s7"><span class="${{ok:"c-good",warn:"c-warn",bad:"c-bad"}[o.s7.k]||""}">${esc(o.s7.t)}</span>${o.s7.w?`<div class="sub2">${esc(o.s7.w)}</div>`:""}</td><td><span class="chip ${chip[a.k]}" title="${esc(a.w)}">${a.t}${pSem>.25&&(a.k==="stop"||a.k==="down"||a.k==="redo")?" ?":""}</span><div class="sub2">${esc(a.w)}</div></td></tr>`}).join("")}
     <tr class="tot"><td>${st.adk?"Total dos filtrados":(porCamp?"Total das ":"Total dos ")+nomeItens}</td><td>${fmtR0(tot.inv)}</td><td>${fmtN(tot.leads)}</td><td>${fmtR(div(tot.inv,tot.leads))}</td><td>${fmtN(tot.q)}</td><td>${fmtR0(div(tot.inv,tot.q))}</td><td>${fmtN(tot.c)}</td><td>${fmtR0(div(tot.inv,tot.c))}</td><td>${fmtP(div(tot.q,tot.leads))}</td><td></td><td></td></tr>
+    ${difC!=null&&!st.adk?`<tr class="conc"><td>Sem anúncio / a conciliar<div class="sub2">Tracker ${fmtN(trkC)} − ${nomeItens} ${fmtN(adsC)}${outC?` · destes, ${fmtN(Math.min(outC,Math.max(difC,0)))} de outras origens ou sem origem na base`:""}</div></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td><b>${fmtN(difC)}</b></td><td>—</td><td>—</td><td></td><td></td></tr>
+    <tr class="tot"><td>Contratos no Tracker</td><td></td><td></td><td></td><td></td><td></td><td><b>${fmtN(trkC)}</b></td><td>${fmtR0(div(tot.inv,trkC))}<div class="sub2">gasto ${porCamp?"das":"dos"} ${nomeItens} ÷ contratos do Tracker</div></td><td></td><td></td><td></td></tr>`:""}
     </tbody></table></div>
     <p class="note">Fora da tabela: ${so?`<b>${fmtN(so.leads)} leads sem origem identificada</b> (${fmtP(pSemPer)} dos leads de ${op} no período; ${pSem==null?"sem leads":fmtP(pSem)} nos últimos 7 dias), com ${fmtN(so.q)} qualificados e ${fmtN(so.c)} contratos`:"nenhum lead sem origem"}${ou.length?`; ${fmtN(ou.reduce((s,o)=>s+o.leads,0))} leads de outras origens (${ou.map(o=>esc(o.cod)).join(", ")})`:""}${sc&&sc.inv?`; ${fmtR0(sc.inv)} de gasto em anúncios sem código`:""}. Cor verde ou vermelha no custo: 15% abaixo ou 25% acima da média dos anúncios da operação.</p></div>`;
   });
