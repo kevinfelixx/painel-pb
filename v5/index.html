@@ -528,6 +528,29 @@ table.ads td.s7{min-width:100px}
 table.ads .sub2{max-width:24ch}
 table.ads th:first-child,table.ads td:first-child{position:sticky;left:0;background:var(--surface);z-index:1;min-width:150px}
 table.ads th:first-child{z-index:3}
+/* v5.4: manchete do topo e cards do mês sóbrios (sem painel vinho, sem brilho) */
+.man{padding:26px 28px 20px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line);margin-bottom:var(--gap)}
+:root[data-dir="lv"][data-mode="dark"] .man{background:#17181D;border-color:rgba(255,255,255,.10)}
+.man h2{font-size:34px;line-height:1.15;font-weight:900;margin:8px 0 8px;letter-spacing:-.01em;max-width:26ch}
+.man h2 em{font-style:normal;color:var(--accent)}
+.man .sub{font-size:15px;color:var(--ink-2);margin:0 0 22px}.man .sub b{color:var(--ink)}
+.man .c-good{color:var(--good)!important}.man .c-warn{color:var(--warn)!important}.man .c-bad{color:var(--bad)!important}
+.mms{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));align-items:end}
+.mm{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.mm .col{position:relative;height:130px;width:100%;display:flex;align-items:flex-end;justify-content:center;padding:0 5px}
+.mm .col i{display:block;width:100%;max-width:46px;background:var(--ink-3);opacity:.5;border-radius:3px 3px 0 0}
+.mm .col b{position:absolute;left:3px;right:3px;border-top:1px dashed var(--ink-3);opacity:.6}
+.mm .col em{position:absolute;left:0;right:0;text-align:center;font-style:normal;font-size:11px;font-weight:700;color:var(--ink-2)}
+.mm.cur .col i{background:var(--accent);opacity:1}.mm.cur .col em{color:var(--ink)}
+.mm.fut .col i{background:transparent;border:1px dashed var(--ink-3);border-bottom:0;opacity:.55}
+.mm>span{font-size:11px;color:var(--ink-3)}.mm.cur>span{color:var(--ink);font-weight:700}
+.mms-l{font-size:12px;color:var(--ink-3);margin:10px 0 0}
+@media (max-width:700px){.man{padding:20px 16px 16px}.man h2{font-size:25px}.mm .col{height:100px;padding:0 2px}.mm .col em{font-size:9.5px}}
+.rumo-b .rm{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--opc)}
+:root[data-dir="lv"][data-mode="dark"] .rumo-b .rm{background:#17181D}
+.pg>i{box-shadow:none!important}.pg>i::after{display:none}.pg>.mk{animation:none!important;box-shadow:none}
+.pg>.tk{background:var(--line)}
+.rumo-b details.how{margin-top:4px}
 </style>
 
 <header class="top">
@@ -1079,6 +1102,49 @@ function previsao(p,filtro,cads){
   return {liq,prev,meta,pm:meta?prev/meta:null};
 }
 
+/* v5.4 (17/11/2026): manchete do topo (decisão do Kevin, mockup B). BPC + AA no mês em andamento: quanto falta para a meta do ano.
+   BPC ou AA no mês em andamento: quanto falta para a meta do mês da operação (a meta do ano ainda não tem divisão por operação).
+   Mês fechado: resultado do mês contra a meta do mês. Barras: contratos líquidos mês a mês (jan/fev do RG, meses fechados pelo fechamento oficial, mês em andamento pela base). */
+const MESES_L=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+function liqMes(k,op){
+  const A=ANO&&ANO[k.slice(0,4)],H=A&&A.historico&&A.historico[k],ops=op==="ALL"?["BPC","AA"]:[op],mAt=DADOS_ATE.slice(0,7);
+  if(k>mAt)return null;
+  if(H)return ops.reduce((t,o)=>t+(H[o]||0),0);
+  if(k<mAt&&LIQ_F[k])return ops.reduce((t,o)=>t+(LIQ_F[k][o]||0),0);
+  if(ultimoDia(k)<BASE_INI())return null;
+  const t=soma(k+"-01",k===mAt?DADOS_ATE:ultimoDia(k),op==="ALL"?null:(x=>x.op===op));return (t.contratos||0)-(t.churns||0);
+}
+function manchete(p){
+  const op=st.op,y=p.k.slice(0,4),mes=MESES_L[+p.k.slice(5,7)-1],nOp=op==="BPC"?" de BPC":op==="AA"?" de AA":"";
+  const cl=v=>v==null?"":v>=1?"c-good":v>=.9?"c-warn":"c-bad";
+  let lbl,h2,sub,ref=null;
+  const AI=op==="ALL"?anoInfo(y):null;
+  if(p.parcial&&AI){
+    lbl=`Meta do ano · ${y}`;
+    h2=AI.falta?`Faltam <em>${fmtN(AI.falta)} contratos</em> para fechar o ano em ${fmtN(AI.meta)}.`:`Batemos a meta do ano: <em>${fmtN(AI.real)}</em> de ${fmtN(AI.meta)}.`;
+    sub=`${AI.falta?`São <b>${fmtN(AI.porDia)} por dia útil</b> nos ${fmtN(AI.duR)} que restam. `:""}Estamos em <b class="${cl(AI.sinal)}">${fmtP(AI.sinal)} do esperado</b> até ${brc(AI.ate)} (${fmtN(AI.real)} de ${fmtN(AI.esp)}).`;
+    ref={v:AI.meta/12,t:`${fmtN(AI.meta/12)}/mês leva a ${fmtN(AI.meta)}`};
+  }else if(p.parcial){
+    const r=rumoMeta(p,op);if(!r.meta)return "";
+    lbl=`${op==="ALL"?"Comercial":op} · meta de ${mes}`;
+    h2=r.falta?`Faltam <em>${fmtN(Math.ceil(r.falta))} contratos${nOp}</em> para a meta de ${mes}.`:`Batemos a meta${nOp} de ${mes}: <em>${fmtN(r.real)}</em> de ${fmtN(r.meta)}.`;
+    sub=`${r.falta&&r.porDia!=null?`São <b>${fmtN(r.porDia)} por dia útil</b> nos ${fmtN(r.duResta)} que restam. `:""}Estamos em <b class="${cl(r.sinal)}">${fmtP(r.sinal)} do esperado</b> até ${brc(p.fim)} (${fmtN(r.real)} de ${r.esp!=null?fmtN(r.esp):"—"}).`;
+  }else{
+    const real=liqMes(p.k,op),meta=metaOpPeriodo(p.k+"-01",ultimoDia(p.k),op),pm=meta?div(real,meta):null;
+    lbl=`Resultado de ${mes}${op==="ALL"?"":" · "+op}`;
+    h2=`${mes.charAt(0).toUpperCase()+mes.slice(1)} fechou com <em>${fmtN(real)} contratos${nOp}</em>${pm!=null?`, ${fmtP(pm)} da meta`:""}.`;
+    const AI2=op==="ALL"?anoInfo(y):null;
+    sub=`${meta?`Meta do mês: <b>${fmtN(meta)}</b>. `:""}${AI2?`No ano, até ${brc(AI2.ate)}: <b>${fmtN(AI2.real)} de ${fmtN(AI2.meta)}</b> (${fmtP(AI2.pct)}).`:""}`;
+  }
+  const ks=[];for(let m=1;m<=12;m++)ks.push(y+"-"+String(m).padStart(2,"0"));
+  const vs=ks.map(k=>liqMes(k,op)),mt=ks.map(k=>op==="ALL"?null:(META[k]&&META[k][op]!=null?META[k][op]:null));
+  const max=Math.max(1,...vs.filter(v=>v!=null),...mt.filter(v=>v!=null),ref?ref.v:0)*1.08;
+  const bars=ks.map((k,i)=>{const v=vs[i],cur=k===p.k,fut=v==null&&k>DADOS_ATE.slice(0,7),mk=ref?ref.v:mt[i];
+    return `<div class="mm${cur?" cur":""}${fut?" fut":""}" title="${mesNome(k)}: ${v==null?"sem dado":fmtN(v)+" líquidos"}${mt[i]!=null?" · meta "+fmtN(mt[i]):""}"><div class="col">${mk!=null?`<b style="bottom:${mk/max*100}%"></b>`:""}${v!=null?`<em style="bottom:calc(${v/max*100}% + 4px)">${fmtN(v)}</em>`:""}<i style="height:${fut?(ref?ref.v:0)/max*100:(v||0)/max*100}%"></i></div><span>${MESES[i]}</span></div>`}).join("");
+  const leg=ref?ref.t:op==="ALL"?"":"traço: meta do mês";
+  return `<section class="man"><span class="lbl">${lbl}</span><h2>${h2}</h2><p class="sub">${sub}</p>
+    <div class="mms" role="img" aria-label="Contratos líquidos mês a mês em ${y}">${bars}</div>${leg?`<p class="mms-l">${p.parcial?"Mês em andamento até "+brc(DADOS_ATE)+" · ":""}${leg}</p>`:`<p class="mms-l">${p.parcial?"Mês em andamento até "+brc(DADOS_ATE):""}</p>`}</section>`;
+}
 /* ===== Comercial ===== */
 function vComercial(){
   let tvH="";   /* tema Lovable: o painel da meta (estilo TV) vai para o topo da página */
@@ -1113,7 +1179,7 @@ function vComercial(){
       <div class="pg ano" style="--opc:#C9A84C"><i style="width:${Math.min(100,(AI.pct||0)*100)}%"></i><span class="tk" style="left:50%" data-t="50%"></span><span class="tk" style="left:75%" data-t="75%"></span><span class="tk" style="left:99.6%" data-t="100%"></span><span class="mk" style="left:${Math.min(100,AI.esp/AI.meta*100)}%" data-t="esperado"></span></div>
       <div class="rm-foot"><span>${AI.prox?`Próximo marco: <b>${Math.round(AI.prox*100)}%</b> em ${fmtN(AI.faltaProx)} contratos`:"<b>Meta do ano batida</b>"}</span><span>Falta <b>${fmtN(AI.falta)}</b> · <b>${fmtN(AI.porDia)}</b> por dia útil nos ${fmtN(AI.duR)} dias úteis que restam</span></div></div>`
       :`<p class="note">Meta do ano ${AI.y}: ${fmtN(AI.meta)} contratos no comercial inteiro; a divisão entre BPC e AA ainda não foi definida. Veja em "BPC + AA".</p>`):"";
-    if(RM.length)tvH=`<div class="blk tv"><span class="lbl">Vamos bater a meta · contratos líquidos de ${mesNome(p.k)} até ${brc(p.fim)}</span>${anoH}<div class="rumo">${RM.map(r=>`<div class="rm" style="--opc:var(${r.op==="BPC"?"--bpc":"--aa"})">
+    if(RM.length)tvH=`<div class="blk rumo-b"><span class="lbl">Meta do mês · contratos líquidos de ${mesNome(p.k)} até ${brc(p.fim)}</span><div class="rumo">${RM.map(r=>`<div class="rm" style="--opc:var(${r.op==="BPC"?"--bpc":"--aa"})">
       <div class="rm-h"><span class="pvn">${r.op==="BPC"?"BPC / LOAS":"Auxílio-Acidente"}</span>${farol(r.sinal,1)}</div>
       <div class="rm-hero"><b class="big">${fmtN(r.real)}</b><span class="de">de ${fmtN(r.meta)}</span><span class="pct">${fmtP(div(r.real,r.meta))} da meta do mês</span></div>
       <div class="pg" role="img" aria-label="${fmtN(r.real)} de ${fmtN(r.meta)}; esperado até ${brc(p.fim)}: ${r.esp!=null?Math.round(r.esp):"—"}"><i style="width:${Math.min(100,(div(r.real,r.meta)||0)*100)}%"></i><span class="tk" style="left:50%" data-t="50%"></span><span class="tk" style="left:75%" data-t="75%"></span>${r.curva!=null?`<span class="mk" style="left:${Math.min(100,r.curva*100)}%" data-t="esperado"></span>`:""}</div>
@@ -1131,7 +1197,7 @@ function vComercial(){
     RS.forEach(r=>{const n=r.op==="BPC"?"BPC":"AA",c=r.sinal>=1?"good":r.sinal>=.9?"warn":"bad";fr.push([c,`<b>${n}</b> está em <b>${fmtP(r.sinal)}</b> do esperado até ${brc(p.fim)}: ${r.falta?`faltam ${fmtN(Math.ceil(r.falta))} contratos, <b>${fmtN(r.porDia)} por dia útil</b> (ritmo atual ${r.ritmo.toLocaleString("pt-BR",{maximumFractionDigits:1})}).`:"meta do mês batida."}`])});
     if(AI2)fr.push([AI2.sinal>=1?"good":AI2.sinal>=.9?"warn":"bad",`<b>No ano</b>: ${fmtN(AI2.real)} de ${fmtN(AI2.meta)} (${fmtP(AI2.pct)}); ${AI2.prox?`próximo marco, ${Math.round(AI2.prox*100)}%, em ${fmtN(AI2.faltaProx)} contratos.`:"meta do ano batida."}`]);
     if(fr.length)resumoH=`<div class="resumo">${fr.slice(0,3).map(([c,t])=>`<p><i class="${c}"></i><span>${t}</span></p>`).join("")}</div>`}
-  h=h.replace("<!--TV-->",resumoH+tvH);
+  h=h.replace("<!--TV-->",manchete(p)+tvH);
   document.getElementById("view").innerHTML=h;
   renderSemanas();
   const xs=[];for(let d=p.ini;d<=p.fim;d=addDias(d,1))xs.push(d);
