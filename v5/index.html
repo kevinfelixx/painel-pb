@@ -274,6 +274,7 @@ details.how ul{margin:10px 0 0;padding-left:18px;color:var(--ink-2);font-size:13
 table.ads tr.conc td{color:var(--ink-2);font-style:italic;border-top:1px dashed var(--line)}
 table.pcl td.reg,table.pcl th.reg{border-left:1px dashed var(--line);color:var(--ink-2)}
 table.pcl tr.ia td{border-top:2px solid var(--line);font-style:italic}
+table.pcl tr.saiu td{border-top:1px dashed var(--line);color:var(--ink-2)}
 .rm b{font-family:var(--f-num);font-size:26px;font-weight:500;line-height:1.1;color:var(--ink)}
 .rm-r b{font-size:22px}
 .pv .pill{align-self:flex-start}
@@ -834,11 +835,16 @@ let PERDAS_ST="";
 function perdasCloser(op,a,b,cod){
   const t={},sum={},reg={};let tem=false;
   for(const x of BASE){if((x.m!=="pc"&&x.m!=="pc_regua")||x.op!==op||x.d<a||x.d>b)continue;if(cod&&x.cod!==cod)continue;tem=true;
-    const q=x.cad||"?";if(x.m==="pc_regua"){reg[q]=(reg[q]||0)+x.v;continue}
+    const q=resolverCloser(x.cad||"?");if(x.m==="pc_regua"){reg[q]=(reg[q]||0)+x.v;continue}
     (t[q]||(t[q]={}))[x.mot]=((t[q]||{})[x.mot]||0)+x.v;sum[q]=(sum[q]||0)+x.v}
   return {t,sum,reg,tem};
 }
-const nomeCloser=q=>q==="IA"?"IA / sem dona":(CAD.find(c=>c.cad===q)||{}).pessoa||q;
+/* nome na aba da TP → cadeira do cadastro (tira "Dr."/"Dra." e compara nome inteiro ou primeiro nome); quem não está no cadastro fica com o nome */
+function resolverCloser(q){if(q==="IA"||CAD.some(c=>c.cad===q))return q;
+  const nm=String(q).replace(/^(dra?|doutora?)\.?\s+/i,"").trim().toLowerCase(),p1=nm.split(/\s+/)[0];
+  const c=CAD.find(c=>c.cad!=="LID"&&(String(c.pessoa).toLowerCase()===nm||String(c.pessoa).toLowerCase()===p1));return c?c.cad:q}
+const saiuAntes=(q,fim)=>{const c=CAD.find(c=>c.cad===q);return !!(c&&c.ate&&c.ate<fim)};
+const nomeCloser=(q,fim)=>{if(q==="IA")return "IA / sem dona";const c=CAD.find(c=>c.cad===q);if(!c)return q;return fim&&c.ate&&c.ate<fim?c.pessoa+" (saiu em "+brc(c.ate)+")":c.pessoa};
 let st={p:null,op:"ALL",v:"comercial",dir:"lv",wk:null,ad:"ALL"};
 const selMes=document.getElementById("mes");
 function init(){P=periodos();st.p=P[0];selMes.innerHTML="";P.forEach((p,i)=>selMes.add(new Option(p.label,i)));route();render()}
@@ -1289,12 +1295,13 @@ function vMotivos(){
     const mots=Object.entries(tot).sort((x,y)=>y[1]-x[1]).slice(0,5).map(x=>x[0]);
     const quem=[...new Set([...Object.keys(P.t),...Object.keys(P.reg)])];
     const ordemCad=CAD.filter(c=>c.op===op).map(c=>c.cad);
-    const closers=quem.filter(q=>q!=="IA").sort((x,y)=>{const ix=ordemCad.indexOf(x),iy=ordemCad.indexOf(y);return (ix<0?99:ix)-(iy<0?99:iy)||String(x).localeCompare(String(y))});
+    const fimP=p.fim,ativos=quem.filter(q=>q!=="IA"&&!saiuAntes(q,fimP)),sairam=quem.filter(q=>q!=="IA"&&saiuAntes(q,fimP));
+    const closers=ativos.sort((x,y)=>{const ix=ordemCad.indexOf(x),iy=ordemCad.indexOf(y);return (ix<0?99:ix)-(iy<0?99:iy)||String(x).localeCompare(String(y))});
     const linha=(q,cls)=>{const s=P.sum[q]||0,o=P.t[q]||{},out=s-mots.reduce((a,m)=>a+(o[m]||0),0);
-      return `<tr class="${cls||""}"><td><b>${esc(nomeCloser(q))}</b></td><td><b>${fmtN(s)}</b></td>${mots.map(m=>{const v=o[m]||0;return `<td>${fmtN(v)}${s&&v?` <span class="tag">${fmtP(v/s)}</span>`:""}</td>`}).join("")}<td>${fmtN(out)}</td><td class="reg">${fmtN(P.reg[q]||0)}</td></tr>`};
+      return `<tr class="${cls||""}"><td><b>${esc(nomeCloser(q,fimP))}</b>${cls==="saiu"?`<div class="sub2">carteira que ficou no nome dela</div>`:""}</td><td><b>${fmtN(s)}</b></td>${mots.map(m=>{const v=o[m]||0;return `<td>${fmtN(v)}${s&&v?` <span class="tag">${fmtP(v/s)}</span>`:""}</td>`}).join("")}<td>${fmtN(out)}</td><td class="reg">${fmtN(P.reg[q]||0)}</td></tr>`};
     const totS=Object.values(P.sum).reduce((a,v)=>a+v,0),totR=Object.values(P.reg).reduce((a,v)=>a+v,0);
     return `<div class="blk"><span class="lbl">${nome} · por que perdemos · por closer</span><div class="tbl-w"><table class="wide pcl"><thead><tr><th>Closer</th><th>Perdidos com motivo</th>${mots.map(m=>`<th style="white-space:normal;min-width:96px">${esc(m)}</th>`).join("")}<th>Outros motivos</th><th class="reg" style="white-space:normal;min-width:110px">Não respondeu à régua (Sumiu)</th></tr></thead><tbody>
-      ${closers.map(q=>linha(q)).join("")}${quem.includes("IA")?linha("IA","ia"):""}
+      ${closers.map(q=>linha(q)).join("")}${sairam.map(q=>linha(q,"saiu")).join("")}${quem.includes("IA")?linha("IA","ia"):""}
       <tr class="tot"><td>Total ${nome}</td><td>${fmtN(totS)}</td>${mots.map(m=>`<td>${fmtN(tot[m])}</td>`).join("")}<td>${fmtN(totS-mots.reduce((a,m)=>a+tot[m],0))}</td><td class="reg">${fmtN(totR)}</td></tr></tbody></table></div>
       <p class="note">Perdidos pelo motivo que a closer marcou (ranking, 5 maiores motivos da operação; o número pequeno é a fatia na carteira daquela closer). "Sumiu" é o fim da régua de follow-up, não um motivo: fica na última coluna, fora do ranking. "IA / sem dona" = perdidos sem closer dona (IA ou sem responsável), separado das closers.</p></div>`;
   }).join("");
