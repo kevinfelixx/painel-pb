@@ -382,7 +382,7 @@ table.pcl tr.saiu td{border-top:1px dashed var(--line);color:var(--ink-2)}
 :root[data-dir="lv"] nav.tabs a[aria-current="page"]::after{transform:scaleX(1)}
 :root[data-dir="lv"] .cut{font-size:12px}
 @media (max-width:700px){
-  :root[data-dir="lv"] header.top{position:sticky;backdrop-filter:none;-webkit-backdrop-filter:none;background:color-mix(in srgb,var(--bg) 96%,transparent)}
+  :root[data-dir="lv"] header.top{position:sticky;backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--bg)!important;box-shadow:0 1px 0 rgba(201,168,76,.55),0 10px 24px -18px rgba(0,0,0,.35)}
   :root[data-dir="lv"] .cut .srcs{display:none}
   :root[data-dir="lv"] .firm{font-size:9.5px}
   :root[data-dir="lv"] .brand-t b{font-size:17px}
@@ -438,6 +438,79 @@ table.pcl tr.saiu td{border-top:1px dashed var(--line);color:var(--ink-2)}
 #view.entra>*{animation:sobe .5s cubic-bezier(.2,.8,.2,1) both}
 #view.entra>*:nth-child(2){animation-delay:.05s}#view.entra>*:nth-child(3){animation-delay:.1s}#view.entra>*:nth-child(4){animation-delay:.15s}#view.entra>*:nth-child(5){animation-delay:.2s}#view.entra>*:nth-child(n+6){animation-delay:.25s}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* ===== v5.1 ===== */
+.seg.ano button{padding:6px 12px}
+.seg button:disabled,.mchip:disabled{opacity:.35;cursor:default;transform:none!important}
+:root[data-dir="lv"] .mrow{flex:1 1 420px;-webkit-mask-image:none;mask-image:none;flex-wrap:nowrap}
+:root[data-dir="lv"] .mchip{padding:7px 11px;min-width:44px;text-align:center}
+/* resumo */
+.resumo{display:flex;flex-direction:column;gap:8px;padding:14px 18px;border-radius:18px;background:var(--tile-bg);border:1px solid var(--glass-b,var(--line));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+:root[data-dir="lv"]:not([data-mode="dark"]) .resumo{background:rgba(255,255,255,.78)}
+.resumo p{margin:0;display:flex;gap:10px;align-items:baseline;font-size:15px;line-height:1.45}
+.resumo i{flex:none;width:9px;height:9px;border-radius:50%;transform:translateY(-1px)}
+.resumo i.good{background:var(--good);box-shadow:0 0 10px var(--good)}.resumo i.warn{background:var(--warn);box-shadow:0 0 10px var(--warn)}.resumo i.bad{background:var(--bad);box-shadow:0 0 10px var(--bad)}
+/* cartão do mês e do ano, reorganizados */
+.rm-hero{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.rm-hero .big{font-size:46px!important;line-height:1;font-weight:900;letter-spacing:-.02em}
+.rm-hero .de{font-size:17px;font-weight:700;color:var(--ink-2)}
+.rm-hero .pct{flex-basis:100%;font-size:12.5px;color:var(--ink-2)}
+.rm-k3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.rm-k3 div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.rm-k3 small{font-size:11.5px;color:var(--ink-2)!important;letter-spacing:.02em}
+.rm-k3 b{font-size:26px!important}
+.rm-foot{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--ink-2)}
+.rm-foot b{font-size:13px!important;font-weight:800;color:var(--ink)}
+:root[data-dir="lv"] .tv{--ink-2:#D9D4CB;--ink-3:#ADA89F}
+.ano-c{display:flex;flex-direction:column;gap:12px;padding:18px 20px;margin-bottom:14px;border-radius:18px;position:relative;overflow:hidden;background:linear-gradient(150deg,rgba(201,168,76,.16),rgba(255,255,255,.03));border:1px solid rgba(201,168,76,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.18)}
+.ano-t{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ano-t .lbl{color:#E9D9A6!important}
+.pg.ano{height:14px}
+.pg.ano>i{background:linear-gradient(90deg,#9E1B32,#C9A84C)}
+/* checklists em aberto e trilhas */
+.pend{display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:16px;background:var(--raise);border:1px solid var(--line)}
+.pend-h{display:flex;justify-content:space-between;align-items:baseline}
+.pend-h b{font-size:24px;font-weight:900}
+.pend-bar{display:flex;height:12px;border-radius:999px;overflow:hidden;background:var(--line);gap:2px}
+.pend-bar span{min-width:3px}
+.pend-bar .pc,.pend-l i.pc{background:var(--bad)}.pend-bar .pa,.pend-l i.pa{background:var(--warn)}.pend-bar .pn,.pend-l i.pn{background:var(--good)}
+.pend-l{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--ink-2)}
+.pend-l i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;transform:translateY(-1px)}
+.pend .note{margin:0;font-size:12px}
+/* ranking das closers */
+.rank{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.rk{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:20px;background:var(--tile-bg);border:1px solid var(--glass-b,var(--line));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:transform .25s,box-shadow .25s}
+:root[data-dir="lv"]:not([data-mode="dark"]) .rk{background:rgba(255,255,255,.8)}
+.rk::after{content:"";position:absolute;width:160px;height:160px;right:-50px;top:-70px;border-radius:50%;background:var(--cv);filter:blur(60px);opacity:.25;pointer-events:none}
+.rk:hover{transform:translateY(-3px);box-shadow:0 18px 36px -20px rgba(0,0,0,.45)}
+.rk.top{border-color:rgba(201,168,76,.6);box-shadow:0 0 0 1px rgba(201,168,76,.35),0 18px 40px -24px rgba(201,168,76,.7)}
+.rk-h{display:flex;align-items:center;gap:10px}
+.rk .pos{font-weight:900;font-size:13px;color:#C9A84C;min-width:22px}
+.rk .av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:900;color:#fff;background:var(--cv);box-shadow:0 0 0 3px color-mix(in srgb,var(--cv) 25%,transparent)}
+.rk .nm{display:flex;flex-direction:column;min-width:0}.rk .nm b{font-size:16px}.rk .nm small{font-size:12px;color:var(--ink-3)}
+.rk-m{display:flex;align-items:center;gap:16px}
+.anel-w{position:relative;width:84px;height:84px;flex:none}
+.anel{width:84px;height:84px;transform:rotate(-90deg)}
+.anel .a-bg{fill:none;stroke:var(--line);stroke-width:8}
+.anel .a-fg{fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 0 6px currentColor)}
+.anel-v{position:absolute;inset:0;display:grid;place-items:center;font-weight:900;font-size:15px}
+.rk-n{display:flex;flex-direction:column}.rk-n b{font-size:34px;font-weight:900;line-height:1}.rk-n small{font-size:12.5px;color:var(--ink-2)}
+.rk-s{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding-top:12px;border-top:1px solid var(--line)}
+.rk-s span{display:flex;flex-direction:column;gap:2px}.rk-s small{font-size:11.5px;color:var(--ink-3)}.rk-s b{font-size:17px;font-weight:800}
+.rk-d{display:flex;flex-wrap:wrap;gap:6px}
+.rk-d span{font-size:11.5px;font-weight:800;color:#8A6D1E;background:rgba(201,168,76,.16);border:1px solid rgba(201,168,76,.5);border-radius:999px;padding:3px 9px}
+:root[data-mode="dark"] .rk-d span{color:#E6CF8C}
+/* motivos mais arejados */
+:root[data-dir="lv"] .reasons{gap:14px}
+:root[data-dir="lv"] .rs{grid-template-columns:minmax(0,16em) minmax(0,1fr) 9.5em;gap:14px;font-size:14.5px}
+:root[data-dir="lv"] .card{padding:20px 22px}
+:root[data-dir="lv"] table.pcl th,:root[data-dir="lv"] table.pcl td{padding:12px 14px}
+:root[data-dir="lv"] table.pcl th{white-space:normal;min-width:110px;vertical-align:bottom}
+@media (max-width:700px){.rm-hero .big{font-size:38px!important}.rm-k3 b{font-size:22px!important}
+  :root[data-dir="lv"] .ctl2{gap:8px}
+  :root[data-dir="lv"] .ctl2 .mrow{order:3;flex-basis:100%}
+  :root[data-dir="lv"] .ctl2 .seg:not(.ano){margin-left:auto}
+  :root[data-dir="lv"] .seg button{padding:6px 11px}}
 </style>
 
 <header class="top">
@@ -680,6 +753,7 @@ const NO_APPS = !(window.google && google.script && google.script.run);
 const API_PB = "https://script.google.com/macros/s/AKfycby-Fh7f-gF3v5k8ifhY9oY-vyr1A2A5g7yRyUs0T08tutxVBgfhhq4VVXSTHjgMYpCdCQ/exec";
 const HASH_K = decodeURIComponent((location.hash.match(/(?:^#|&)k=([^&]+)/) || [])[1] || "");
 let PROTOTIPO = NO_APPS && !HASH_K && location.protocol === "file:";
+let ANO = null, LIQ_F = {};
 let DADOS_ATE = "2026-11-08", ATUALIZADO = "", AVISOS = "", FUNIL_ATE = "", AN_ATE = "", PEND = {}, REG = null;
 let CAD = [
   {cad:"BPC1",op:"BPC",pessoa:"Danielle",de:"2026-03-01",ate:"",cv:"--bpc"},
@@ -835,7 +909,7 @@ let PERDAS_ST="";
 function perdasCloser(op,a,b,cod){
   const t={},sum={},reg={};let tem=false;
   for(const x of BASE){if((x.m!=="pc"&&x.m!=="pc_regua")||x.op!==op||x.d<a||x.d>b)continue;if(cod&&x.cod!==cod)continue;tem=true;
-    const q=resolverCloser(x.cad||"?");if(x.m==="pc_regua"){reg[q]=(reg[q]||0)+x.v;continue}
+    const q0=resolverCloser(x.cad||"?"),q=saiuAntes(q0,b)?"SAIU":q0;if(x.m==="pc_regua"){reg[q]=(reg[q]||0)+x.v;continue}
     (t[q]||(t[q]={}))[x.mot]=((t[q]||{})[x.mot]||0)+x.v;sum[q]=(sum[q]||0)+x.v}
   return {t,sum,reg,tem};
 }
@@ -844,7 +918,7 @@ function resolverCloser(q){if(q==="IA"||CAD.some(c=>c.cad===q))return q;
   const nm=String(q).replace(/^(dra?|doutora?)\.?\s+/i,"").trim().toLowerCase(),p1=nm.split(/\s+/)[0];
   const c=CAD.find(c=>c.cad!=="LID"&&(String(c.pessoa).toLowerCase()===nm||String(c.pessoa).toLowerCase()===p1));return c?c.cad:q}
 const saiuAntes=(q,fim)=>{const c=CAD.find(c=>c.cad===q);return !!(c&&c.ate&&c.ate<fim)};
-const nomeCloser=(q,fim)=>{if(q==="IA")return "IA / sem dona";const c=CAD.find(c=>c.cad===q);if(!c)return q;return fim&&c.ate&&c.ate<fim?c.pessoa+" (saiu em "+brc(c.ate)+")":c.pessoa};
+const nomeCloser=(q,fim)=>{if(q==="IA")return "IA / sem dona";if(q==="SAIU")return "Carteira de quem saiu";const c=CAD.find(c=>c.cad===q);if(!c)return q;return fim&&c.ate&&c.ate<fim?c.pessoa+" (saiu em "+brc(c.ate)+")":c.pessoa};
 let st={p:null,op:"ALL",v:"comercial",dir:"lv",wk:null,ad:"ALL"};
 const selMes=document.getElementById("mes");
 function init(){P=periodos();st.p=P[0];selMes.innerHTML="";P.forEach((p,i)=>selMes.add(new Option(p.label,i)));route();render()}
@@ -935,6 +1009,21 @@ function curvaMes(k,ate){
   dias.forEach((d,i)=>{tot+=w(i);if(d<=ate)acc+=w(i)});
   return tot?acc/tot:null;
 }
+/* v5.1: meta do ano (do script, privado). Realizado = jan/fev do RG (pacote) + líquidos da base de mar até o corte.
+   Esperado do ano = meta × dias úteis decorridos ÷ dias úteis do ano (sem feriado nacional). Marcos 50/75/100%. */
+function anoInfo(y){
+  const A=ANO&&ANO[y];if(!A||!A.meta)return null;
+  let hist=0;for(const k in (A.historico||{}))hist+=(A.historico[k].BPC||0)+(A.historico[k].AA||0);
+  /* meses fechados: número oficial do fechamento (C2_LIQUIDOS, o da folha); mês em andamento: base até o corte */
+  const fimA=y+"-12-31",ate=DADOS_ATE<fimA?DADOS_ATE:fimA,mAtual=ate.slice(0,7);let real=hist,usouF=0;
+  for(let m=1;m<=12;m++){const k=y+"-"+String(m).padStart(2,"0");if((A.historico||{})[k]||k>mAtual)continue;
+    if(k<mAtual&&LIQ_F[k]){real+=(LIQ_F[k].BPC||0)+(LIQ_F[k].AA||0);usouF++;continue}
+    const t=soma(k+"-01",k===mAtual?ate:ultimoDia(k));real+=(t.contratos||0)-(t.churns||0)}
+  const duF=diasUteisF(y+"-01-01",ate),duT=diasUteisF(y+"-01-01",fimA),duR=ate<fimA?diasUteisF(addDias(ate,1),fimA):0;
+  const esp=A.meta*duF/duT,falta=Math.max(A.meta-real,0),porDia=falta&&duR?Math.ceil(falta/duR):0;
+  const marcos=[.5,.75,1],prox=marcos.find(m=>real<A.meta*m);
+  return {y,meta:A.meta,real,esp,sinal:div(real,esp),pct:div(real,A.meta),falta,porDia,duR,ate,prox,faltaProx:prox?Math.ceil(A.meta*prox-real):0,hist,fonte:A.fonte||""};
+}
 const BASE_INI=()=>BASE.reduce((m,x)=>x.d<m?x.d:m,"9999");
 function rumoMeta(p,op){
   /* Fichas da IC (projetos/IC/fichas-metricas-dashboard.md): V4.1 realizado = contratos líquidos do mês até o corte (a meta do Tracker é de líquidos, C2_LIQUIDOS);
@@ -988,18 +1077,31 @@ function vComercial(){
   if(p.parcial){const lin=[["Comercial inteiro",null,"ALL"],["BPC / LOAS",x=>x.op==="BPC","BPC"],["Auxílio-Acidente",x=>x.op==="AA","AA"]].filter((x,i)=>st.op==="ALL"||(st.op==="BPC"&&i===1)||(st.op==="AA"&&i===2));
     const RM=opsSel().map(op=>rumoMeta(p,op)).filter(r=>r.meta),f1=v=>v==null?"—":v.toLocaleString("pt-BR",{maximumFractionDigits:1});
     const TOT=st.op==="ALL"?rumoMeta(p,"ALL"):null;
-    if(RM.length)tvH=`<div class="blk tv"><span class="lbl">Vamos bater a meta · contratos líquidos de ${mesNome(p.k)} até ${brc(p.fim)}</span><div class="rumo">${RM.map(r=>`<div class="rm" style="--opc:var(${r.op==="BPC"?"--bpc":"--aa"})">
+    const AI=anoInfo(p.k.slice(0,4));
+    const anoH=AI?(st.op==="ALL"?`<div class="ano-c"><div class="ano-t"><span class="lbl">Meta do ano · ${AI.y}</span>${farol(AI.sinal,1)}</div>
+      <div class="rm-hero"><b class="big">${fmtN(AI.real)}</b><span class="de">de ${fmtN(AI.meta)} contratos líquidos</span><span class="pct">${fmtP(AI.pct)} da meta · esperado até ${brc(AI.ate)}: ${fmtN(AI.esp)}</span></div>
+      <div class="pg ano" style="--opc:#C9A84C"><i style="width:${Math.min(100,(AI.pct||0)*100)}%"></i><span class="tk" style="left:50%" data-t="50%"></span><span class="tk" style="left:75%" data-t="75%"></span><span class="tk" style="left:99.6%" data-t="100%"></span><span class="mk" style="left:${Math.min(100,AI.esp/AI.meta*100)}%" data-t="esperado"></span></div>
+      <div class="rm-foot"><span>${AI.prox?`Próximo marco: <b>${Math.round(AI.prox*100)}%</b> em ${fmtN(AI.faltaProx)} contratos`:"<b>Meta do ano batida</b>"}</span><span>Falta <b>${fmtN(AI.falta)}</b> · <b>${fmtN(AI.porDia)}</b> por dia útil nos ${fmtN(AI.duR)} dias úteis que restam</span></div></div>`
+      :`<p class="note">Meta do ano ${AI.y}: ${fmtN(AI.meta)} contratos no comercial inteiro; a divisão entre BPC e AA ainda não foi definida. Veja em "BPC + AA".</p>`):"";
+    if(RM.length)tvH=`<div class="blk tv"><span class="lbl">Vamos bater a meta · contratos líquidos de ${mesNome(p.k)} até ${brc(p.fim)}</span>${anoH}<div class="rumo">${RM.map(r=>`<div class="rm" style="--opc:var(${r.op==="BPC"?"--bpc":"--aa"})">
       <div class="rm-h"><span class="pvn">${r.op==="BPC"?"BPC / LOAS":"Auxílio-Acidente"}</span>${farol(r.sinal,1)}</div>
+      <div class="rm-hero"><b class="big">${fmtN(r.real)}</b><span class="de">de ${fmtN(r.meta)}</span><span class="pct">${fmtP(div(r.real,r.meta))} da meta do mês</span></div>
       <div class="pg" role="img" aria-label="${fmtN(r.real)} de ${fmtN(r.meta)}; esperado até ${brc(p.fim)}: ${r.esp!=null?Math.round(r.esp):"—"}"><i style="width:${Math.min(100,(div(r.real,r.meta)||0)*100)}%"></i><span class="tk" style="left:50%" data-t="50%"></span><span class="tk" style="left:75%" data-t="75%"></span>${r.curva!=null?`<span class="mk" style="left:${Math.min(100,r.curva*100)}%" data-t="esperado"></span>`:""}</div>
-      <div class="rm-n"><div><small>Realizado</small><b>${fmtN(r.real)}</b><small>${fmtP(div(r.real,r.meta))} da meta</small></div><div><small>Esperado até ${brc(p.fim)}</small><b>${r.esp!=null?f1(r.esp):"—"}</b><small>curva ${fmtP(r.curva)} do mês</small></div><div><small>Meta</small><b>${fmtN(r.meta)}</b></div><div><small>Falta</small><b>${fmtN(Math.ceil(r.falta))}</b></div></div>
-      <div class="rm-r"><div><small>Por dia</small><b>${r.falta?(r.porDia!=null?fmtN(r.porDia):"—"):"meta batida"}</b><small>${fmtN(r.duResta)} dias úteis restantes, hoje incluído</small></div><div><small>Ritmo realizado por dia útil</small><b>${f1(r.ritmo)}</b><small>${fmtN(r.duFeitos)} dias úteis até ${brc(p.fim)}</small></div><div><small>Projeção linear</small><b>${r.prev!=null?fmtN(r.prev):"—"}</b><small>${r.pf!=null?fmtP(r.pf)+" da meta":""}</small></div></div>
-      <p class="pvs">${r.ant!=null?`Mesmo número de dias úteis no mês anterior (${brc(r.antIni)} a ${brc(r.antFim)}): ${fmtN(r.ant)} · ${delta(r.real,r.ant)}`:"Mês anterior: sem base para comparar."}</p></div>`).join("")}</div>
+      <div class="rm-k3"><div><small>Esperado até ${brc(p.fim)}</small><b>${r.esp!=null?f1(r.esp):"—"}</b></div><div><small>Falta</small><b>${fmtN(Math.ceil(r.falta))}</b></div><div><small>Por dia útil</small><b>${r.falta?(r.porDia!=null?fmtN(r.porDia):"—"):"batida"}</b><small>${fmtN(r.duResta)} dias restantes</small></div></div>
+      <div class="rm-foot"><span>Ritmo atual <b>${f1(r.ritmo)}</b> por dia útil</span><span>Projeção <b>${r.prev!=null?fmtN(r.prev):"—"}</b>${r.pf!=null?" ("+fmtP(r.pf)+")":""}</span>${r.ant!=null?`<span>${mesNome(r.antIni.slice(0,7))} no mesmo ponto <b>${fmtN(r.ant)}</b> ${delta(r.real,r.ant)}</span>`:""}</div>
+    </div>`).join("")}</div>
       ${TOT?`<p class="note"><b>Comercial inteiro</b> (linha à parte, BPC + AA): ${fmtN(TOT.real)} de ${fmtN(TOT.meta)} · esperado até ${brc(p.fim)} ${f1(TOT.esp)} ${farol(TOT.sinal,1)} · por dia ${TOT.falta?fmtN(TOT.porDia):"meta batida"} · projeção linear ${fmtN(TOT.prev)} · mês anterior nos mesmos dias úteis: ${TOT.ant!=null?fmtN(TOT.ant):"—"}</p>`:""}
       <details class="how"><summary>Como é calculado</summary><p class="note">Fichas V4.1 a V4.7 da IC (17/11). Farol = realizado ÷ esperado até ${brc(p.fim)} pela curva da TV: dias úteis da 1ª metade do mês pesam 0,9 e os da 2ª metade 1,1 (abaixo de 90% vermelho, 90 a 99,9% âmbar, a partir de 100% verde). Por dia = falta ÷ dias úteis restantes contando hoje, arredondado para cima. Projeção linear (realizado + ritmo × dias restantes) é só apoio, sem farol. Contratos líquidos = contratos − churns, a mesma conta do Tracker (C2_LIQUIDOS). Meta da operação no Tracker${RM.filter(r=>r.mCad!=null&&Math.round(r.mCad)!==Math.round(r.meta)).map(r=>` (${r.op}: ${fmtN(r.meta)}; a soma das metas das closers dá ${fmtN(r.mCad)})`).join("")}. Dia útil: segunda a sexta sem feriado nacional${(()=>{const fs=[...FERIADOS].filter(d=>d.slice(0,7)===p.k&&diasUteis(d,d));return fs.length?" ("+fs.map(brc).join(" e ")+" fora)":""})()}.</p></details></div>`}
   h+=`<div class="blk" id="semanasBlk"></div>`;
   h+=`<div class="two"><div class="card"><h3>Contratos líquidos acumulados no mês</h3><p class="sub">Tracejado: ritmo da meta pelos dias úteis</p><div class="legend" id="lgA"></div><div class="chart" id="chA"></div></div>
       <div class="card"><h3>Contratos líquidos · meses fechados</h3><p class="sub">O mês em andamento fica fora para não comparar parcial com fechado</p><div class="legend" id="lgB"></div><div class="chart" id="chB"></div></div></div>`;
-  h=h.replace("<!--TV-->",tvH);
+  /* v5.1: resumo em 3 frases (diretoria) */
+  let resumoH="";
+  if(p.parcial){const RS=opsSel().map(op=>rumoMeta(p,op)).filter(r=>r.meta).sort((x,y)=>(x.sinal||0)-(y.sinal||0)),AI2=st.op==="ALL"?anoInfo(p.k.slice(0,4)):null,fr=[];
+    RS.forEach(r=>{const n=r.op==="BPC"?"BPC":"AA",c=r.sinal>=1?"good":r.sinal>=.9?"warn":"bad";fr.push([c,`<b>${n}</b> está em <b>${fmtP(r.sinal)}</b> do esperado até ${brc(p.fim)}: ${r.falta?`faltam ${fmtN(Math.ceil(r.falta))} contratos, <b>${fmtN(r.porDia)} por dia útil</b> (ritmo atual ${r.ritmo.toLocaleString("pt-BR",{maximumFractionDigits:1})}).`:"meta do mês batida."}`])});
+    if(AI2)fr.push([AI2.sinal>=1?"good":AI2.sinal>=.9?"warn":"bad",`<b>No ano</b>: ${fmtN(AI2.real)} de ${fmtN(AI2.meta)} (${fmtP(AI2.pct)}); ${AI2.prox?`próximo marco, ${Math.round(AI2.prox*100)}%, em ${fmtN(AI2.faltaProx)} contratos.`:"meta do ano batida."}`]);
+    if(fr.length)resumoH=`<div class="resumo">${fr.slice(0,3).map(([c,t])=>`<p><i class="${c}"></i><span>${t}</span></p>`).join("")}</div>`}
+  h=h.replace("<!--TV-->",resumoH+tvH);
   document.getElementById("view").innerHTML=h;
   renderSemanas();
   const xs=[];for(let d=p.ini;d<=p.fim;d=addDias(d,1))xs.push(d);
@@ -1042,6 +1144,20 @@ function renderSemanas(){
 }
 
 /* ===== Operações ===== */
+/* v5.1: contratos por trilha (Central, pela data do contrato). BPC: administrativo × judicial; AA: qualquer natureza × acidente de trabalho. */
+const TRILHAS={BPC:[["ADMINISTRATIVO","Administrativo","--bpc"],["JUDICIAL - RENDA","Judicial · renda","--bpc-2"],["JUDICIAL - DEFICIÊNCIA","Judicial · deficiência","--gold"]],
+  AA:[["QUALQUER NATUREZA","Qualquer natureza","--aa"],["ACIDENTE DE TRABALHO","Acidente de trabalho","--aa-2"],["NÃO DEFINIDA","Não definida","--ink-3"]]};
+function trilhaH(op,p){
+  const t={};let tot=0;for(const x of BASE){if(x.m!=="trilha"||x.op!==op||x.d<p.ini||x.d>p.fim)continue;t[x.mot]=(t[x.mot]||0)+x.v;tot+=x.v}
+  if(!tot)return "";
+  const conh=TRILHAS[op].map(z=>z[0]),outros=Object.entries(t).filter(([k])=>!conh.includes(k)).reduce((s,[,v])=>s+v,0);
+  const itens=[...TRILHAS[op].map(([k,n,c])=>[n,t[k]||0,css(c)]),...(outros?[["Sem trilha",outros,css("--line")]]:[])].filter(z=>z[1]);
+  const jud=op==="BPC"?(t["JUDICIAL - RENDA"]||0)+(t["JUDICIAL - DEFICIÊNCIA"]||0):0;
+  return `<div class="pend tri"><div class="pend-h"><span class="lbl">Contratos por trilha</span><b>${fmtN(tot)}</b></div>
+    <div class="pend-bar">${itens.map(([n,v,c])=>`<span style="flex:${v};background:${c}" title="${n}: ${fmtN(v)}"></span>`).join("")}</div>
+    <div class="pend-l">${itens.map(([n,v,c])=>`<span><i style="background:${c}"></i>${n} <b>${fmtN(v)}</b> · ${fmtP(v/tot)}</span>`).join("")}</div>
+    ${op==="BPC"?`<p class="note">Administrativo ${fmtP((t["ADMINISTRATIVO"]||0)/tot)} · judicial ${fmtP(jud/tot)}. `:`<p class="note">`}Central dos Checklists, pela data do contrato (contratos fechados, antes de churn).</p></div>`;
+}
 function vOperacoes(){
   const p=st.p;
   let h=`<div class="sec-h"><h2>Por operação · ${mesNome(p.k)}</h2><p>${br(p.ini)} a ${br(p.fim)} · comparação ${vsTxt(p)}</p></div><div class="two">`;
@@ -1060,7 +1176,8 @@ function vOperacoes(){
         <div><small>Contratos líquidos</small><span class="v">${fmtN(a.liq)}</span><small>${p.parcial?"esperado "+meta.toLocaleString("pt-BR",{maximumFractionDigits:1})+" até "+brc(p.fim):"meta "+fmtN(meta)+" no mês"}</small></div>
         <div><small>Churns (mês do contrato)</small><span class="v">${fmtN(a.ch)}</span><small>${fmtN(b.ch)} antes</small></div>
         <div><small>Checklists concluídos</small><span class="v">${fmtN(a.chk)}</span><small>${delta(a.chk,b.chk)}</small></div>
-      </div>${(()=>{const cs=CAD.filter(c=>c.op===op).map(c=>PEND[c.cad]).filter(Boolean);if(!cs.length)return "";const ab=cs.reduce((s,x)=>s+x.aberto,0),cr=cs.reduce((s,x)=>s+x.critico,0),at=cs.reduce((s,x)=>s+x.atencao,0);return `<div class="pendbar">Checklists em aberto hoje: <b>${fmtN(ab)}</b>${cr?` · <span class="d-bad">${fmtN(cr)} críticos</span>`:""}${at?` · ${fmtN(at)} em atenção`:""}</div>`})()}${split}
+      </div>${(()=>{const cs=CAD.filter(c=>c.op===op).map(c=>PEND[c.cad]).filter(Boolean);if(!cs.length)return "";const ab=cs.reduce((s,x)=>s+x.aberto,0),cr=cs.reduce((s,x)=>s+x.critico,0),at=cs.reduce((s,x)=>s+x.atencao,0),nm=Math.max(ab-cr-at,0);
+        return `<div class="pend"><div class="pend-h"><span class="lbl">Checklists em aberto hoje</span><b>${fmtN(ab)}</b></div><div class="pend-bar">${ab?`<span class="pc" style="flex:${cr}"></span><span class="pa" style="flex:${at}"></span><span class="pn" style="flex:${nm}"></span>`:""}</div><div class="pend-l"><span><i class="pc"></i>${fmtN(cr)} críticos</span><span><i class="pa"></i>${fmtN(at)} em atenção</span><span><i class="pn"></i>${fmtN(nm)} no prazo</span></div></div>`})()}${trilhaH(op,p)}${split}
       <div><span class="lbl">Funil</span><div class="funnel" style="margin-top:8px">${steps.map(s=>`<div class="f-row"><span>${s[0]}</span><b>${fmtN(s[1])}</b><span class="bar"><span style="width:${Math.max(1.5,s[1]/mx*100)}%;background:${col}"></span></span><span class="rate">${s[2]==null?"":fmtP(s[2])}</span></div>`).join("")}</div>
       <p class="note" style="margin-top:8px">% ao lado: qualificados ÷ leads e contratos ÷ qualificados. Conversas (Meta) e leads (Datacrazy) são contagens diferentes e não se somam.</p></div>
     </div></section>`;
@@ -1071,11 +1188,22 @@ function vOperacoes(){
 /* ===== Closers ===== */
 function vClosers(){
   const p=st.p;
-  const lista=CAD.filter(c=>(st.op==="ALL"||c.op===st.op)&&(ativo(c,p.ini,p.fim)||Object.keys(soma(p.ini,p.fim,x=>x.cad===c.cad)).length));
-  const L=lista.map(c=>{const a=kpis(p.ini,p.fim,x=>x.cad===c.cad),meta=c.cad==="LID"?0:metaPeriodo(p.ini,p.fim,[c.cad]);return{c,a,meta,pm:meta?div(a.liq,meta):null}});
+  /* v5.1: só quem participou do período (no time e com algum movimento); no mês em andamento, meta = esperado pela curva da TV */
+  const metaCad=cad=>{if(p.parcial){const c=curvaMes(p.k,p.fim);if(c!=null)return metaPeriodo(p.k+"-01",ultimoDia(p.k),[cad])*c}return metaPeriodo(p.ini,p.fim,[cad])};
+  const lista=CAD.filter(c=>(st.op==="ALL"||c.op===st.op)&&(()=>{const a=kpis(p.ini,p.fim,x=>x.cad===c.cad);return (ativo(c,p.ini,p.fim)&&c.cad!=="LID")||(a.leads||0)+(a.q||0)+(a.c||0)+(a.chk||0)>0})());
+  const L=lista.map(c=>{const a=kpis(p.ini,p.fim,x=>x.cad===c.cad),meta=c.cad==="LID"?0:metaCad(c.cad);return{c,a,meta,pm:meta?div(a.liq,meta):null}});
   const T=kpis(p.ini,p.fim,x=>lista.some(c=>c.cad===x.cad)),Tm=L.reduce((s,l)=>s+l.meta,0);
-  let h=`<div class="sec-h"><h2>Por closer · ${mesNome(p.k)}</h2><p>${br(p.ini)} a ${br(p.fim)} · meta rateada pelos dias úteis do recorte · custo não aparece aqui porque o investimento não é por closer</p></div>`;
-  h+=`<div class="card"><h3>% da meta de contratos líquidos</h3><p class="sub">Traço vertical = 100% da meta do recorte</p><div class="meta-bars">${L.filter(l=>l.meta).map(l=>`<div class="mb"><span>${l.c.pessoa}</span><span class="track"><span style="width:${Math.min(l.pm||0,1.5)/1.5*100}%;background:${css(l.c.cv)}"></span><i style="left:${100/1.5}%"></i></span>${farol(l.pm)}</div>`).join("")}</div></div>`;
+  let h=`<div class="sec-h"><h2>Por closer · ${mesNome(p.k)}</h2><p>${br(p.ini)} a ${br(p.fim)} · ${p.parcial?"% do esperado até "+brc(p.fim)+" pela curva da TV":"% da meta do mês"} · custo não aparece aqui porque o investimento não é por closer</p></div>`;
+  /* v5.1: ranking com destaque */
+  const RK=L.filter(l=>l.meta).sort((x,y)=>(y.pm||0)-(x.pm||0)),comQ=RK.filter(l=>l.a.q>=5);
+  const melhorConv=comQ.length?comQ.reduce((m,l)=>(l.a.pf||0)>(m.a.pf||0)?l:m):null,maisQ=RK.length?RK.reduce((m,l)=>l.a.q>m.a.q?l:m):null;
+  const anel=(v,cor)=>{const r=34,c=2*Math.PI*r,f=Math.min(v||0,1);return `<svg class="anel" viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="${r}" class="a-bg"/><circle cx="42" cy="42" r="${r}" class="a-fg" style="stroke:${cor};stroke-dasharray:${c};stroke-dashoffset:${c*(1-f)}"/></svg><span class="anel-v">${fmtP(v)}</span>`};
+  if(RK.length)h+=`<div class="rank">${RK.map((l,i)=>{const cor=(l.pm||0)>=1?css("--good"):(l.pm||0)>=.9?css("--warn"):css("--bad"),dest=[];
+    if(i===0&&RK.length>1)dest.push("Maior % do esperado");if(melhorConv&&l===melhorConv&&RK.length>1)dest.push("Melhor conversão");if(maisQ&&l===maisQ&&RK.length>1)dest.push("Mais qualificados");
+    return `<div class="rk${i===0?" top":""}" style="--cv:${css(l.c.cv)}"><div class="rk-h"><span class="pos">${i+1}º</span><span class="av">${esc(String(l.c.pessoa).charAt(0))}</span><span class="nm"><b>${esc(l.c.pessoa)}</b><small>${l.c.op==="BPC"?"BPC / LOAS":"Auxílio-Acidente"}</small></span></div>
+      <div class="rk-m"><div class="anel-w">${anel(l.pm,cor)}</div><div class="rk-n"><b>${fmtN(l.a.liq)}</b><small>de ${l.meta.toLocaleString("pt-BR",{maximumFractionDigits:1})} ${p.parcial?"esperados":"na meta"}</small></div></div>
+      <div class="rk-s"><span><small>Qualificados</small><b>${fmtN(l.a.q)}</b></span><span><small>Fechamento</small><b>${fmtP(l.a.pf)}</b></span><span><small>Checklists</small><b>${fmtN(l.a.chk)}</b></span></div>
+      ${dest.length?`<div class="rk-d">${dest.map(d=>`<span>${d}</span>`).join("")}</div>`:""}</div>`}).join("")}</div>`;
   h+=`<div class="tbl-w"><table class="wide"><thead><tr><th>Closer</th><th>Leads</th><th>Qualificados</th><th>% qualif.</th><th>Contratos</th><th>Churns</th><th>Líquidos</th><th>% fech.</th><th>Meta</th><th>% da meta</th>${p.parcial?"<th>Previsão do mês</th>":""}<th>Checklists</th><th>Em aberto hoje</th><th>Críticos</th></tr></thead><tbody>
     ${L.map(l=>`<tr><td class="who"><span class="dot" style="background:${css(l.c.cv)}"></span><span>${l.c.pessoa}${l.c.ate&&l.c.ate<p.fim?` <span class="hist">(histórico)</span>`:""}</span> <span class="tag">${l.c.cad}</span></td>
       <td>${fmtN(l.a.leads)}</td><td>${fmtN(l.a.q)}</td><td>${fmtP(l.a.pq)}</td><td>${fmtN(l.a.c)}</td><td>${fmtN(l.a.ch)}</td><td><b>${fmtN(l.a.liq)}</b></td><td>${fmtP(l.a.pf)}</td><td>${l.meta?fmtN(l.meta):"—"}</td><td>${l.meta?farol(l.pm):"—"}</td>${p.parcial?`<td>${(()=>{const v=l.c.cad==="LID"?null:previsao(p,x=>x.cad===l.c.cad,[l.c.cad]);return v&&v.meta?`${fmtN(v.prev)} de ${fmtN(v.meta)} ${farol(v.pm)}`:"—"})()}</td>`:""}<td>${fmtN(l.a.chk)}</td><td>${PEND[l.c.cad]?fmtN(PEND[l.c.cad].aberto):"—"}</td><td>${PEND[l.c.cad]&&PEND[l.c.cad].critico?`<span class="d-bad">${fmtN(PEND[l.c.cad].critico)}</span>`:PEND[l.c.cad]?"0":"—"}</td></tr>`).join("")}
@@ -1292,13 +1420,13 @@ function vMotivos(){
     const P=perdasCloser(op,p.ini,p.fim,st.ad==="ALL"?null:st.ad),nome=op==="BPC"?"BPC":"AA";
     if(!P.tem)return "";
     const tot={};for(const q in P.t)for(const m in P.t[q])tot[m]=(tot[m]||0)+P.t[q][m];
-    const mots=Object.entries(tot).sort((x,y)=>y[1]-x[1]).slice(0,5).map(x=>x[0]);
+    const mots=Object.entries(tot).sort((x,y)=>y[1]-x[1]).slice(0,4).map(x=>x[0]);
     const quem=[...new Set([...Object.keys(P.t),...Object.keys(P.reg)])];
     const ordemCad=CAD.filter(c=>c.op===op).map(c=>c.cad);
-    const fimP=p.fim,ativos=quem.filter(q=>q!=="IA"&&!saiuAntes(q,fimP)),sairam=quem.filter(q=>q!=="IA"&&saiuAntes(q,fimP));
+    const fimP=p.fim,ativos=quem.filter(q=>q!=="IA"&&q!=="SAIU"),sairam=quem.filter(q=>q==="SAIU");
     const closers=ativos.sort((x,y)=>{const ix=ordemCad.indexOf(x),iy=ordemCad.indexOf(y);return (ix<0?99:ix)-(iy<0?99:iy)||String(x).localeCompare(String(y))});
     const linha=(q,cls)=>{const s=P.sum[q]||0,o=P.t[q]||{},out=s-mots.reduce((a,m)=>a+(o[m]||0),0);
-      return `<tr class="${cls||""}"><td><b>${esc(nomeCloser(q,fimP))}</b>${cls==="saiu"?`<div class="sub2">carteira que ficou no nome dela</div>`:""}</td><td><b>${fmtN(s)}</b></td>${mots.map(m=>{const v=o[m]||0;return `<td>${fmtN(v)}${s&&v?` <span class="tag">${fmtP(v/s)}</span>`:""}</td>`}).join("")}<td>${fmtN(out)}</td><td class="reg">${fmtN(P.reg[q]||0)}</td></tr>`};
+      return `<tr class="${cls||""}"><td><b>${esc(nomeCloser(q,fimP))}</b>${cls==="saiu"?`<div class="sub2">perdas na carteira de quem já não está no time</div>`:""}</td><td><b>${fmtN(s)}</b></td>${mots.map(m=>{const v=o[m]||0;return `<td>${fmtN(v)}${s&&v?` <span class="tag">${fmtP(v/s)}</span>`:""}</td>`}).join("")}<td>${fmtN(out)}</td><td class="reg">${fmtN(P.reg[q]||0)}</td></tr>`};
     const totS=Object.values(P.sum).reduce((a,v)=>a+v,0),totR=Object.values(P.reg).reduce((a,v)=>a+v,0);
     return `<div class="blk"><span class="lbl">${nome} · por que perdemos · por closer</span><div class="tbl-w"><table class="wide pcl"><thead><tr><th>Closer</th><th>Perdidos com motivo</th>${mots.map(m=>`<th style="white-space:normal;min-width:96px">${esc(m)}</th>`).join("")}<th>Outros motivos</th><th class="reg" style="white-space:normal;min-width:110px">Não respondeu à régua (Sumiu)</th></tr></thead><tbody>
       ${closers.map(q=>linha(q)).join("")}${sairam.map(q=>linha(q,"saiu")).join("")}${quem.includes("IA")?linha("IA","ia"):""}
@@ -1326,11 +1454,16 @@ const NOME_TEMA={auto:"Automático",claro:"Claro",escuro:"Escuro"};
 function desenharTopo(){
   const c2=document.getElementById("ctl2"),cr=document.getElementById("ctlr");if(!c2||!P||!st.p)return;
   const ordem=P.slice().reverse();
-  c2.innerHTML=`<div class="mrow" role="tablist" aria-label="Mês">${ordem.map(p=>`<button type="button" class="mchip${p===st.p?" on":""}${p.parcial?" parc":""}" data-i="${P.indexOf(p)}" aria-pressed="${p===st.p}">${mesNome(p.k)}</button>`).join("")}</div>
-    <div class="seg" role="group" aria-label="Operação">${[["ALL","BPC + AA"],["BPC","BPC"],["AA","AA"]].map(([o,t])=>`<button type="button" data-o="${o}" class="${st.op===o?"on":""}" aria-pressed="${st.op===o}">${t}</button>`).join("")}</div>`;
+  const MES=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"],ano=st.p.k.slice(0,4);
+  const anosDados=[...new Set(P.map(p=>p.k.slice(0,4)))].sort(),anos=[...anosDados,String(+anosDados[anosDados.length-1]+1)];
+  const ops=SO_UMA_OP.includes(st.v)?[["BPC","BPC"],["AA","AA"]]:[["ALL","BPC + AA"],["BPC","BPC"],["AA","AA"]];
+  c2.innerHTML=`<div class="seg ano" role="group" aria-label="Ano">${anos.map(y=>`<button type="button" data-y="${y}" class="${y===ano?"on":""}" ${anosDados.includes(y)?"":"disabled"} aria-pressed="${y===ano}">${y}</button>`).join("")}</div>
+    <div class="mrow" role="group" aria-label="Mês">${MES.map((m,i)=>{const k=ano+"-"+String(i+1).padStart(2,"0"),p=P.find(x=>x.k===k);return `<button type="button" class="mchip${p===st.p?" on":""}${p&&p.parcial?" parc":""}" ${p?`data-i="${P.indexOf(p)}"`:"disabled"} aria-pressed="${p===st.p}">${m}</button>`}).join("")}</div>
+    <div class="seg" role="group" aria-label="Operação">${ops.map(([o,t])=>`<button type="button" data-o="${o}" class="${st.op===o?"on":""}" aria-pressed="${st.op===o}">${t}</button>`).join("")}</div>`;
   cr.innerHTML=`<span class="selo">${st.p.parcial?"Parcial · até "+brc(st.p.fim):"Fechado"}</span><button type="button" class="tema" id="temaBtn" title="Tema: ${NOME_TEMA[TEMA]} (clique para trocar)">${ICO[TEMA]}<span>${NOME_TEMA[TEMA]}</span></button>`;
-  c2.querySelectorAll(".mchip").forEach(b=>b.onclick=()=>{selMes.value=b.dataset.i;selMes.dispatchEvent(new Event("change"))});
-  c2.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{const s=document.getElementById("opf");s.value=b.dataset.o;s.dispatchEvent(new Event("change"))});
+  c2.querySelectorAll(".mchip[data-i]").forEach(b=>b.onclick=()=>{selMes.value=b.dataset.i;selMes.dispatchEvent(new Event("change"))});
+  c2.querySelectorAll(".seg.ano button[data-y]").forEach(b=>b.onclick=()=>{const p=P.find(x=>x.k.startsWith(b.dataset.y));if(p){selMes.value=P.indexOf(p);selMes.dispatchEvent(new Event("change"))}});
+  c2.querySelectorAll(".seg button[data-o]").forEach(b=>b.onclick=()=>{if(SO_UMA_OP.includes(st.v))st.opPag=b.dataset.o;const s=document.getElementById("opf");s.value=b.dataset.o;s.dispatchEvent(new Event("change"))});
   document.getElementById("temaBtn").onclick=()=>{TEMA={auto:"claro",claro:"escuro",escuro:"auto"}[TEMA];try{localStorage.setItem("pbTema",TEMA)}catch(_){}aplicarTema();render()};
   const mr=c2.querySelector(".mrow"),on=c2.querySelector(".mchip.on");if(mr&&on)mr.scrollLeft=on.offsetLeft-mr.clientWidth/2+on.offsetWidth/2;
 }
@@ -1350,8 +1483,13 @@ function entrada(){const k=st.v+"|"+(st.p&&st.p.k)+"|"+st.op;if(k===ULT_ENTRADA)
 function marcarZeros(){document.querySelectorAll("#view td, #view .kpi .v, #view .act b, #view .rm b").forEach(e=>{const t=e.textContent.trim();if(/^(R\$\s?)?0([,.]0+)?%?$/.test(t))e.classList.add("zero")});
   if(st.dir==="lv")document.querySelectorAll("#view table.heat td.h").forEach(e=>{if(parseInt(e.textContent,10)>=30)e.classList.add("alto")})}
 new MutationObserver(()=>marcarZeros()).observe(document.getElementById("view"),{childList:true});
+const SO_UMA_OP=["anuncios","motivos"];
 function render(){
-  if(!st.p)return;   /* v4.0: troca de tema antes de os números chegarem não redesenha a página vazia */
+  if(!st.p)return;
+  /* v5.1: Anúncios e Motivos mostram uma operação por vez; ao sair, volta para a escolha anterior */
+  const opf_=document.getElementById("opf");
+  if(SO_UMA_OP.includes(st.v)){if(st.op==="ALL"){st.opVolta="ALL";st.op=st.opPag||"BPC";opf_.value=st.op}}
+  else if(st.opVolta){st.op=st.opVolta;st.opVolta=null;opf_.value=st.op}   /* v4.0: troca de tema antes de os números chegarem não redesenha a página vazia */
   document.documentElement.dataset.dir=st.dir;
   document.querySelectorAll(".dirs button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.d===st.dir));
   const ref=ATUALIZADO&&/^\d{2}\/\d{2}\/\d{4}/.test(ATUALIZADO)?addDias(ATUALIZADO.slice(6,10)+"-"+ATUALIZADO.slice(3,5)+"-"+ATUALIZADO.slice(0,2),-1):DADOS_ATE;
@@ -1363,7 +1501,7 @@ function render(){
 }
 function boot(json){
   const d=typeof json==="string"?JSON.parse(json):json;
-  DADOS_ATE=d.dadosAte;FUNIL_ATE=d.funilAte||"";AN_ATE=d.metaAnunciosAte||"";PEND=d.pendentes||{};REG=d.regua||null;ATUALIZADO=d.atualizadoEm||"";PERDAS_ST=d.perdasCloser||"";AVISOS=d.avisos||"";META=d.meta||{};
+  DADOS_ATE=d.dadosAte;FUNIL_ATE=d.funilAte||"";AN_ATE=d.metaAnunciosAte||"";PEND=d.pendentes||{};REG=d.regua||null;ATUALIZADO=d.atualizadoEm||"";PERDAS_ST=d.perdasCloser||"";ANO=d.ano||null;LIQ_F=d.liqFechados||{};AVISOS=d.avisos||"";META=d.meta||{};
   const cores={BPC:["--bpc","--bpc-2"],AA:["--aa","--aa-2"]},usados={BPC:0,AA:0};
   CAD=(d.cad||[]).map(c=>{const op=c.op==="BPC+AA"?"BPC":c.op;let cv="--ink-3";if(c.cad!=="LID"&&cores[op])cv=cores[op][Math.min(usados[op]++,1)];return {...c,op,cv}});
   BASE=(d.base||[]).map(r=>({d:r[0],op:r[1],cad:r[2]||undefined,cod:r[3]||undefined,m:r[4],v:+r[5],mot:r[6]||undefined}));
