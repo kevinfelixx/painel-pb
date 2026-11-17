@@ -824,7 +824,7 @@ const NO_APPS = !(window.google && google.script && google.script.run);
 const API_PB = "https://script.google.com/macros/s/AKfycby-Fh7f-gF3v5k8ifhY9oY-vyr1A2A5g7yRyUs0T08tutxVBgfhhq4VVXSTHjgMYpCdCQ/exec";
 const HASH_K = decodeURIComponent((location.hash.match(/(?:^#|&)k=([^&]+)/) || [])[1] || "");
 let PROTOTIPO = NO_APPS && !HASH_K && location.protocol === "file:";
-let ANO = null, LIQ_F = {}, ANOT = [], HTP = [];
+let ANO = null, LIQ_F = {}, ANOT = [];
 let DADOS_ATE = "2026-11-08", ATUALIZADO = "", AVISOS = "", FUNIL_ATE = "", AN_ATE = "", PEND = {}, REG = null;
 let CAD = [
   {cad:"BPC1",op:"BPC",pessoa:"Danielle",de:"2026-03-01",ate:"",cv:"--bpc"},
@@ -1240,7 +1240,7 @@ function vSimulador(){
 }
 /* ===== v5.6 (17/11/2026) Anotações (decisões do Kevin): automáticas (feriado nacional em dia de semana, closer que entrou ou saiu)
    + as do Kevin na aba "anotacoes" do arquivo do painel. No Comercial: marcas no gráfico do mês e lista "O que aconteceu".
-   Em Anúncios: a última mudança de cada anúncio em 30 dias, do Histórico de alterações da TP ou detectada pelo gasto diário. */
+   Em Anúncios: a última mudança de cada anúncio em 30 dias, detectada pelo gasto diário (v5.6a: o histórico da TP foi aposentado). */
 function eventosMes(k,op){
   const ini=k+"-01",fim=ultimoDia(k),ev=[],dentro=d=>d&&d>=ini&&d<=fim,okOp=o=>op==="ALL"||o==="ALL"||o===op;
   FERIADOS.forEach(d=>{if(dentro(d)&&diasUteis(d,d))ev.push({d,tipo:"feriado",t:"Feriado nacional (dia não útil)"})});
@@ -1259,7 +1259,7 @@ function eventosH(k,op,ate){
 /* Anúncios: gasto por dia de cada anúncio e a última mudança em 30 dias */
 function gastoDia(op,cod,a,b){const m={};for(const x of BASE)if(x.m==="ad_inv"&&x.op===op&&x.cod===cod&&x.d>=a&&x.d<=b)m[x.d]=(m[x.d]||0)+x.v;return m}
 function ultimaMudanca(op,cod,ate){
-  const ini30=addDias(ate,-29),tp=HTP.filter(h=>h[2]===cod&&(!h[1]||h[1]===op)&&h[0]>=ini30&&h[0]<=ate).sort((x,y)=>x[0]<y[0]?1:-1)[0];
+  const ini30=addDias(ate,-29);
   const ini=addDias(ate,-36),g=gastoDia(op,cod,ini,ate),v=d=>g[d]||0,ds=[];for(let d=ini;d<=ate;d=addDias(d,1))ds.push(d);
   let det=null;
   for(let i=3;i<ds.length;i++){const d=ds[i];if(d<ini30)continue;
@@ -1267,8 +1267,6 @@ function ultimaMudanca(op,cod,ate){
     if(v(d)>0&&ant.every(x=>!x))det={d,t:"começou a gastar"};
     else if(!v(d)&&v(ds[i-1])>0&&dep.length>=3&&dep.every(x=>!x))det={d,t:"parou de gastar"};
     else if(ma>=20&&md>0&&dep.length>=3&&(md/ma>=1.5||md/ma<=.5)&&!(det&&det.d>=addDias(d,-2)))det={d,t:`gasto foi de ${fmtR0(ma)} para ${fmtR0(md)} por dia`}}
-  if(tp&&(!det||tp[0]>=det.d)){const mud=tp[3].toLowerCase().includes("verba")?`verba ${tp[4]} → ${tp[5]}`:`${tp[3].toLowerCase()}: ${tp[4]} → ${tp[5]}`;
-    return `<div class="sub2 mud">${esc(mud)} em ${brc(tp[0])} (TP)${tp[7]?" · "+esc(tp[7]):""}</div>`}
   return det?`<div class="sub2 mud">${det.t} em ${brc(det.d)}</div>`:"";
 }
 /* ===== Comercial ===== */
@@ -1730,7 +1728,7 @@ function render(){
 }
 function boot(json){
   const d=typeof json==="string"?JSON.parse(json):json;
-  DADOS_ATE=d.dadosAte;FUNIL_ATE=d.funilAte||"";AN_ATE=d.metaAnunciosAte||"";PEND=d.pendentes||{};REG=d.regua||null;ATUALIZADO=d.atualizadoEm||"";PERDAS_ST=d.perdasCloser||"";ANO=d.ano||null;LIQ_F=d.liqFechados||{};AVISOS=d.avisos||"";META=d.meta||{};ANOT=d.anotacoes||[];HTP=d.histTP||[];
+  DADOS_ATE=d.dadosAte;FUNIL_ATE=d.funilAte||"";AN_ATE=d.metaAnunciosAte||"";PEND=d.pendentes||{};REG=d.regua||null;ATUALIZADO=d.atualizadoEm||"";PERDAS_ST=d.perdasCloser||"";ANO=d.ano||null;LIQ_F=d.liqFechados||{};AVISOS=d.avisos||"";META=d.meta||{};ANOT=d.anotacoes||[];
   const cores={BPC:["--bpc","--bpc-2"],AA:["--aa","--aa-2"]},usados={BPC:0,AA:0};
   CAD=(d.cad||[]).map(c=>{const op=c.op==="BPC+AA"?"BPC":c.op;let cv="--ink-3";if(c.cad!=="LID"&&cores[op])cv=cores[op][Math.min(usados[op]++,1)];return {...c,op,cv}});
   BASE=(d.base||[]).map(r=>({d:r[0],op:r[1],cad:r[2]||undefined,cod:r[3]||undefined,m:r[4],v:+r[5],mot:r[6]||undefined}));
