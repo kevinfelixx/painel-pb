@@ -786,6 +786,13 @@ function semanas(p){ /* segunda a domingo, cortadas no mês; S1 pode ser curta *
 function soma(a,b,filtro){const t={};for(const x of BASE){if(x.d<a||x.d>b)continue;if(filtro&&!filtro(x))continue;t[x.m]=(t[x.m]||0)+x.v}return t}
 /* v4.0: meta por operação como no Tracker (colunas BPC e AA do C2_METAS), rateada por dia útil; mês sem a coluna usa a soma das cadeiras.
    Usada nas páginas Comercial e Operações. A página Closers segue com a meta de cada closer. */
+/* v5 (17/11, pedido da PL 00): no mês em andamento a meta "até o corte" é o esperado pela curva da TV (meta do mês × curva até o corte),
+   o mesmo número do bloco "Vamos bater a meta"; mês fechado ou recorte livre segue o rateio por dia útil. */
+function metaEsperada(a,b,op){
+  const k=a.slice(0,7),fm=ultimoDia(k);
+  if(a===k+"-01"&&b.slice(0,7)===k&&b<fm){const c=curvaMes(k,b);if(c!=null)return metaOpPeriodo(a,fm,op)*c}
+  return metaOpPeriodo(a,b,op);
+}
 function metaOpPeriodo(a,b,op){
   let tot=0;
   for(let k=a.slice(0,7);k<=b.slice(0,7);){
@@ -950,7 +957,7 @@ function previsao(p,filtro,cads){
 /* ===== Comercial ===== */
 function vComercial(){
   let tvH="";   /* tema Lovable: o painel da meta (estilo TV) vai para o topo da página */
-  const p=st.p,f=filtroOp(st.op),a=kpis(p.ini,p.fim,f),b=kpis(p.antIni,p.antFim,f),meta=metaOpPeriodo(p.ini,p.fim,st.op),pm=div(a.liq,meta);
+  const p=st.p,f=filtroOp(st.op),a=kpis(p.ini,p.fim,f),b=kpis(p.antIni,p.antFim,f),meta=metaEsperada(p.ini,p.fim,st.op),pm=div(a.liq,meta);
   const kc=st.op==="AA"?css("--aa"):css("--bpc"), ink=st.dir==="b1"?css("--accent"):st.dir==="b2"?css("--gold"):kc;
   const sInv=spark(diario(p,f,t=>t.invest||0),ink),sConv=spark(diario(p,f,t=>t.conversas||0),ink),sLeads=spark(diario(p,f,t=>t.leads||0),ink),sQ=spark(diario(p,f,t=>t.qualif||0),ink);
   const opName=st.op==="ALL"?"Comercial inteiro":st.op==="BPC"?"BPC / LOAS":"Auxílio-Acidente";
@@ -958,7 +965,7 @@ function vComercial(){
   h+="<!--TV-->";
   if(st.dir==="b3"){const rs=[];
     if(st.op==="ALL")rs.push(ring(pm,css("--accent"),"Comercial inteiro",`${fmtN(a.liq)} de ${fmtN(meta)} contratos líquidos no recorte`));
-    opsSel().forEach(op=>{const x=kpis(p.ini,p.fim,y=>y.op===op),m=metaOpPeriodo(p.ini,p.fim,op);rs.push(ring(div(x.liq,m),opCor(op),op==="BPC"?"BPC / LOAS":"Auxílio-Acidente",`${fmtN(x.liq)} de ${fmtN(m)} contratos líquidos`))});
+    opsSel().forEach(op=>{const x=kpis(p.ini,p.fim,y=>y.op===op),m=metaEsperada(p.ini,p.fim,op);rs.push(ring(div(x.liq,m),opCor(op),op==="BPC"?"BPC / LOAS":"Auxílio-Acidente",`${fmtN(x.liq)} de ${fmtN(m)} contratos líquidos`))});
     h+=`<div class="rings" style="--nr:${rs.length}">${rs.join("")}</div>`}
   h+=`<div class="blk"><span class="lbl">Tráfego pago</span><div class="grid-k">
     ${tile("Investimento",fmtR0(a.inv),delta(a.inv,b.inv,true)+` <span>${fmtR0(b.inv)} antes</span>`,sInv,kc,ledOf(a.inv,b.inv,true))}
@@ -969,7 +976,7 @@ function vComercial(){
   h+=`<div class="blk"><span class="lbl">Funil comercial</span><div class="grid-k">
     ${tile("Leads recebidos (Datacrazy)",fmtN(a.leads),delta(a.leads,b.leads)+` <span>${fmtN(b.leads)} antes</span>`,sLeads,kc,ledOf(a.leads,b.leads))}
     ${tile("Qualificados",fmtN(a.q),delta(a.q,b.q)+` <span>${fmtP(a.pq)} dos leads</span>`,sQ,kc,ledOf(a.q,b.q))}
-    ${tile("Contratos líquidos",fmtN(a.liq),farol(pm)+` <span>meta ${fmtN(meta)} no recorte</span>`,"",kc,ledMeta(pm))}
+    ${tile("Contratos líquidos",fmtN(a.liq),farol(pm,p.parcial)+` <span>${p.parcial?"esperado "+meta.toLocaleString("pt-BR",{maximumFractionDigits:1})+" até "+brc(p.fim):"meta "+fmtN(meta)+" no mês"}</span>`,"",kc,ledMeta(pm))}
     ${tile("Checklists concluídos",fmtN(a.chk),delta(a.chk,b.chk)+` <span>${fmtN(b.chk)} antes</span>`,"",kc,ledOf(a.chk,b.chk))}
   </div></div>`;
   if(p.parcial){const lin=[["Comercial inteiro",null,"ALL"],["BPC / LOAS",x=>x.op==="BPC","BPC"],["Auxílio-Acidente",x=>x.op==="AA","AA"]].filter((x,i)=>st.op==="ALL"||(st.op==="BPC"&&i===1)||(st.op==="AA"&&i===2));
@@ -992,7 +999,7 @@ function vComercial(){
   const xs=[];for(let d=p.ini;d<=p.fim;d=addDias(d,1))xs.push(d);
   const ops=opsSel();
   const series=ops.map(op=>{let acc=0;return{label:op,color:opCor(op),vals:xs.map(d=>{const t=soma(d,d,x=>x.op===op);acc+=(t.contratos||0)-(t.churns||0);return acc})}});
-  series.push({label:"meta",color:css("--ink-3"),dash:true,vals:xs.map(d=>Math.round(metaOpPeriodo(p.ini,d,st.op)))});
+  series.push({label:"meta",color:css("--ink-3"),dash:true,vals:xs.map(d=>Math.round(metaEsperada(p.ini,d,st.op)))});
   document.getElementById("lgA").innerHTML=ops.map(op=>`<span><i style="background:${opCor(op)}"></i>${op}</span>`).join("")+`<span><i style="background:${css("--ink-3")}"></i>Ritmo da meta (${fmtN(metaOpPeriodo(p.k+"-01",ultimoDia(p.k),st.op))} no mês)</span>`;
   lineChart(document.getElementById("chA"),series,xs,"Contratos líquidos acumulados por dia");
   const fech=P.filter(x=>!x.parcial).slice(0,6).reverse();
@@ -1033,7 +1040,7 @@ function vOperacoes(){
   const p=st.p;
   let h=`<div class="sec-h"><h2>Por operação · ${mesNome(p.k)}</h2><p>${br(p.ini)} a ${br(p.fim)} · comparação ${vsTxt(p)}</p></div><div class="two">`;
   opsSel().forEach(op=>{
-    const f=x=>x.op===op,a=kpis(p.ini,p.fim,f),b=kpis(p.antIni,p.antFim,f),meta=metaOpPeriodo(p.ini,p.fim,op),col=opCor(op);
+    const f=x=>x.op===op,a=kpis(p.ini,p.fim,f),b=kpis(p.antIni,p.antFim,f),meta=metaEsperada(p.ini,p.fim,op),col=opCor(op);
     const steps=[["Conversas (Meta)",a.conv,null],["Leads recebidos",a.leads,null],["Qualificados",a.q,a.pq],["Contratos",a.c,a.pf],["Contratos líquidos",a.liq,null]],mx=Math.max(...steps.map(s=>s[1]),1);
     let split="";
     if(op==="BPC"){const tea=soma(p.ini,p.fim,x=>x.op==="BPC"&&x.cad==="TEA"),di=soma(p.ini,p.fim,x=>x.op==="BPC"&&x.cad==="DI");
@@ -1044,7 +1051,7 @@ function vOperacoes(){
         <div><small>Investimento</small><span class="v">${fmtR0(a.inv)}</span><small>${delta(a.inv,b.inv,true)}</small></div>
         <div><small>Custo por conversa</small><span class="v">${fmtR(a.cpc)}</span><small>${delta(a.cpc,b.cpc,true)}</small></div>
         <div><small>Custo por contrato líquido</small><span class="v">${fmtR0(a.cac)}</span><small>${delta(a.cac,b.cac,true)}</small></div>
-        <div><small>Contratos líquidos</small><span class="v">${fmtN(a.liq)}</span><small>meta ${fmtN(meta)} no recorte</small></div>
+        <div><small>Contratos líquidos</small><span class="v">${fmtN(a.liq)}</span><small>${p.parcial?"esperado "+meta.toLocaleString("pt-BR",{maximumFractionDigits:1})+" até "+brc(p.fim):"meta "+fmtN(meta)+" no mês"}</small></div>
         <div><small>Churns (mês do contrato)</small><span class="v">${fmtN(a.ch)}</span><small>${fmtN(b.ch)} antes</small></div>
         <div><small>Checklists concluídos</small><span class="v">${fmtN(a.chk)}</span><small>${delta(a.chk,b.chk)}</small></div>
       </div>${(()=>{const cs=CAD.filter(c=>c.op===op).map(c=>PEND[c.cad]).filter(Boolean);if(!cs.length)return "";const ab=cs.reduce((s,x)=>s+x.aberto,0),cr=cs.reduce((s,x)=>s+x.critico,0),at=cs.reduce((s,x)=>s+x.atencao,0);return `<div class="pendbar">Checklists em aberto hoje: <b>${fmtN(ab)}</b>${cr?` · <span class="d-bad">${fmtN(cr)} críticos</span>`:""}${at?` · ${fmtN(at)} em atenção`:""}</div>`})()}${split}
