@@ -1225,7 +1225,7 @@ function manchete(p){
   const max=Math.max(1,...vs.filter(v=>v!=null),...mt.filter(v=>v!=null))*1.08;
   const bars=ks.map((k,i)=>{const v=vs[i],cur=k===p.k,fut=v==null&&k>DADOS_ATE.slice(0,7),mk=mt[i];
     return `<div class="mm${cur?" cur":""}${fut?" fut":""}" title="${mesNome(k)}: ${v==null?"sem dado":fmtN(v)+" líquidos"}${mt[i]!=null?" · meta "+fmtN(mt[i]):""}"><div class="col">${mk!=null?`<b style="bottom:${mk/max*100}%"></b>`:""}${v!=null?`<em style="bottom:calc(${v/max*100}% + 4px)">${fmtN(v)}</em>`:""}<i style="height:${fut?(mt[i]||0)/max*100:(v||0)/max*100}%"></i></div><span>${MESES[i]}</span></div>`}).join("");
-  const leg=mt.some(x=>x!=null)?"traço: meta do mês no Tracker"+(mt.slice(0,2).every(x=>x==null)?" (jan e fev sem meta registrada)":""):"";
+  const leg=mt.some(x=>x!=null)?"traço: meta do mês":"";
   return `<section class="man"><span class="lbl">${lbl}</span><h2>${h2}</h2><p class="sub">${sub}</p>
     <div class="mms" role="img" aria-label="Contratos líquidos mês a mês em ${y}">${bars}</div>${leg?`<p class="mms-l">${p.parcial?"Mês em andamento até "+brc(DADOS_ATE)+" · ":""}${leg}</p>`:`<p class="mms-l">${p.parcial?"Mês em andamento até "+brc(DADOS_ATE):""}</p>`}</section>`;
 }
