@@ -584,6 +584,16 @@ table.ads th:first-child{z-index:3}
 :root{--gold-ink:#7E6420}
 :root[data-mode="dark"]{--gold-ink:#D4B45E}
 .firm{color:var(--gold-ink)}
+/* v5.7: grade de 9 números da closer e campo de anotação */
+.rk-g{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:12px}
+.rk-g span{min-width:0}.rk-g small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rk-g b{font-size:16px;white-space:nowrap}
+.ev-form{display:grid;grid-template-columns:150px 110px minmax(0,1fr) auto;gap:8px;align-items:center;margin:12px 0 4px}
+.ev-form input,.ev-form select{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 14px;min-width:0}
+:root[data-mode="dark"] .ev-form input,:root[data-mode="dark"] .ev-form select{background:#17181D;color-scheme:dark}
+.ev-form input:focus-visible,.ev-form select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.ev-msg{grid-column:1/-1;font-size:12.5px;color:var(--ink-3);min-height:1em}
+@media (max-width:640px){.ev-form{grid-template-columns:1fr 1fr}.ev-form #evT{grid-column:1/-1}.ev-form #evB{grid-column:1/-1}}
 </style>
 
 <header class="top">
@@ -982,7 +992,8 @@ function liqFechado(a,b,f){
 function kpis(a,b,f){
   const t=soma(a,b,f),lf=liqFechado(a,b,f),liq=lf!=null?lf:(t.contratos||0)-(t.churns||0);
   return {inv:t.invest||0,conv:t.conversas||0,leads:t.leads||0,q:t.qualif||0,c:t.contratos||0,ch:t.churns||0,liq,chk:t.checklists||0,
-    cpc:div(t.invest,t.conversas),cpq:div(t.invest,t.qualif),cac:div(t.invest,liq),pq:div(t.qualif,t.leads),pf:div(t.contratos,t.qualif)};
+    cpc:div(t.invest,t.conversas),cpq:div(t.invest,t.qualif),cac:div(t.invest,liq),pq:div(t.qualif,t.leads),pf:div(t.contratos,t.qualif),
+    pcv:div(t.contratos,t.leads),pchk:div(t.checklists,t.contratos),tchk:div(t.chk_dias,t.chk_n)};
 }
 const cadsOp=op=>CAD.filter(c=>op==="ALL"||c.op===op).map(c=>c.cad);
 const filtroOp=op=>op==="ALL"?null:(x=>x.op===op);
@@ -1175,11 +1186,11 @@ function manchete(p){
     sub=`${meta?`Meta do mês: <b>${fmtN(meta)}</b>. `:""}${AI2?`No ano, até ${brc(AI2.ate)}: <b>${fmtN(AI2.real)} de ${fmtN(AI2.meta)}</b> (${fmtP(AI2.pct)}).`:""}`;
   }
   const ks=[];for(let m=1;m<=12;m++)ks.push(y+"-"+String(m).padStart(2,"0"));
-  const vs=ks.map(k=>liqMes(k,op)),mt=ks.map(k=>op==="ALL"?null:(META[k]&&META[k][op]!=null?META[k][op]:null));
-  const max=Math.max(1,...vs.filter(v=>v!=null),...mt.filter(v=>v!=null),ref?ref.v:0)*1.08;
-  const bars=ks.map((k,i)=>{const v=vs[i],cur=k===p.k,fut=v==null&&k>DADOS_ATE.slice(0,7),mk=ref?ref.v:mt[i];
-    return `<div class="mm${cur?" cur":""}${fut?" fut":""}" title="${mesNome(k)}: ${v==null?"sem dado":fmtN(v)+" líquidos"}${mt[i]!=null?" · meta "+fmtN(mt[i]):""}"><div class="col">${mk!=null?`<b style="bottom:${mk/max*100}%"></b>`:""}${v!=null?`<em style="bottom:calc(${v/max*100}% + 4px)">${fmtN(v)}</em>`:""}<i style="height:${fut?(ref?ref.v:0)/max*100:(v||0)/max*100}%"></i></div><span>${MESES[i]}</span></div>`}).join("");
-  const leg=ref?ref.t:op==="ALL"?"":"traço: meta do mês";
+  const vs=ks.map(k=>liqMes(k,op)),mt=ks.map(k=>{const M=META[k];if(!M)return null;const v=op==="ALL"?(M.BPC||0)+(M.AA||0):M[op];return v>0?v:null});
+  const max=Math.max(1,...vs.filter(v=>v!=null),...mt.filter(v=>v!=null))*1.08;
+  const bars=ks.map((k,i)=>{const v=vs[i],cur=k===p.k,fut=v==null&&k>DADOS_ATE.slice(0,7),mk=mt[i];
+    return `<div class="mm${cur?" cur":""}${fut?" fut":""}" title="${mesNome(k)}: ${v==null?"sem dado":fmtN(v)+" líquidos"}${mt[i]!=null?" · meta "+fmtN(mt[i]):""}"><div class="col">${mk!=null?`<b style="bottom:${mk/max*100}%"></b>`:""}${v!=null?`<em style="bottom:calc(${v/max*100}% + 4px)">${fmtN(v)}</em>`:""}<i style="height:${fut?(mt[i]||0)/max*100:(v||0)/max*100}%"></i></div><span>${MESES[i]}</span></div>`}).join("");
+  const leg=mt.some(x=>x!=null)?"traço: meta do mês no Tracker"+(mt.slice(0,2).every(x=>x==null)?" (jan e fev sem meta registrada)":""):"";
   return `<section class="man"><span class="lbl">${lbl}</span><h2>${h2}</h2><p class="sub">${sub}</p>
     <div class="mms" role="img" aria-label="Contratos líquidos mês a mês em ${y}">${bars}</div>${leg?`<p class="mms-l">${p.parcial?"Mês em andamento até "+brc(DADOS_ATE)+" · ":""}${leg}</p>`:`<p class="mms-l">${p.parcial?"Mês em andamento até "+brc(DADOS_ATE):""}</p>`}</section>`;
 }
@@ -1216,7 +1227,6 @@ function vSimulador(){
   const p=P.find(x=>x.parcial);
   let h=`<div class="sec-h"><h2>Simulador · ${p?mesNome(p.k):"—"}</h2><p>${p?`E se o ritmo mudar até ${br(ultimoDia(p.k))}? Começa no ritmo real de ${br(p.ini)} a ${br(p.fim)}. Nada é salvo.`:""}</p></div>`;
   if(!p){document.getElementById("view").innerHTML=h+`<p class="note">Não há mês em andamento nos dados.</p>`;return}
-  if(st.p!==p)h+=`<p class="note">O simulador olha só o mês em andamento (${mesNome(p.k)}), qualquer que seja o mês escolhido no topo.</p>`;
   st.simP=p;st.sim=st.sim||{};
   const Bs=opsSel().map(op=>simBase(p,op)).filter(B=>B.r.meta);
   h+=`<div class="sim">${Bs.map(B=>{const op=B.op,v=st.sim[op]||(st.sim[op]={qd:B.qd,fe:B.fe,ch:B.ch});
@@ -1254,10 +1264,25 @@ function eventosMes(k,op){
   ANOT.forEach(a=>{if(dentro(a[0])&&okOp(a[1]))ev.push({d:a[0],tipo:"nota",t:a[2]+(a[1]!=="ALL"&&op==="ALL"?" ("+a[1]+")":"")})});
   return ev.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0).map((e,i)=>({...e,n:i+1}));
 }
+/* v5.7 (18/11/2026): anotar pela tela. Quem tem o link (chave) pode anotar; grava na aba "anotacoes" pelo doPost do Apps Script. */
+const chaveLink=()=>(typeof HASH_K!=="undefined"&&HASH_K)||window.PB_K||"";
+function ligarAnotacao(){
+  const f=document.getElementById("evForm");if(!f)return;
+  f.onsubmit=async e=>{e.preventDefault();const b=document.getElementById("evB"),m=document.getElementById("evMsg"),t=document.getElementById("evT").value.trim();
+    if(t.length<3){m.textContent="Escreva o que aconteceu.";return}
+    b.disabled=true;m.textContent="Gravando…";
+    try{const r=await fetch(API_PB,{method:"POST",credentials:"omit",body:JSON.stringify({k:chaveLink(),d:document.getElementById("evD").value,op:document.getElementById("evOp").value,t})}).then(x=>x.json());
+      if(!r.ok)throw new Error(r.erro||"falhou");ANOT=r.anotacoes||ANOT;render();const m2=document.getElementById("evMsg");if(m2)m2.textContent="Anotado."}
+    catch(err){b.disabled=false;m.textContent="Não gravou: "+(err.message||"tente de novo")+"."}};
+}
 function eventosH(k,op,ate){
   const ev=eventosMes(k,op),nm=MESES_L[+k.slice(5,7)-1],tag={feriado:"feriado",closer:"time",nota:"anotação"};
   return `<div class="blk evs"><span class="lbl">O que aconteceu em ${nm}</span>${ev.length?`<ol>${ev.map(e=>`<li><span class="ev-n">${e.n}</span><span class="ev-d">${brc(e.d)}</span><span class="ev-t">${esc(e.t)}</span><span class="ev-k">${tag[e.tipo]}</span></li>`).join("")}</ol>`:`<p class="note">Nenhum evento no mês.</p>`}
-    <p class="note">Para acrescentar: aba "anotacoes" do arquivo PB · Painel de Gestão (data, operação, texto curto, sem nome de cliente). Entra na atualização seguinte.</p></div>`;
+    ${chaveLink()?`<form class="ev-form" id="evForm" autocomplete="off"><input type="date" id="evD" value="${DADOS_ATE}" min="${k}-01" max="${ultimoDia(k)}" aria-label="Data" required>
+      <select id="evOp" aria-label="Operação"><option value="ALL">Todas</option><option value="BPC"${op==="BPC"?" selected":""}>BPC</option><option value="AA"${op==="AA"?" selected":""}>AA</option></select>
+      <input type="text" id="evT" maxlength="140" placeholder="O que aconteceu? (sem nome de cliente)" aria-label="O que aconteceu" required>
+      <button type="submit" class="ordbtn" id="evB">Anotar</button><span class="ev-msg" id="evMsg" role="status"></span></form>`:""}
+    <p class="note">Anotações também podem ser escritas ou corrigidas na aba "anotacoes" do arquivo PB · Painel de Gestão. Texto curto, sem nome de cliente.</p></div>`;
 }
 /* Anúncios: gasto por dia de cada anúncio e a última mudança em 30 dias */
 function gastoDia(op,cod,a,b){const m={};for(const x of BASE)if(x.m==="ad_inv"&&x.op===op&&x.cod===cod&&x.d>=a&&x.d<=b)m[x.d]=(m[x.d]||0)+x.v;return m}
@@ -1318,7 +1343,7 @@ function vComercial(){
   h+=`<div class="blk" id="semanasBlk"></div>`;
   h+=`<div class="two"><div class="card"><h3>Contratos líquidos acumulados no mês</h3><p class="sub">Tracejado: ritmo da meta pelos dias úteis</p><div class="legend" id="lgA"></div><div class="chart" id="chA"></div></div>
       <div class="card"><h3>Contratos líquidos · meses fechados</h3><p class="sub">O mês em andamento fica fora para não comparar parcial com fechado</p><div class="legend" id="lgB"></div><div class="chart" id="chB"></div></div></div>`;
-  h+=eventosH(p.k,st.op);
+  h+=eventosH(p.k,st.op);setTimeout(ligarAnotacao,0);
   /* v5.1: resumo em 3 frases (diretoria) */
   let resumoH="";
   if(p.parcial){const RS=opsSel().map(op=>rumoMeta(p,op)).filter(r=>r.meta).sort((x,y)=>(x.sinal||0)-(y.sinal||0)),AI2=st.op==="ALL"?anoInfo(p.k.slice(0,4)):null,fr=[];
@@ -1410,6 +1435,14 @@ function vOperacoes(){
 }
 
 /* ===== Closers ===== */
+/* v5.7 (18/11/2026): 9 números da closer (pedido do Kevin), em 3 linhas: volume, conversão e checklist. Siglas curtas; o nome completo vai no title. */
+const fmtDias=v=>v==null||!isFinite(v)?"—":v.toLocaleString("pt-BR",{maximumFractionDigits:1})+" d";
+function gradeCloser(a){
+  const c=(sig,nome,val)=>`<span title="${nome}"><small>${sig}</small><b>${val}</b></span>`;
+  return c("Leads","Leads recebidos (Datacrazy)",fmtN(a.leads))+c("Qualif.","Qualificados",fmtN(a.q))+c("% Qualif.","Taxa de qualificação: qualificados ÷ leads",fmtP(a.pq))
+    +c("Contratos","Contratos fechados (antes de churn)",fmtN(a.c))+c("Aprov.","Aproveitamento: contratos ÷ qualificados",fmtP(a.pf))+c("Conv. total","Conversão total: contratos ÷ leads",fmtP(a.pcv))
+    +c("Checklists","Checklists concluídos (o que vale para a comissão)",fmtN(a.chk))+c("% Checklist","Conclusão: checklists concluídos ÷ contratos do período",fmtP(a.pchk))+c("Tempo chk.","Tempo médio do contrato à conclusão do checklist (dias corridos)",fmtDias(a.tchk));
+}
 function vClosers(){
   const p=st.p;
   /* v5.1: só quem participou do período (no time e com algum movimento); no mês em andamento, meta = esperado pela curva da TV */
@@ -1426,18 +1459,18 @@ function vClosers(){
     if(i===0&&RK.length>1)dest.push("Maior % do esperado");if(melhorConv&&l===melhorConv&&RK.length>1)dest.push("Melhor conversão");if(maisQ&&l===maisQ&&RK.length>1)dest.push("Mais qualificados");
     return `<div class="rk${i===0?" top":""}" style="--cv:${css(l.c.cv)}"><div class="rk-h"><span class="pos">${i+1}º</span><span class="av">${esc(String(l.c.pessoa).charAt(0))}</span><span class="nm"><b>${esc(l.c.pessoa)}</b><small>${l.c.op==="BPC"?"BPC / LOAS":"Auxílio-Acidente"}</small></span></div>
       <div class="rk-m"><div class="anel-w">${anel(l.pm,cor)}</div><div class="rk-n"><b>${fmtN(l.a.liq)}</b><small>de ${l.meta.toLocaleString("pt-BR",{maximumFractionDigits:1})} ${p.parcial?"esperados":"na meta"}</small></div></div>
-      <div class="rk-s"><span><small>Qualificados</small><b>${fmtN(l.a.q)}</b></span><span><small>Fechamento</small><b>${fmtP(l.a.pf)}</b></span><span><small>Checklists</small><b>${fmtN(l.a.chk)}</b></span></div>
+      <div class="rk-s rk-g">${gradeCloser(l.a)}</div>
       ${dest.length?`<div class="rk-d">${dest.map(d=>`<span>${d}</span>`).join("")}</div>`:""}</div>`}).join("")}</div>`;
-  h+=`<div class="tbl-w"><table class="wide"><thead><tr><th>Closer</th><th>Leads</th><th>Qualificados</th><th>% qualif.</th><th>Contratos</th><th>Churns</th><th>Líquidos</th><th>% fech.</th><th>Meta</th><th>% da meta</th>${p.parcial?"<th>Previsão do mês</th>":""}<th>Checklists</th><th>Em aberto hoje</th><th>Críticos</th></tr></thead><tbody>
+  h+=`<div class="tbl-w"><table class="wide"><thead><tr><th>Closer</th><th>Leads</th><th>Qualif.</th><th title="qualificados ÷ leads">% qualif.</th><th>Contratos</th><th title="contratos ÷ qualificados">Aprov.</th><th title="contratos ÷ leads">Conv. total</th><th>Churns</th><th>Líquidos</th><th>Meta</th><th>% da meta</th>${p.parcial?"<th>Previsão do mês</th>":""}<th>Checklists</th><th title="checklists concluídos ÷ contratos">% checklist</th><th title="dias do contrato à conclusão">Tempo chk.</th><th>Em aberto hoje</th><th>Críticos</th></tr></thead><tbody>
     ${L.map(l=>`<tr><td class="who"><span class="dot" style="background:${css(l.c.cv)}"></span><span>${l.c.pessoa}${l.c.ate&&l.c.ate<p.fim?` <span class="hist">(histórico)</span>`:""}</span> <span class="tag">${l.c.cad}</span></td>
-      <td>${fmtN(l.a.leads)}</td><td>${fmtN(l.a.q)}</td><td>${fmtP(l.a.pq)}</td><td>${fmtN(l.a.c)}</td><td>${fmtN(l.a.ch)}</td><td><b>${fmtN(l.a.liq)}</b></td><td>${fmtP(l.a.pf)}</td><td>${l.meta?fmtN(l.meta):"—"}</td><td>${l.meta?farol(l.pm):"—"}</td>${p.parcial?`<td>${(()=>{const v=l.c.cad==="LID"?null:previsao(p,x=>x.cad===l.c.cad,[l.c.cad]);return v&&v.meta?`${fmtN(v.prev)} de ${fmtN(v.meta)} ${farol(v.pm)}`:"—"})()}</td>`:""}<td>${fmtN(l.a.chk)}</td><td>${PEND[l.c.cad]?fmtN(PEND[l.c.cad].aberto):"—"}</td><td>${PEND[l.c.cad]&&PEND[l.c.cad].critico?`<span class="d-bad">${fmtN(PEND[l.c.cad].critico)}</span>`:PEND[l.c.cad]?"0":"—"}</td></tr>`).join("")}
-    <tr class="tot"><td>Time</td><td>${fmtN(T.leads)}</td><td>${fmtN(T.q)}</td><td>${fmtP(T.pq)}</td><td>${fmtN(T.c)}</td><td>${fmtN(T.ch)}</td><td>${fmtN(T.liq)}</td><td>${fmtP(T.pf)}</td><td>${fmtN(Tm)}</td><td>${farol(div(T.liq,Tm))}</td>${p.parcial?`<td>${(()=>{const v=previsao(p,x=>lista.some(c=>c.cad===x.cad),lista.map(c=>c.cad));return v&&v.meta?`${fmtN(v.prev)} de ${fmtN(v.meta)} ${farol(v.pm)}`:"—"})()}</td>`:""}<td>${fmtN(T.chk)}</td><td>${fmtN(lista.reduce((s,c)=>s+(PEND[c.cad]?PEND[c.cad].aberto:0),0))}</td><td>${fmtN(lista.reduce((s,c)=>s+(PEND[c.cad]?PEND[c.cad].critico:0),0))}</td></tr>
+      <td>${fmtN(l.a.leads)}</td><td>${fmtN(l.a.q)}</td><td>${fmtP(l.a.pq)}</td><td>${fmtN(l.a.c)}</td><td>${fmtP(l.a.pf)}</td><td>${fmtP(l.a.pcv)}</td><td>${fmtN(l.a.ch)}</td><td><b>${fmtN(l.a.liq)}</b></td><td>${l.meta?fmtN(l.meta):"—"}</td><td>${l.meta?farol(l.pm):"—"}</td>${p.parcial?`<td>${(()=>{const v=l.c.cad==="LID"?null:previsao(p,x=>x.cad===l.c.cad,[l.c.cad]);return v&&v.meta?`${fmtN(v.prev)} de ${fmtN(v.meta)} ${farol(v.pm)}`:"—"})()}</td>`:""}<td>${fmtN(l.a.chk)}</td><td>${fmtP(l.a.pchk)}</td><td>${fmtDias(l.a.tchk)}</td><td>${PEND[l.c.cad]?fmtN(PEND[l.c.cad].aberto):"—"}</td><td>${PEND[l.c.cad]&&PEND[l.c.cad].critico?`<span class="d-bad">${fmtN(PEND[l.c.cad].critico)}</span>`:PEND[l.c.cad]?"0":"—"}</td></tr>`).join("")}
+    <tr class="tot"><td>Time</td><td>${fmtN(T.leads)}</td><td>${fmtN(T.q)}</td><td>${fmtP(T.pq)}</td><td>${fmtN(T.c)}</td><td>${fmtP(T.pf)}</td><td>${fmtP(T.pcv)}</td><td>${fmtN(T.ch)}</td><td>${fmtN(T.liq)}</td><td>${fmtN(Tm)}</td><td>${farol(div(T.liq,Tm))}</td>${p.parcial?`<td>${(()=>{const v=previsao(p,x=>lista.some(c=>c.cad===x.cad),lista.map(c=>c.cad));return v&&v.meta?`${fmtN(v.prev)} de ${fmtN(v.meta)} ${farol(v.pm)}`:"—"})()}</td>`:""}<td>${fmtN(T.chk)}</td><td>${fmtP(T.pchk)}</td><td>${fmtDias(T.tchk)}</td><td>${fmtN(lista.reduce((s,c)=>s+(PEND[c.cad]?PEND[c.cad].aberto:0),0))}</td><td>${fmtN(lista.reduce((s,c)=>s+(PEND[c.cad]?PEND[c.cad].critico:0),0))}</td></tr>
     ${(()=>{/* v5.2: líquidos fora das cadeiras (fecha com o total da operação; no mês fechado, pelo fechamento oficial) */
-      const OP=kpis(p.ini,p.fim,filtroOp(st.op)).liq,dif=OP-T.liq,nc=13+(p.parcial?1:0);if(!dif)return "";
-      const cel=v=>`<td></td><td></td><td></td><td></td><td></td><td><b>${fmtN(v)}</b></td>`+"<td></td>".repeat(nc-7);
+      const OP=kpis(p.ini,p.fim,filtroOp(st.op)).liq,dif=OP-T.liq,nc=16+(p.parcial?1:0);if(!dif)return "";
+      const cel=v=>"<td></td>".repeat(7)+`<td><b>${fmtN(v)}</b></td>`+"<td></td>".repeat(nc-8);
       return `<tr class="conc"><td>Fora das cadeiras / a conciliar<div class="sub2">${p.parcial?"líquidos da operação sem closer no recorte":"no fechamento, o total da operação é maior que a soma das cadeiras"}</div></td>${cel(dif)}</tr>
       <tr class="tot"><td>Total ${st.op==="ALL"?"do comercial":st.op}${p.parcial?"":" (fechamento)"}</td>${cel(OP)}</tr>`})()}
-  </tbody></table></div><p class="note">Leads = Datacrazy (responsável atual). Checklists = "o que vale para a comissão" da Central, pela data de conclusão. Kevin (líder) entra no total do time, sem meta. "Em aberto hoje" e "Críticos" são o retrato da Central na última atualização (risco crítico = 15 dias ou mais em aberto).</p>`;
+  </tbody></table></div><p class="note">Leads = Datacrazy (responsável atual). Aprov. = contratos ÷ qualificados; Conv. total = contratos ÷ leads; % checklist = checklists concluídos ÷ contratos do período; Tempo chk. = média de dias corridos entre a data do contrato e a conclusão do checklist. Checklists = "o que vale para a comissão" da Central, pela data de conclusão. Kevin (líder) entra no total do time, sem meta. "Em aberto hoje" e "Críticos" são o retrato da Central na última atualização (risco crítico = 15 dias ou mais em aberto).</p>`;
   document.getElementById("view").innerHTML=h;
 }
 
@@ -1687,7 +1720,7 @@ function desenharTopo(){
   const anosDados=[...new Set(P.map(p=>p.k.slice(0,4)))].sort(),anos=[...anosDados,String(+anosDados[anosDados.length-1]+1)];
   const ops=SO_UMA_OP.includes(st.v)?[["BPC","BPC"],["AA","AA"]]:[["ALL","BPC + AA"],["BPC","BPC"],["AA","AA"]];
   c2.innerHTML=`<div class="seg ano" role="group" aria-label="Ano">${anos.map(y=>`<button type="button" data-y="${y}" class="${y===ano?"on":""}" ${anosDados.includes(y)?"":"disabled"} aria-pressed="${y===ano}">${y}</button>`).join("")}</div>
-    <div class="mrow" role="group" aria-label="Mês">${MES.map((m,i)=>{const k=ano+"-"+String(i+1).padStart(2,"0"),p=P.find(x=>x.k===k);return `<button type="button" class="mchip${p===st.p?" on":""}${p&&p.parcial?" parc":""}" ${p?`data-i="${P.indexOf(p)}"`:"disabled"} aria-pressed="${p===st.p}">${m}</button>`}).join("")}</div>
+    <div class="mrow" role="group" aria-label="Mês">${MES.map((m,i)=>{const k=ano+"-"+String(i+1).padStart(2,"0"),p=P.find(x=>x.k===k);const ok=p&&mesLiberado(p);return `<button type="button" class="mchip${p===st.p?" on":""}${p&&p.parcial?" parc":""}" ${ok?`data-i="${P.indexOf(p)}"`:"disabled"} ${p&&!ok?`title="${st.v==="simulador"?"O simulador olha só o mês em andamento":"Sem motivo registrado neste mês"}"`:""} aria-pressed="${p===st.p}">${m}</button>`}).join("")}</div>
     <div class="seg" role="group" aria-label="Operação">${ops.map(([o,t])=>`<button type="button" data-o="${o}" class="${st.op===o?"on":""}" aria-pressed="${st.op===o}">${t}</button>`).join("")}</div>`;
   cr.innerHTML=`<span class="selo">${st.p.parcial?"Parcial · até "+brc(st.p.fim):"Fechado"}</span><button type="button" class="tema" id="temaBtn" title="Tema: ${NOME_TEMA[TEMA]} (clique para trocar)">${ICO[TEMA]}<span>${NOME_TEMA[TEMA]}</span></button>`;
   c2.querySelectorAll(".mchip[data-i]").forEach(b=>b.onclick=()=>{selMes.value=b.dataset.i;selMes.dispatchEvent(new Event("change"))});
@@ -1713,12 +1746,22 @@ function marcarZeros(){document.querySelectorAll("#view td, #view .kpi .v, #view
   if(st.dir==="lv")document.querySelectorAll("#view table.heat td.h").forEach(e=>{if(parseInt(e.textContent,10)>=30)e.classList.add("alto")})}
 new MutationObserver(()=>marcarZeros()).observe(document.getElementById("view"),{childList:true});
 const SO_UMA_OP=["anuncios","motivos"];
+/* v5.7: meses que cada aba aceita. Simulador: só o mês em andamento. Motivos: só meses com motivo registrado na operação escolhida. */
+function mesLiberado(p,v,op){
+  v=v||st.v;op=op||st.op;if(!p)return false;
+  if(v==="simulador")return !!p.parcial;
+  if(v==="motivos")return BASE.some(x=>(x.m==="nq"||x.m==="perda"||x.m==="pc")&&x.d>=p.ini&&x.d<=p.fim&&(op==="ALL"||x.op===op));
+  return true;
+}
 function render(){
   if(!st.p)return;
   /* v5.1: Anúncios e Motivos mostram uma operação por vez; ao sair, volta para a escolha anterior */
   const opf_=document.getElementById("opf");
   if(SO_UMA_OP.includes(st.v)){if(st.op==="ALL"){st.opVolta="ALL";st.op=st.opPag||"BPC";opf_.value=st.op}}
-  else if(st.opVolta){st.op=st.opVolta;st.opVolta=null;opf_.value=st.op}   /* v4.0: troca de tema antes de os números chegarem não redesenha a página vazia */
+  else if(st.opVolta){st.op=st.opVolta;st.opVolta=null;opf_.value=st.op}
+  /* v5.7: aba com mês travado vai para o mês liberado mais recente; ao sair, volta ao mês de antes */
+  if(!mesLiberado(st.p)){const q=P.find(x=>mesLiberado(x));if(q){if(!st.pVolta)st.pVolta=st.p;st.p=q;selMes.value=P.indexOf(q)}}
+  else if(st.pVolta&&!["simulador","motivos"].includes(st.v)){st.p=st.pVolta;st.pVolta=null;selMes.value=P.indexOf(st.p)}   /* v4.0: troca de tema antes de os números chegarem não redesenha a página vazia */
   document.documentElement.dataset.dir=st.dir;
   document.querySelectorAll(".dirs button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.d===st.dir));
   const ref=ATUALIZADO&&/^\d{2}\/\d{2}\/\d{4}/.test(ATUALIZADO)?addDias(ATUALIZADO.slice(6,10)+"-"+ATUALIZADO.slice(3,5)+"-"+ATUALIZADO.slice(0,2),-1):DADOS_ATE;
