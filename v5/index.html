@@ -628,6 +628,7 @@ details.so{margin:8px 0 12px}
 .card.can th,.card.can td{padding:8px 6px}
 .card.can td:first-child{white-space:normal}
 .card.can{overflow-x:auto}
+.card.can tr.can-np td{color:var(--ink-3)}.card.can tr.can-np td:first-child{color:var(--ink-2)}
 </style>
 
 <header class="top">
@@ -1383,12 +1384,27 @@ function porCanal(a,b,op){
 function custoPago(a,b,op){const t=soma(a,b,op==="ALL"?null:(x=>x.op===op)),c=porCanal(a,b,op).meta;return c?(t.invest||0)/c:null}
 function canaisH(p){
   const ops=opsSel(),tem=BASE.some(x=>x.m==="ad_c"&&x.d>=p.ini&&x.d<=p.fim);if(!tem)return "";
-  const tab=op=>{const r=porCanal(p.ini,p.fim,op),tot=Object.values(r).reduce((s,v)=>s+v,0),inv=soma(p.ini,p.fim,x=>x.op===op).invest||0;
-    return `<div class="card can"><h3>${op==="BPC"?"BPC / LOAS":"Auxílio-Acidente"}</h3><table class="wide cl"><thead><tr><th>Canal</th><th>Contratos</th><th>% do total</th><th>Investimento</th><th>Custo por contrato</th></tr></thead><tbody>
-      ${CANAIS.filter(([k])=>r[k]>0||k==="meta"||k==="org").map(([k,t])=>`<tr><td>${t}</td><td>${fmtN(r[k])}</td><td>${fmtP(div(r[k],tot))}</td><td>${k==="meta"?fmtR0(inv):k==="google"?"sem dado":"—"}</td><td>${k==="meta"&&r[k]?fmtR0(inv/r[k]):"—"}</td></tr>`).join("")}
-      <tr class="tot"><td>Total</td><td>${fmtN(tot)}</td><td>100%</td><td>${fmtR0(inv)}</td><td>${tot?fmtR0(inv/tot):"—"}</td></tr></tbody></table></div>`};
+  const tab=op=>{const r=porCanal(p.ini,p.fim,op),tot=Object.values(r).reduce((s,v)=>s+v,0),inv=soma(p.ini,p.fim,x=>x.op===op).invest||0,
+      temG=BASE.some(x=>x.m==="g_inv"),gInv=temG?(soma(p.ini,p.fim,x=>x.op===op).g_inv||0):null,
+      invC=k=>k==="meta"?fmtR0(inv):k==="google"?(gInv!=null?fmtR0(gInv):"aguardando a TP"):"não se aplica",
+      cacC=k=>k==="meta"?(r.meta?fmtR0(inv/r.meta):"—"):k==="google"?(gInv!=null&&r.google?fmtR0(gInv/r.google):"—"):"não se aplica";
+    return `<div class="card can"><h3>${op==="BPC"?"BPC / LOAS":"Auxílio-Acidente"}</h3><table class="wide cl"><thead><tr><th>Canal</th><th>Contratos</th><th>% do total</th><th>Investimento</th><th>Custo por contrato do canal</th></tr></thead><tbody>
+      ${CANAIS.filter(([k])=>r[k]>0||k==="meta"||k==="google"||k==="org").map(([k,t])=>`<tr${["meta","google"].includes(k)?"":` class="can-np"`}><td>${t}</td><td>${fmtN(r[k])}</td><td>${fmtP(div(r[k],tot))}</td><td>${invC(k)}</td><td>${["meta","google"].includes(k)?`<b>${cacC(k)}</b>`:cacC(k)}</td></tr>`).join("")}
+      <tr class="tot"><td>Total</td><td>${fmtN(tot)}</td><td>100%</td><td>${fmtR0(inv+(gInv||0))}</td><td title="Não se soma custo de canais diferentes">—</td></tr></tbody></table></div>`};
   return `<div class="blk"><span class="lbl">De onde vêm os contratos · ${mesNome(p.k)}</span><div class="two">${ops.map(tab).join("")}</div>
-    <details class="how"><summary>Como ler</summary><p class="note">Contrato bruto (antes de churn), pela data do contrato, classificado pelo código de origem do negócio. Meta = anúncios da Meta; Google = campanhas do Google (o painel ainda não tem o gasto do Google); Orgânico = indicação, retorno, recuperação, 2º filho, Instagram, social selling, site, presencial e Nº 1270; Sem origem = código vazio. "Sem ligação com a origem" são contratos do Tracker que não aparecem ligados a um negócio com origem. Investimento é o do Tracker, todo da Meta. Antes de 03/10 a origem vem do Espelho do RG; depois, do Funil da TP.</p></details></div>`;
+    <details class="how"><summary>Como ler</summary><p class="note">Contrato bruto (antes de churn), pela data do contrato, classificado pelo código de origem do negócio. Meta = anúncios da Meta; Google = campanhas do Google (o painel ainda não tem o gasto do Google); Orgânico = indicação, retorno, recuperação, 2º filho, Instagram, social selling, site, presencial e Nº 1270; Sem origem = código vazio. "Sem ligação com a origem" são contratos do Tracker que não aparecem ligados a um negócio com origem. Custo por contrato só existe para canal pago: investimento do canal ÷ contratos do canal. Orgânico não tem custo aqui (salários e comissões ficam de fora), e o total não mistura canais. Investimento da Meta é o do Tracker; o do Google entra quando a TP trouxer o gasto. Antes de 03/10 a origem vem do Espelho do RG; depois, do Funil da TP.</p></details></div>`;
+}
+/* v5.13 (18/11/2026, Kevin): no mês fechado, os cartões de meta por operação (realizado do fechamento contra a meta do mês). */
+function fechadoOpsH(p){
+  const RM=opsSel().map(op=>{const k=kpis(p.ini,p.fim,x=>x.op===op),meta=metaOpPeriodo(p.ini,p.fim,op),[y,m]=p.k.split("-").map(Number),ka=iso(new Date(y,m-2,1,12)).slice(0,7),ant=P.find(x=>x.k===ka);
+    return {op,real:k.liq,c:k.c,ch:k.ch,meta,pm:div(k.liq,meta),ant:ant?kpis(ant.ini,ant.fim,x=>x.op===op).liq:null,antK:ka}}).filter(r=>r.meta);
+  if(!RM.length)return "";
+  return `<div class="blk rumo-b"><span class="lbl">Meta do mês · contratos líquidos de ${mesNome(p.k)} (fechamento)</span><div class="rumo">${RM.map(r=>`<div class="rm" style="--opc:var(${r.op==="BPC"?"--bpc":"--aa"})">
+    <div class="rm-h"><span class="pvn">${r.op==="BPC"?"BPC / LOAS":"Auxílio-Acidente"}</span>${farol(r.pm)}</div>
+    <div class="rm-hero"><b class="big">${fmtN(r.real)}</b><span class="de">de ${fmtN(r.meta)}</span><span class="pct">${fmtP(r.pm)} da meta do mês${r.real>=r.meta?` · ${fmtN(r.real-r.meta)} acima`:` · faltaram ${fmtN(r.meta-r.real)}`}</span></div>
+    <div class="pg" role="img" aria-label="${fmtN(r.real)} de ${fmtN(r.meta)}"><i style="width:${Math.min(100,(r.pm||0)*100)}%"></i><span class="tk" style="left:50%" data-t="50%"></span><span class="tk" style="left:75%" data-t="75%"></span><span class="tk" style="left:99.6%" data-t="100%"></span></div>
+    <div class="rm-foot"><span>Contratos <b>${fmtN(r.c)}</b></span><span>Churns <b>${fmtN(r.ch)}</b></span>${r.ant!=null?`<span>${mesNome(r.antK)} <b>${fmtN(r.ant)}</b> ${delta(r.real,r.ant)}</span>`:""}</div></div>`).join("")}</div>
+    <p class="note">Líquidos do fechamento oficial (trava do Tracker; abril e maio congelados no número da época). Contratos e churns são os lançados no mês.</p></div>`;
 }
 /* ===== Comercial ===== */
 function vComercial(){
@@ -1434,6 +1450,7 @@ function vComercial(){
     </div>`).join("")}</div>
       ${TOT?`<p class="note"><b>Comercial inteiro</b> (linha à parte, BPC + AA): ${fmtN(TOT.real)} de ${fmtN(TOT.meta)} · esperado até ${brc(p.fim)} ${f1(TOT.esp)} ${farol(TOT.sinal,1)} · por dia ${TOT.falta?fmtN(TOT.porDia):"meta batida"} · projeção linear ${fmtN(TOT.prev)} · mês anterior nos mesmos dias úteis: ${TOT.ant!=null?fmtN(TOT.ant):"—"}</p>`:""}
       <details class="how"><summary>Como é calculado</summary><p class="note">Fichas V4.1 a V4.7 da IC (17/11). Farol = realizado ÷ esperado até ${brc(p.fim)} pela curva da TV: dias úteis da 1ª metade do mês pesam 0,9 e os da 2ª metade 1,1 (abaixo de 90% vermelho, 90 a 99,9% âmbar, a partir de 100% verde). Por dia = falta ÷ dias úteis restantes contando hoje, arredondado para cima. Projeção linear (realizado + ritmo × dias restantes) é só apoio, sem farol. Contratos líquidos = contratos − churns, a mesma conta do Tracker (C2_LIQUIDOS). Meta da operação no Tracker${RM.filter(r=>r.mCad!=null&&Math.round(r.mCad)!==Math.round(r.meta)).map(r=>` (${r.op}: ${fmtN(r.meta)}; a soma das metas das closers dá ${fmtN(r.mCad)})`).join("")}. Dia útil: segunda a sexta sem feriado nacional${(()=>{const fs=[...FERIADOS].filter(d=>d.slice(0,7)===p.k&&diasUteis(d,d));return fs.length?" ("+fs.map(brc).join(" e ")+" fora)":""})()}.</p></details></div>`}
+  else tvH=fechadoOpsH(p);   /* v5.13: mês fechado também mostra a meta por operação */
   h+=`<div class="blk" id="semanasBlk"></div>`;
   h+=`<div class="two"><div class="card"><h3>Contratos líquidos acumulados no mês</h3><p class="sub">Tracejado: ritmo da meta pelos dias úteis</p><div class="legend" id="lgA"></div><div class="chart" id="chA"></div></div>
       <div class="card"><h3>Contratos líquidos · meses fechados</h3><p class="sub">O mês em andamento fica fora para não comparar parcial com fechado</p><div class="legend" id="lgB"></div><div class="chart" id="chB"></div></div></div>`;
