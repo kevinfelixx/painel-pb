@@ -594,6 +594,18 @@ table.ads th:first-child{z-index:3}
 .ev-form input:focus-visible,.ev-form select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .ev-msg{grid-column:1/-1;font-size:12.5px;color:var(--ink-3);min-height:1em}
 @media (max-width:640px){.ev-form{grid-template-columns:1fr 1fr}.ev-form #evT{grid-column:1/-1}.ev-form #evB{grid-column:1/-1}}
+/* v5.8 (18/11/2026): anel da meta volta a ser o herói do card; a grade de 9 números fica de apoio, menor e mais clara.
+   Tabela das closers com números centralizados e nome à esquerda. */
+.rk .anel-w,.rk .anel{width:104px;height:104px}
+.rk .anel-v{font-size:17px}
+.rk-n b{font-size:44px}
+.rk-m{gap:20px;padding:4px 0 2px}
+.rk-g{gap:10px 8px;padding:12px 12px 10px;border-top:0;border-radius:12px;background:color-mix(in srgb,var(--ink) 4%,transparent)}
+.rk-g small{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.rk-g b{font-size:14.5px;font-weight:800;color:var(--ink-2)}
+table.wide.cl th,table.wide.cl td{text-align:center}
+table.wide.cl th:first-child,table.wide.cl td:first-child{text-align:left}
+table.wide.cl td .pill{margin-inline:auto}
 </style>
 
 <header class="top">
@@ -1439,8 +1451,8 @@ function vOperacoes(){
 const fmtDias=v=>v==null||!isFinite(v)?"—":v.toLocaleString("pt-BR",{maximumFractionDigits:1})+" d";
 function gradeCloser(a){
   const c=(sig,nome,val)=>`<span title="${nome}"><small>${sig}</small><b>${val}</b></span>`;
-  return c("Leads","Leads recebidos (Datacrazy)",fmtN(a.leads))+c("Qualif.","Qualificados",fmtN(a.q))+c("% Qualif.","Taxa de qualificação: qualificados ÷ leads",fmtP(a.pq))
-    +c("Contratos","Contratos fechados (antes de churn)",fmtN(a.c))+c("Aprov.","Aproveitamento: contratos ÷ qualificados",fmtP(a.pf))+c("Conv. total","Conversão total: contratos ÷ leads",fmtP(a.pcv))
+  return c("Leads","Leads recebidos (Datacrazy)",fmtN(a.leads))+c("Qualif.","Qualificados",fmtN(a.q))+c("TxQ","Taxa de qualificação: qualificados ÷ leads",fmtP(a.pq))
+    +c("Contratos","Contratos fechados (antes de churn)",fmtN(a.c))+c("Aprov.","Aproveitamento: contratos ÷ qualificados",fmtP(a.pf))+c("TxC","Taxa de conversão total: contratos ÷ leads",fmtP(a.pcv))
     +c("Checklists","Checklists concluídos (o que vale para a comissão)",fmtN(a.chk))+c("% Checklist","Conclusão: checklists concluídos ÷ contratos do período",fmtP(a.pchk))+c("Tempo chk.","Tempo médio do contrato à conclusão do checklist (dias corridos)",fmtDias(a.tchk));
 }
 function vClosers(){
@@ -1454,14 +1466,18 @@ function vClosers(){
   /* v5.1: ranking com destaque */
   const RK=L.filter(l=>l.meta).sort((x,y)=>(y.pm||0)-(x.pm||0)),comQ=RK.filter(l=>l.a.q>=5);
   const melhorConv=comQ.length?comQ.reduce((m,l)=>(l.a.pf||0)>(m.a.pf||0)?l:m):null,maisQ=RK.length?RK.reduce((m,l)=>l.a.q>m.a.q?l:m):null;
+  /* v5.8: selos de taxa só com volume mínimo (30 leads; 5 contratos para o checklist) */
+  const maior=(L2,f)=>L2.length?L2.reduce((m,l)=>(f(l)||0)>(f(m)||0)?l:m):null,comL=RK.filter(l=>l.a.leads>=30),comC=RK.filter(l=>l.a.c>=5);
+  const maiorTxC=maior(comL,l=>l.a.pcv),maiorTxQ=maior(comL,l=>l.a.pq),maiorChk=maior(comC,l=>l.a.pchk);
   const anel=(v,cor)=>{const r=34,c=2*Math.PI*r,f=Math.min(v||0,1);return `<svg class="anel" viewBox="0 0 84 84" aria-hidden="true" style="--glow:${cor}"><circle cx="42" cy="42" r="${r}" class="a-bg"/><circle cx="42" cy="42" r="${r}" class="a-fg" style="stroke:${cor};stroke-dasharray:${c};stroke-dashoffset:${c*(1-f)}"/></svg><span class="anel-v">${fmtP(v)}</span>`};
   if(RK.length)h+=`<div class="rank">${RK.map((l,i)=>{const cor=(l.pm||0)>=1?css("--good"):(l.pm||0)>=.9?css("--warn"):css("--bad"),dest=[];
     if(i===0&&RK.length>1)dest.push("Maior % do esperado");if(melhorConv&&l===melhorConv&&RK.length>1)dest.push("Melhor conversão");if(maisQ&&l===maisQ&&RK.length>1)dest.push("Mais qualificados");
+    if(maiorTxC&&l===maiorTxC&&RK.length>1)dest.push("Maior TxC");if(maiorTxQ&&l===maiorTxQ&&RK.length>1)dest.push("Maior TxQ");if(maiorChk&&l===maiorChk&&RK.length>1)dest.push("Maior % de conclusão");
     return `<div class="rk${i===0?" top":""}" style="--cv:${css(l.c.cv)}"><div class="rk-h"><span class="pos">${i+1}º</span><span class="av">${esc(String(l.c.pessoa).charAt(0))}</span><span class="nm"><b>${esc(l.c.pessoa)}</b><small>${l.c.op==="BPC"?"BPC / LOAS":"Auxílio-Acidente"}</small></span></div>
       <div class="rk-m"><div class="anel-w">${anel(l.pm,cor)}</div><div class="rk-n"><b>${fmtN(l.a.liq)}</b><small>de ${l.meta.toLocaleString("pt-BR",{maximumFractionDigits:1})} ${p.parcial?"esperados":"na meta"}</small></div></div>
       <div class="rk-s rk-g">${gradeCloser(l.a)}</div>
       ${dest.length?`<div class="rk-d">${dest.map(d=>`<span>${d}</span>`).join("")}</div>`:""}</div>`}).join("")}</div>`;
-  h+=`<div class="tbl-w"><table class="wide"><thead><tr><th>Closer</th><th>Leads</th><th>Qualif.</th><th title="qualificados ÷ leads">% qualif.</th><th>Contratos</th><th title="contratos ÷ qualificados">Aprov.</th><th title="contratos ÷ leads">Conv. total</th><th>Churns</th><th>Líquidos</th><th>Meta</th><th>% da meta</th>${p.parcial?"<th>Previsão do mês</th>":""}<th>Checklists</th><th title="checklists concluídos ÷ contratos">% checklist</th><th title="dias do contrato à conclusão">Tempo chk.</th><th>Em aberto hoje</th><th>Críticos</th></tr></thead><tbody>
+  h+=`<div class="tbl-w"><table class="wide cl"><thead><tr><th>Closer</th><th>Leads</th><th>Qualif.</th><th title="taxa de qualificação: qualificados ÷ leads">TxQ</th><th>Contratos</th><th title="contratos ÷ qualificados">Aprov.</th><th title="taxa de conversão total: contratos ÷ leads">TxC</th><th>Churns</th><th>Líquidos</th><th>Meta</th><th>% da meta</th>${p.parcial?"<th>Previsão do mês</th>":""}<th>Checklists</th><th title="checklists concluídos ÷ contratos">% checklist</th><th title="dias do contrato à conclusão">Tempo chk.</th><th>Em aberto hoje</th><th>Críticos</th></tr></thead><tbody>
     ${L.map(l=>`<tr><td class="who"><span class="dot" style="background:${css(l.c.cv)}"></span><span>${l.c.pessoa}${l.c.ate&&l.c.ate<p.fim?` <span class="hist">(histórico)</span>`:""}</span> <span class="tag">${l.c.cad}</span></td>
       <td>${fmtN(l.a.leads)}</td><td>${fmtN(l.a.q)}</td><td>${fmtP(l.a.pq)}</td><td>${fmtN(l.a.c)}</td><td>${fmtP(l.a.pf)}</td><td>${fmtP(l.a.pcv)}</td><td>${fmtN(l.a.ch)}</td><td><b>${fmtN(l.a.liq)}</b></td><td>${l.meta?fmtN(l.meta):"—"}</td><td>${l.meta?farol(l.pm):"—"}</td>${p.parcial?`<td>${(()=>{const v=l.c.cad==="LID"?null:previsao(p,x=>x.cad===l.c.cad,[l.c.cad]);return v&&v.meta?`${fmtN(v.prev)} de ${fmtN(v.meta)} ${farol(v.pm)}`:"—"})()}</td>`:""}<td>${fmtN(l.a.chk)}</td><td>${fmtP(l.a.pchk)}</td><td>${fmtDias(l.a.tchk)}</td><td>${PEND[l.c.cad]?fmtN(PEND[l.c.cad].aberto):"—"}</td><td>${PEND[l.c.cad]&&PEND[l.c.cad].critico?`<span class="d-bad">${fmtN(PEND[l.c.cad].critico)}</span>`:PEND[l.c.cad]?"0":"—"}</td></tr>`).join("")}
     <tr class="tot"><td>Time</td><td>${fmtN(T.leads)}</td><td>${fmtN(T.q)}</td><td>${fmtP(T.pq)}</td><td>${fmtN(T.c)}</td><td>${fmtP(T.pf)}</td><td>${fmtP(T.pcv)}</td><td>${fmtN(T.ch)}</td><td>${fmtN(T.liq)}</td><td>${fmtN(Tm)}</td><td>${farol(div(T.liq,Tm))}</td>${p.parcial?`<td>${(()=>{const v=previsao(p,x=>lista.some(c=>c.cad===x.cad),lista.map(c=>c.cad));return v&&v.meta?`${fmtN(v.prev)} de ${fmtN(v.meta)} ${farol(v.pm)}`:"—"})()}</td>`:""}<td>${fmtN(T.chk)}</td><td>${fmtP(T.pchk)}</td><td>${fmtDias(T.tchk)}</td><td>${fmtN(lista.reduce((s,c)=>s+(PEND[c.cad]?PEND[c.cad].aberto:0),0))}</td><td>${fmtN(lista.reduce((s,c)=>s+(PEND[c.cad]?PEND[c.cad].critico:0),0))}</td></tr>
@@ -1470,7 +1486,7 @@ function vClosers(){
       const cel=v=>"<td></td>".repeat(7)+`<td><b>${fmtN(v)}</b></td>`+"<td></td>".repeat(nc-8);
       return `<tr class="conc"><td>Fora das cadeiras / a conciliar<div class="sub2">${p.parcial?"líquidos da operação sem closer no recorte":"no fechamento, o total da operação é maior que a soma das cadeiras"}</div></td>${cel(dif)}</tr>
       <tr class="tot"><td>Total ${st.op==="ALL"?"do comercial":st.op}${p.parcial?"":" (fechamento)"}</td>${cel(OP)}</tr>`})()}
-  </tbody></table></div><p class="note">Leads = Datacrazy (responsável atual). Aprov. = contratos ÷ qualificados; Conv. total = contratos ÷ leads; % checklist = checklists concluídos ÷ contratos do período; Tempo chk. = média de dias corridos entre a data do contrato e a conclusão do checklist. Checklists = "o que vale para a comissão" da Central, pela data de conclusão. Kevin (líder) entra no total do time, sem meta. "Em aberto hoje" e "Críticos" são o retrato da Central na última atualização (risco crítico = 15 dias ou mais em aberto).</p>`;
+  </tbody></table></div><details class="how"><summary>Como ler esta tela</summary><p class="note">Leads = Datacrazy (responsável atual). TxQ = taxa de qualificação (qualificados ÷ leads); Aprov. = aproveitamento (contratos ÷ qualificados); TxC = taxa de conversão total (contratos ÷ leads); % checklist = checklists concluídos ÷ contratos do período; Tempo chk. = média de dias corridos entre a data do contrato e a conclusão do checklist. Checklists = "o que vale para a comissão" da Central, pela data de conclusão. Kevin (líder) entra no total do time, sem meta. "Em aberto hoje" e "Críticos" são o retrato da Central na última atualização (risco crítico = 15 dias ou mais em aberto).</p></details>`;
   document.getElementById("view").innerHTML=h;
 }
 
