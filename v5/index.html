@@ -578,7 +578,7 @@ table.ads th:first-child{z-index:3}
 .ev-t{color:var(--ink);min-width:0;overflow-wrap:anywhere}
 .ev-k{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);white-space:nowrap}
 .sub2.mud{color:var(--ink-2);font-weight:700}
-@media (max-width:560px){.evs li{grid-template-columns:24px 46px minmax(0,1fr)}.ev-k{display:none}}
+@media (max-width:560px){.evs li{grid-template-columns:24px 46px minmax(0,1fr) auto}.ev-tag{display:none}}
 /* v5.6b (18/11/2026): detector do Impeccable. Dourado como texto no tema claro usa um tom fechado (#7E6420, contraste 5:1 no papel);
    no escuro segue o dourado claro. Sem pulso, sem reflexo correndo e sem halo colorido (regra No Glow do DESIGN.md). */
 :root{--gold-ink:#7E6420}
@@ -606,6 +606,14 @@ table.ads th:first-child{z-index:3}
 table.wide.cl th,table.wide.cl td{text-align:center}
 table.wide.cl th:first-child,table.wide.cl td:first-child{text-align:left}
 table.wide.cl td .pill{margin-inline:auto}
+/* v5.9: editar e apagar anotação */
+.ev-ic{display:inline-grid;place-items:center;width:26px;height:26px;margin-right:4px;border:1px solid transparent;border-radius:999px;background:transparent;color:var(--ink-3);cursor:pointer;vertical-align:middle;opacity:0;transition:opacity .15s,color .15s,border-color .15s}
+.evs li:hover .ev-ic,.evs li:focus-within .ev-ic{opacity:1}
+.ev-ic:hover{color:var(--ink);border-color:var(--line)}.ev-ic[data-ac="apagar"]:hover{color:var(--bad)}
+.ev-ic:focus-visible{opacity:1;outline:2px solid var(--gold);outline-offset:2px}
+@media (hover:none){.ev-ic{opacity:1}}
+.evs li .ev-edit{grid-column:1/-1;margin:0}
+.ev-bts{display:flex;gap:6px}
 </style>
 
 <header class="top">
@@ -1273,12 +1281,29 @@ function eventosMes(k,op){
   CAD.forEach(c=>{if(c.cad==="LID"||!okOp(c.op))return;const n=c.pessoa+" ("+c.op+")";
     if(dentro(c.de)&&c.de>desde)ev.push({d:c.de,tipo:"closer",t:n+" entrou"});
     if(dentro(c.ate))ev.push({d:c.ate,tipo:"closer",t:n+" saiu"})});
-  ANOT.forEach(a=>{if(dentro(a[0])&&okOp(a[1]))ev.push({d:a[0],tipo:"nota",t:a[2]+(a[1]!=="ALL"&&op==="ALL"?" ("+a[1]+")":"")})});
+  ANOT.forEach(a=>{if(dentro(a[0])&&okOp(a[1]))ev.push({d:a[0],tipo:"nota",t:a[2]+(a[1]!=="ALL"&&op==="ALL"?" ("+a[1]+")":""),nota:a})});
   return ev.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0).map((e,i)=>({...e,n:i+1}));
 }
 /* v5.7 (18/11/2026): anotar pela tela. Quem tem o link (chave) pode anotar; grava na aba "anotacoes" pelo doPost do Apps Script. */
 const chaveLink=()=>(typeof HASH_K!=="undefined"&&HASH_K)||window.PB_K||"";
+async function postAnot(corpo){
+  const r=await fetch(API_PB,{method:"POST",credentials:"omit",body:JSON.stringify({k:chaveLink(),...corpo})}).then(x=>x.json());
+  if(!r.ok)throw new Error(r.erro||"falhou");ANOT=r.anotacoes||ANOT;render();
+}
 function ligarAnotacao(){
+  /* v5.9: lápis e lixeira nas anotações */
+  document.querySelectorAll(".evs li[data-l]").forEach(li=>{
+    const ln=+li.dataset.l,a=ANOT.find(x=>x[3]===ln);if(!a)return;
+    li.querySelector('[data-ac="apagar"]').onclick=async()=>{if(!confirm("Apagar a anotação de "+brc(a[0])+"?\n\n"+a[2]))return;
+      try{await postAnot({a:"apagar",linha:ln,t0:a[2]})}catch(err){alert("Não apagou: "+err.message)}};
+    li.querySelector('[data-ac="editar"]').onclick=()=>{
+      li.innerHTML=`<form class="ev-form ev-edit"><input type="date" value="${a[0]}" aria-label="Data" required><select aria-label="Operação"><option value="ALL"${a[1]==="ALL"?" selected":""}>Todas</option><option value="BPC"${a[1]==="BPC"?" selected":""}>BPC</option><option value="AA"${a[1]==="AA"?" selected":""}>AA</option></select><input type="text" maxlength="140" value="${esc(a[2])}" aria-label="O que aconteceu" required><span class="ev-bts"><button type="submit" class="ordbtn">Salvar</button><button type="button" class="ordbtn ev-cancel">Cancelar</button></span><span class="ev-msg" role="status"></span></form>`;
+      const f=li.querySelector("form"),[iD,iO,iT]=[f.querySelector('input[type=date]'),f.querySelector("select"),f.querySelector('input[type=text]')];
+      f.querySelector(".ev-cancel").onclick=()=>render();
+      f.onsubmit=async e=>{e.preventDefault();const m=f.querySelector(".ev-msg");m.textContent="Gravando…";
+        try{await postAnot({a:"editar",linha:ln,t0:a[2],d:iD.value,op:iO.value,t:iT.value.trim()})}catch(err){m.textContent="Não gravou: "+err.message+"."}};
+      iT.focus()};
+  });
   const f=document.getElementById("evForm");if(!f)return;
   f.onsubmit=async e=>{e.preventDefault();const b=document.getElementById("evB"),m=document.getElementById("evMsg"),t=document.getElementById("evT").value.trim();
     if(t.length<3){m.textContent="Escreva o que aconteceu.";return}
@@ -1289,7 +1314,7 @@ function ligarAnotacao(){
 }
 function eventosH(k,op,ate){
   const ev=eventosMes(k,op),nm=MESES_L[+k.slice(5,7)-1],tag={feriado:"feriado",closer:"time",nota:"anotação"};
-  return `<div class="blk evs"><span class="lbl">O que aconteceu em ${nm}</span>${ev.length?`<ol>${ev.map(e=>`<li><span class="ev-n">${e.n}</span><span class="ev-d">${brc(e.d)}</span><span class="ev-t">${esc(e.t)}</span><span class="ev-k">${tag[e.tipo]}</span></li>`).join("")}</ol>`:`<p class="note">Nenhum evento no mês.</p>`}
+  return `<div class="blk evs"><span class="lbl">O que aconteceu em ${nm}</span>${ev.length?`<ol>${ev.map(e=>`<li${e.nota&&e.nota[3]&&chaveLink()?` data-l="${e.nota[3]}"`:""}><span class="ev-n">${e.n}</span><span class="ev-d">${brc(e.d)}</span><span class="ev-t">${esc(e.t)}</span><span class="ev-k">${e.nota&&e.nota[3]&&chaveLink()?`<button type="button" class="ev-ic" data-ac="editar" title="Editar anotação" aria-label="Editar anotação"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M11.3 2.3a1.5 1.5 0 0 1 2.1 2.1L5.6 12.2 2.5 13l.8-3.1z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg></button><button type="button" class="ev-ic" data-ac="apagar" title="Apagar anotação" aria-label="Apagar anotação"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.5h5.8l.6-8.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`:""}<span class="ev-tag">${tag[e.tipo]}</span></span></li>`).join("")}</ol>`:`<p class="note">Nenhum evento no mês.</p>`}
     ${chaveLink()?`<form class="ev-form" id="evForm" autocomplete="off"><input type="date" id="evD" value="${DADOS_ATE}" min="${k}-01" max="${ultimoDia(k)}" aria-label="Data" required>
       <select id="evOp" aria-label="Operação"><option value="ALL">Todas</option><option value="BPC"${op==="BPC"?" selected":""}>BPC</option><option value="AA"${op==="AA"?" selected":""}>AA</option></select>
       <input type="text" id="evT" maxlength="140" placeholder="O que aconteceu? (sem nome de cliente)" aria-label="O que aconteceu" required>
