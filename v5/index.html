@@ -1598,6 +1598,8 @@ function vAnuncios(){
   const p=st.p,ate=corteAnuncios();
   const opts=[["mes",`${mesNome(p.k)} até ${brc(p.fim<ate?p.fim:ate)}`],["7","Últimos 7 dias"],["14","Últimos 14 dias"],["30","Últimos 30 dias"]];
   if(!st.adp)st.adp="30";if(!st.adc)st.adc="contrato";
+  /* v5.10: trocar de mês no topo leva Anúncios para "mês escolhido" (mês fechado) ou de volta aos 30 dias (mês em andamento) */
+  if(st.adpK!==p.k){if(st.adpK)st.adp=p.parcial?"30":"mes";st.adpK=p.k}
   const temSafra=BASE.some(x=>x.m==="s_leads"),porLead=st.adc==="lead"&&temSafra;
   const ateM=porLead?addDias(ate,-14):ate;   /* data do lead: só leads com 14 dias ou mais */
   const fim=st.adp==="mes"?(p.fim<ateM?p.fim:ateM):ateM, ini=st.adp==="mes"?p.ini:addDias(ateM,-(+st.adp)+1);
@@ -1649,10 +1651,11 @@ function vAnuncios(){
     const L7op=Object.values(L7).filter(o=>o.op===op),so7=L7op.find(o=>o.cod==="S/ inf"),pSem=div(so7?so7.leads:0,L7op.reduce((t,o)=>t+(o.cod==="sem código"?0:o.leads),0));
     const semLigacao=porLead&&!BASE.some(x=>x.m==="s_c"&&x.op===op);
     h+=`<div class="blk"><span class="lbl">${op==="BPC"?"BPC / LOAS":"Auxílio-Acidente"} · ${st.adk?`${A.length} de ${A0.length}`:A.length} ${nomeItens}</span>
+    ${ini<"2026-10-03"?`<div class="insight"><span class="badge b-x">histórico</span><span><b>Antes de outubro só há gasto e conversas por anúncio</b>, de uma carga única da Meta (01/01 a 30/09/2026). Leads, qualificados e contratos por anúncio começam em 03/10, então custo por qualificado e por contrato ficam em branco nesses meses. Os nomes sem número no começo (vídeos, por exemplo) aparecem como estão na Meta.</span></div>`:""}
     ${semLigacao?`<div class="insight"><span class="badge b-x">sem dado</span><span><b>A base da TP ainda não liga os contratos do ${op} aos leads.</b> Pela data do lead, os contratos do ${op} aparecem zerados: para o ${op}, use "Contratos por: data do contrato".</span></div>`:""}
     ${pSem!=null&&pSem>.25?`<div class="insight"><span class="badge b-x">atenção</span><span><b>${fmtP(pSem)} dos leads de ${op} chegaram sem origem nos últimos 7 dias</b> (${br(ini7)} a ${br(ate)}; código do anúncio vazio no Datacrazy ou no Pipedrive). Leads, qualificados e contratos por anúncio ficam subcontados: antes de pausar ou frear, confira se o anúncio tem conversas na Meta. Pausar, Frear e Refazer aparecem com "?" enquanto isso.</span></div>`:""}
     <div class="tbl-w"><table class="wide ads"><thead><tr><th>${porCamp?"Família":"Anúncio"}</th>${ORD_AD.map(([k,t])=>{const on=(st.ads||"inv")===k,d=st.adsd||ORD_AD.find(x=>x[0]===k)[2];return `<th class="srt${on?" on":""}" data-k="${k}" title="Ordenar por ${t}">${t}${on?(d<0?" ↓":" ↑"):""}</th>`}).join("")}</tr></thead><tbody>
-    ${ordenaAds(A,ac).map(o=>{const a=ac(o);return `<tr><td><span class="code">${esc(o.cod)}</span>${o.ads&&o.ads.length?`<div class="sub2">${o.ads.length} anúncio${o.ads.length>1?"s":""}: ${esc(o.ads.join(", "))}</div>`:""}${o.topNq?`<div class="sub2">mais perde por ${esc(o.topNq[0])}</div>`:""}${porCamp?"":ultimaMudanca(op,o.cod,ate)}</td>
+    ${ordenaAds(A,ac).map(o=>{const a=ac(o);return `<tr><td><span class="code">${esc(o.cod)}</span>${o.ads&&o.ads.length?`<div class="sub2">${o.ads.length} anúncio${o.ads.length>1?"s":""}: ${esc(o.ads.join(", "))}</div>`:""}${o.topNq?`<div class="sub2">mais perde por ${esc(o.topNq[0])}</div>`:""}${porCamp||fim<addDias(ate,-29)?"":ultimaMudanca(op,o.cod,ate)}</td>
       <td><div class="invc"><span>${fmtR0(o.inv)}</span><i style="width:${(o.inv||0)/maxInv*100}%;background:${opCor(op)}"></i></div></td>
       <td>${fmtN(o.leads)}</td><td class="${cor(o.cpl,med.cpl)}">${fmtR(o.cpl)}</td>
       <td><b>${fmtN(o.q)}</b></td><td class="${cor(o.cpq,med.cpq)}">${fmtR0(o.cpq)}</td>
@@ -1762,7 +1765,7 @@ function desenharTopo(){
   const anosDados=[...new Set(P.map(p=>p.k.slice(0,4)))].sort(),anos=[...anosDados,String(+anosDados[anosDados.length-1]+1)];
   const ops=SO_UMA_OP.includes(st.v)?[["BPC","BPC"],["AA","AA"]]:[["ALL","BPC + AA"],["BPC","BPC"],["AA","AA"]];
   c2.innerHTML=`<div class="seg ano" role="group" aria-label="Ano">${anos.map(y=>`<button type="button" data-y="${y}" class="${y===ano?"on":""}" ${anosDados.includes(y)?"":"disabled"} aria-pressed="${y===ano}">${y}</button>`).join("")}</div>
-    <div class="mrow" role="group" aria-label="Mês">${MES.map((m,i)=>{const k=ano+"-"+String(i+1).padStart(2,"0"),p=P.find(x=>x.k===k);const ok=p&&mesLiberado(p);return `<button type="button" class="mchip${p===st.p?" on":""}${p&&p.parcial?" parc":""}" ${ok?`data-i="${P.indexOf(p)}"`:"disabled"} ${p&&!ok?`title="${st.v==="simulador"?"O simulador olha só o mês em andamento":"Sem motivo registrado neste mês"}"`:""} aria-pressed="${p===st.p}">${m}</button>`}).join("")}</div>
+    <div class="mrow" role="group" aria-label="Mês">${MES.map((m,i)=>{const k=ano+"-"+String(i+1).padStart(2,"0"),p=P.find(x=>x.k===k);const ok=p&&mesLiberado(p);return `<button type="button" class="mchip${p===st.p?" on":""}${p&&p.parcial?" parc":""}" ${ok?`data-i="${P.indexOf(p)}"`:"disabled"} ${p&&!ok?`title="${st.v==="simulador"?"O simulador olha só o mês em andamento":st.v==="motivos"&&mesComBase(p)?"Sem motivo registrado neste mês":"Neste mês só há dados de anúncios (aba Anúncios)"}"`:""} aria-pressed="${p===st.p}">${m}</button>`}).join("")}</div>
     <div class="seg" role="group" aria-label="Operação">${ops.map(([o,t])=>`<button type="button" data-o="${o}" class="${st.op===o?"on":""}" aria-pressed="${st.op===o}">${t}</button>`).join("")}</div>`;
   cr.innerHTML=`<span class="selo">${st.p.parcial?"Parcial · até "+brc(st.p.fim):"Fechado"}</span><button type="button" class="tema" id="temaBtn" title="Tema: ${NOME_TEMA[TEMA]} (clique para trocar)">${ICO[TEMA]}<span>${NOME_TEMA[TEMA]}</span></button>`;
   c2.querySelectorAll(".mchip[data-i]").forEach(b=>b.onclick=()=>{selMes.value=b.dataset.i;selMes.dispatchEvent(new Event("change"))});
@@ -1789,9 +1792,13 @@ function marcarZeros(){document.querySelectorAll("#view td, #view .kpi .v, #view
 new MutationObserver(()=>marcarZeros()).observe(document.getElementById("view"),{childList:true});
 const SO_UMA_OP=["anuncios","motivos"];
 /* v5.7: meses que cada aba aceita. Simulador: só o mês em andamento. Motivos: só meses com motivo registrado na operação escolhida. */
+const _mcb={};
+function mesComBase(p){if(_mcb[p.k]==null)_mcb[p.k]=BASE.some(x=>x.d>=p.ini&&x.d<=p.fim&&!x.m.startsWith("ad_"));return _mcb[p.k]}
 function mesLiberado(p,v,op){
   v=v||st.v;op=op||st.op;if(!p)return false;
   if(v==="simulador")return !!p.parcial;
+  /* v5.10: jan e fev só têm gasto e conversas por anúncio (histórico da Meta); as outras abas ficam travadas nesses meses */
+  if(v!=="anuncios"&&!mesComBase(p))return false;
   if(v==="motivos")return BASE.some(x=>(x.m==="nq"||x.m==="perda"||x.m==="pc")&&x.d>=p.ini&&x.d<=p.fim&&(op==="ALL"||x.op===op));
   return true;
 }
