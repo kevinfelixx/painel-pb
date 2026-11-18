@@ -614,6 +614,13 @@ table.wide.cl td .pill{margin-inline:auto}
 @media (hover:none){.ev-ic{opacity:1}}
 .evs li .ev-edit{grid-column:1/-1;margin:0}
 .ev-bts{display:flex;gap:6px}
+/* v5.11: série de leads sem origem */
+details.so{margin:8px 0 12px}
+.so-l{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 18px;margin-top:10px}
+.so-l .lbl{min-width:150px}
+.so-c{display:flex;flex-direction:column;gap:2px;min-width:64px}
+.so-c small{font-size:11px;color:var(--ink-3);white-space:nowrap}.so-c b{font-size:15px;font-weight:800;white-space:nowrap}
+.so .c-good{color:var(--good)}.so .c-warn{color:var(--warn)}.so .c-bad{color:var(--bad)}
 </style>
 
 <header class="top">
@@ -1334,6 +1341,17 @@ function ultimaMudanca(op,cod,ate){
     else if(ma>=20&&md>0&&dep.length>=3&&(md/ma>=1.5||md/ma<=.5)&&!(det&&det.d>=addDias(d,-2)))det={d,t:`gasto foi de ${fmtR0(ma)} para ${fmtR0(md)} por dia`}}
   return det?`<div class="sub2 mud">${det.t} em ${brc(det.d)}</div>`:"";
 }
+/* v5.11 (18/11/2026): leads sem origem (código do anúncio vazio) mês a mês e nas últimas 6 semanas, por operação.
+   Mesma conta do aviso dos 7 dias: leads "S/ inf" ÷ leads com qualquer código (fora "sem código"). Fonte: Funil TP, desde 03/10/2026. */
+function semOrigemH(op){
+  const tx=(a,b)=>{let t=0,so=0;for(const x of BASE){if(x.m!=="ad_leads"||x.op!==op||x.d<a||x.d>b||x.cod==="sem código")continue;t+=x.v;if(x.cod==="S/ inf")so+=x.v}return t?{p:so/t,t,so}:null};
+  const ate=corteAnuncios(),ms=[...new Set(BASE.filter(x=>x.m==="ad_leads"&&x.op===op).map(x=>x.d.slice(0,7)))].sort();
+  if(!ms.length)return "";
+  const cel=(rot,o,parc)=>o?`<span class="so-c" title="${fmtN(o.so)} de ${fmtN(o.t)} leads"><small>${rot}${parc?"*":""}</small><b class="${o.p>.25?"c-bad":o.p>.15?"c-warn":"c-good"}">${fmtP(o.p)}</b></span>`:"";
+  const meses=ms.map(k=>cel(mesNome(k),tx(k+"-01",ultimoDia(k)<ate?ultimoDia(k):ate),ultimoDia(k)>ate)).join("");
+  let sem="";for(let i=5;i>=0;i--){const f=addDias(ate,-7*i),a=addDias(f,-6);sem+=cel(brc(a),tx(a,f))}
+  return `<details class="how so"><summary>Leads sem origem, mês a mês</summary><div class="so-l"><span class="lbl">Por mês</span>${meses}</div><div class="so-l"><span class="lbl">Semanas até ${brc(ate)}</span>${sem}</div><p class="note">Leads de ${op} que chegaram sem o código do anúncio (vazio no Datacrazy ou no Pipedrive) ÷ leads com código. Até 15% verde, até 25% âmbar, acima disso vermelho. * mês em andamento. A fonte por anúncio começa em 03/10/2026.</p></details>`;
+}
 /* ===== Comercial ===== */
 function vComercial(){
   let tvH="";   /* tema Lovable: o painel da meta (estilo TV) vai para o topo da página */
@@ -1654,6 +1672,7 @@ function vAnuncios(){
     ${ini<"2026-10-03"?`<div class="insight"><span class="badge b-x">histórico</span><span><b>Antes de outubro só há gasto e conversas por anúncio</b>, de uma carga única da Meta (01/01 a 30/09/2026). Leads, qualificados e contratos por anúncio começam em 03/10, então custo por qualificado e por contrato ficam em branco nesses meses. Os nomes sem número no começo (vídeos, por exemplo) aparecem como estão na Meta.</span></div>`:""}
     ${semLigacao?`<div class="insight"><span class="badge b-x">sem dado</span><span><b>A base da TP ainda não liga os contratos do ${op} aos leads.</b> Pela data do lead, os contratos do ${op} aparecem zerados: para o ${op}, use "Contratos por: data do contrato".</span></div>`:""}
     ${pSem!=null&&pSem>.25?`<div class="insight"><span class="badge b-x">atenção</span><span><b>${fmtP(pSem)} dos leads de ${op} chegaram sem origem nos últimos 7 dias</b> (${br(ini7)} a ${br(ate)}; código do anúncio vazio no Datacrazy ou no Pipedrive). Leads, qualificados e contratos por anúncio ficam subcontados: antes de pausar ou frear, confira se o anúncio tem conversas na Meta. Pausar, Frear e Refazer aparecem com "?" enquanto isso.</span></div>`:""}
+    ${semOrigemH(op)}
     <div class="tbl-w"><table class="wide ads"><thead><tr><th>${porCamp?"Família":"Anúncio"}</th>${ORD_AD.map(([k,t])=>{const on=(st.ads||"inv")===k,d=st.adsd||ORD_AD.find(x=>x[0]===k)[2];return `<th class="srt${on?" on":""}" data-k="${k}" title="Ordenar por ${t}">${t}${on?(d<0?" ↓":" ↑"):""}</th>`}).join("")}</tr></thead><tbody>
     ${ordenaAds(A,ac).map(o=>{const a=ac(o);return `<tr><td><span class="code">${esc(o.cod)}</span>${o.ads&&o.ads.length?`<div class="sub2">${o.ads.length} anúncio${o.ads.length>1?"s":""}: ${esc(o.ads.join(", "))}</div>`:""}${o.topNq?`<div class="sub2">mais perde por ${esc(o.topNq[0])}</div>`:""}${porCamp||fim<addDias(ate,-29)?"":ultimaMudanca(op,o.cod,ate)}</td>
       <td><div class="invc"><span>${fmtR0(o.inv)}</span><i style="width:${(o.inv||0)/maxInv*100}%;background:${opCor(op)}"></i></div></td>
