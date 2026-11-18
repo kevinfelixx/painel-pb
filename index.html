@@ -64,7 +64,7 @@ header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background
 .brand-t b{font-family:var(--f-head);font-size:17px;font-weight:700;letter-spacing:.005em}
 :root[data-dir="b2"] .brand-t b{font-weight:600;font-size:19px}
 .cut{font-size:12.5px;color:var(--ink-2);display:flex;align-items:center;gap:6px;flex-wrap:wrap} .cut strong{color:var(--ink)}
-.live{width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 0 3px color-mix(in srgb,var(--good) 22%,transparent)}
+.live{width:7px;height:7px;border-radius:50%;background:var(--good)}
 .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 select{font:inherit;font-size:14px;color:var(--ink);background:var(--raise);border:1px solid var(--line);border-radius:8px;padding:7px 10px;max-width:100%}
 select:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -77,7 +77,7 @@ nav.tabs a[aria-current="page"]{background:var(--raise);color:var(--ink);box-sha
 :root[data-dir="b2"] nav.tabs a[aria-current="page"]{background:transparent;box-shadow:inset 0 -1px 0 var(--gold);color:var(--gold)}
 :root[data-dir="b3"] nav.tabs{border-radius:999px}
 :root[data-dir="b3"] nav.tabs a{border-radius:999px;padding:6px 14px}
-.proto{background:var(--proto-bg);color:var(--proto);font-size:13px;padding-block:7px}
+.proto{background:var(--proto-bg);color:var(--proto);font-size:13px;padding:7px 16px}
 .proto .wrap{display:flex;gap:6px 12px;flex-wrap:wrap;align-items:center}
 .dirs{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
 .dirs button{font:inherit;font-size:13px;font-weight:600;color:var(--proto);background:transparent;border:1px solid currentColor;border-radius:999px;padding:3px 11px;cursor:pointer}
@@ -105,7 +105,7 @@ main .wrap{padding-block:24px 64px;display:flex;flex-direction:column;gap:calc(v
 :root[data-dir="b1"] .kpi .v{font-weight:500;letter-spacing:-.03em}
 :root[data-dir="b2"] .kpi .v{font-weight:500;letter-spacing:-.01em}
 .kpi .s{font-size:13px;color:var(--ink-2);display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
-.kpi .led{position:absolute;right:14px;top:14px;width:8px;height:8px;border-radius:50%;background:var(--ledc,var(--ink-3));box-shadow:0 0 0 3px color-mix(in srgb,var(--ledc,var(--ink-3)) 18%,transparent)}
+.kpi .led{position:absolute;right:14px;top:14px;width:8px;height:8px;border-radius:50%;background:var(--ledc,var(--ink-3))}
 :root:not([data-dir="b1"]) .kpi .led{display:none}
 .spark{height:30px;margin-top:4px}
 .spark svg{display:block;width:100%;height:30px}
@@ -336,7 +336,7 @@ table.pcl tr.saiu td{border-top:1px dashed var(--line);color:var(--ink-2)}
 .pg>.tk{position:absolute;top:-3px;bottom:-3px;width:1px;background:rgba(255,255,255,.35)}
 .pg>.tk::after{content:attr(data-t);position:absolute;top:16px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--ink-3)}
 .pg>.mk{position:absolute;top:-5px;bottom:-5px;width:4px;margin-left:-2px;border-radius:3px;background:#C9A84C;box-shadow:0 0 0 2px rgba(201,168,76,.25)}
-.pg>.mk::after{content:attr(data-t);position:absolute;bottom:20px;left:50%;transform:translateX(-50%);font-size:10.5px;font-weight:700;color:#C9A84C;white-space:nowrap}
+.pg>.mk::after{content:attr(data-t);position:absolute;bottom:20px;left:50%;transform:translateX(-50%);font-size:10.5px;font-weight:700;color:var(--gold-ink,#C9A84C);white-space:nowrap}
 
 /* ===== v5 (17/11/2026): UI/UX do PB Comercial — topo em pílulas, tema claro/escuro, vidro, brilho e movimento ===== */
 :root[data-dir="lv"]{--glass:rgba(255,255,255,.72);--glass-b:rgba(26,27,32,.08);--glass-hi:rgba(255,255,255,.9);--chip:#fff;--chip-on:#1A1B20;--chip-on-ink:#F5F3EF;
@@ -372,7 +372,7 @@ table.pcl tr.saiu td{border-top:1px dashed var(--line);color:var(--ink-2)}
 .seg button[data-o="BPC"].on{background:#9E1B32;color:#fff}.seg button[data-o="AA"].on{background:#0D2C6C;color:#fff}
 .selo{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:#8A6D1E;background:rgba(201,168,76,.14);border:1px solid rgba(201,168,76,.55);border-radius:999px;padding:5px 11px;white-space:nowrap}
 :root[data-mode="dark"] .selo{color:#E6CF8C}
-.selo::before{content:"";width:7px;height:7px;border-radius:50%;background:#C9A84C;box-shadow:0 0 0 0 rgba(201,168,76,.6);animation:respira 2.6s ease-in-out infinite}
+.selo::before{content:"";width:7px;height:7px;border-radius:50%;background:#C9A84C}
 .tema{display:inline-flex;align-items:center;gap:6px;padding:7px 11px}
 .tema svg{width:16px;height:16px}
 :root[data-dir="lv"] nav.tabs{flex-basis:100%;gap:22px}
@@ -402,7 +402,7 @@ table.pcl tr.saiu td{border-top:1px dashed var(--line);color:var(--ink-2)}
 /* cartões de ação mais leves */
 :root[data-dir="lv"] .act{border-top:1px solid var(--glass-b);padding:12px 14px;border-radius:16px}
 :root[data-dir="lv"] .act span{display:flex;align-items:center;gap:7px}
-:root[data-dir="lv"] .act span::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ac);box-shadow:0 0 10px var(--ac)}
+:root[data-dir="lv"] .act span::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ac)}
 :root[data-dir="lv"] .act b{font-weight:900;font-size:28px}
 :root[data-dir="lv"] button.act.on{box-shadow:inset 0 0 0 2px var(--ac),0 12px 28px -18px var(--ac)}
 /* selo "atenção" não encolhe nem encosta no texto */
@@ -428,13 +428,11 @@ table.pcl tr.saiu td{border-top:1px dashed var(--line);color:var(--ink-2)}
 :root[data-dir="lv"] .tv .rm{position:relative;overflow:hidden;background:linear-gradient(150deg,rgba(255,255,255,.10),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 20px 40px -26px rgba(0,0,0,.9);backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%)}
 :root[data-dir="lv"] .tv .rm::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 60% at 0% 0%,rgba(255,255,255,.16),transparent 55%);mix-blend-mode:screen}
 :root[data-dir="lv"] .tv .rm::after{content:"";position:absolute;width:180px;height:180px;right:-60px;top:-80px;border-radius:50%;background:var(--opc);filter:blur(70px);opacity:.35;pointer-events:none}
-.pg>i{box-shadow:0 0 14px color-mix(in srgb,var(--opc) 75%,transparent);transform-origin:left;animation:enche 1.1s cubic-bezier(.2,.8,.2,1) both;overflow:hidden}
-.pg>i::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);transform:translateX(-100%);animation:brilho 3.2s ease-in-out 1.2s infinite}
-.pg>.mk{animation:marca 2.6s ease-in-out infinite}
+.pg>i{transform-origin:left;animation:enche 1.1s cubic-bezier(.2,.8,.2,1) both;overflow:hidden}
 @keyframes enche{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-@keyframes brilho{0%{transform:translateX(-100%)}60%,100%{transform:translateX(220%)}}
-@keyframes marca{0%,100%{box-shadow:0 0 0 2px rgba(201,168,76,.25),0 0 10px rgba(201,168,76,.45)}50%{box-shadow:0 0 0 4px rgba(201,168,76,.18),0 0 22px rgba(201,168,76,.85)}}
-@keyframes respira{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,.55)}50%{box-shadow:0 0 0 5px rgba(201,168,76,0)}}
+
+
+
 @keyframes sobe{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 #view.entra>*{animation:sobe .5s cubic-bezier(.2,.8,.2,1) both}
 #view.entra>*:nth-child(2){animation-delay:.05s}#view.entra>*:nth-child(3){animation-delay:.1s}#view.entra>*:nth-child(4){animation-delay:.15s}#view.entra>*:nth-child(5){animation-delay:.2s}#view.entra>*:nth-child(n+6){animation-delay:.25s}
@@ -450,7 +448,7 @@ table.pcl tr.saiu td{border-top:1px dashed var(--line);color:var(--ink-2)}
 :root[data-dir="lv"]:not([data-mode="dark"]) .resumo{background:rgba(255,255,255,.78)}
 .resumo p{margin:0;display:flex;gap:10px;align-items:baseline;font-size:15px;line-height:1.45}
 .resumo i{flex:none;width:9px;height:9px;border-radius:50%;transform:translateY(-1px)}
-.resumo i.good{background:var(--good);box-shadow:0 0 10px var(--good)}.resumo i.warn{background:var(--warn);box-shadow:0 0 10px var(--warn)}.resumo i.bad{background:var(--bad);box-shadow:0 0 10px var(--bad)}
+.resumo i.good{background:var(--good)}.resumo i.warn{background:var(--warn)}.resumo i.bad{background:var(--bad)}
 /* cartão do mês e do ano, reorganizados */
 .rm-hero{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .rm-hero .big{font-size:46px!important;line-height:1;font-weight:900;letter-spacing:-.02em}
@@ -486,7 +484,7 @@ table.pcl tr.saiu td{border-top:1px dashed var(--line);color:var(--ink-2)}
 .rk:hover{transform:translateY(-3px);box-shadow:0 18px 36px -20px rgba(0,0,0,.45)}
 .rk.top{border-color:rgba(201,168,76,.6);box-shadow:0 0 0 1px rgba(201,168,76,.35),0 18px 40px -24px rgba(201,168,76,.7)}
 .rk-h{display:flex;align-items:center;gap:10px}
-.rk .pos{font-weight:900;font-size:13px;color:#C9A84C;min-width:22px}
+.rk .pos{font-weight:900;font-size:13px;color:var(--gold-ink,#C9A84C);min-width:22px}
 .rk .av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:900;color:#fff;background:var(--cv);box-shadow:0 0 0 3px color-mix(in srgb,var(--cv) 25%,transparent)}
 .rk .nm{display:flex;flex-direction:column;min-width:0}.rk .nm b{font-size:16px}.rk .nm small{font-size:12px;color:var(--ink-3)}
 .rk-m{display:flex;align-items:center;gap:16px}
@@ -580,7 +578,42 @@ table.ads th:first-child{z-index:3}
 .ev-t{color:var(--ink);min-width:0;overflow-wrap:anywhere}
 .ev-k{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);white-space:nowrap}
 .sub2.mud{color:var(--ink-2);font-weight:700}
-@media (max-width:560px){.evs li{grid-template-columns:24px 46px minmax(0,1fr)}.ev-k{display:none}}
+@media (max-width:560px){.evs li{grid-template-columns:24px 46px minmax(0,1fr) auto}.ev-tag{display:none}}
+/* v5.6b (18/11/2026): detector do Impeccable. Dourado como texto no tema claro usa um tom fechado (#7E6420, contraste 5:1 no papel);
+   no escuro segue o dourado claro. Sem pulso, sem reflexo correndo e sem halo colorido (regra No Glow do DESIGN.md). */
+:root{--gold-ink:#7E6420}
+:root[data-mode="dark"]{--gold-ink:#D4B45E}
+.firm{color:var(--gold-ink)}
+/* v5.7: grade de 9 números da closer e campo de anotação */
+.rk-g{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:12px}
+.rk-g span{min-width:0}.rk-g small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rk-g b{font-size:16px;white-space:nowrap}
+.ev-form{display:grid;grid-template-columns:150px 110px minmax(0,1fr) auto;gap:8px;align-items:center;margin:12px 0 4px}
+.ev-form input,.ev-form select{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 14px;min-width:0}
+:root[data-mode="dark"] .ev-form input,:root[data-mode="dark"] .ev-form select{background:#17181D;color-scheme:dark}
+.ev-form input:focus-visible,.ev-form select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.ev-msg{grid-column:1/-1;font-size:12.5px;color:var(--ink-3);min-height:1em}
+@media (max-width:640px){.ev-form{grid-template-columns:1fr 1fr}.ev-form #evT{grid-column:1/-1}.ev-form #evB{grid-column:1/-1}}
+/* v5.8 (18/11/2026): anel da meta volta a ser o herói do card; a grade de 9 números fica de apoio, menor e mais clara.
+   Tabela das closers com números centralizados e nome à esquerda. */
+.rk .anel-w,.rk .anel{width:104px;height:104px}
+.rk .anel-v{font-size:17px}
+.rk-n b{font-size:44px}
+.rk-m{gap:20px;padding:4px 0 2px}
+.rk-g{gap:10px 8px;padding:12px 12px 10px;border-top:0;border-radius:12px;background:color-mix(in srgb,var(--ink) 4%,transparent)}
+.rk-g small{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.rk-g b{font-size:14.5px;font-weight:800;color:var(--ink-2)}
+table.wide.cl th,table.wide.cl td{text-align:center}
+table.wide.cl th:first-child,table.wide.cl td:first-child{text-align:left}
+table.wide.cl td .pill{margin-inline:auto}
+/* v5.9: editar e apagar anotação */
+.ev-ic{display:inline-grid;place-items:center;width:26px;height:26px;margin-right:4px;border:1px solid transparent;border-radius:999px;background:transparent;color:var(--ink-3);cursor:pointer;vertical-align:middle;opacity:0;transition:opacity .15s,color .15s,border-color .15s}
+.evs li:hover .ev-ic,.evs li:focus-within .ev-ic{opacity:1}
+.ev-ic:hover{color:var(--ink);border-color:var(--line)}.ev-ic[data-ac="apagar"]:hover{color:var(--bad)}
+.ev-ic:focus-visible{opacity:1;outline:2px solid var(--gold);outline-offset:2px}
+@media (hover:none){.ev-ic{opacity:1}}
+.evs li .ev-edit{grid-column:1/-1;margin:0}
+.ev-bts{display:flex;gap:6px}
 </style>
 
 <header class="top">
@@ -979,7 +1012,8 @@ function liqFechado(a,b,f){
 function kpis(a,b,f){
   const t=soma(a,b,f),lf=liqFechado(a,b,f),liq=lf!=null?lf:(t.contratos||0)-(t.churns||0);
   return {inv:t.invest||0,conv:t.conversas||0,leads:t.leads||0,q:t.qualif||0,c:t.contratos||0,ch:t.churns||0,liq,chk:t.checklists||0,
-    cpc:div(t.invest,t.conversas),cpq:div(t.invest,t.qualif),cac:div(t.invest,liq),pq:div(t.qualif,t.leads),pf:div(t.contratos,t.qualif)};
+    cpc:div(t.invest,t.conversas),cpq:div(t.invest,t.qualif),cac:div(t.invest,liq),pq:div(t.qualif,t.leads),pf:div(t.contratos,t.qualif),
+    pcv:div(t.contratos,t.leads),pchk:div(t.checklists,t.contratos),tchk:div(t.chk_dias,t.chk_n)};
 }
 const cadsOp=op=>CAD.filter(c=>op==="ALL"||c.op===op).map(c=>c.cad);
 const filtroOp=op=>op==="ALL"?null:(x=>x.op===op);
@@ -1172,11 +1206,11 @@ function manchete(p){
     sub=`${meta?`Meta do mês: <b>${fmtN(meta)}</b>. `:""}${AI2?`No ano, até ${brc(AI2.ate)}: <b>${fmtN(AI2.real)} de ${fmtN(AI2.meta)}</b> (${fmtP(AI2.pct)}).`:""}`;
   }
   const ks=[];for(let m=1;m<=12;m++)ks.push(y+"-"+String(m).padStart(2,"0"));
-  const vs=ks.map(k=>liqMes(k,op)),mt=ks.map(k=>op==="ALL"?null:(META[k]&&META[k][op]!=null?META[k][op]:null));
-  const max=Math.max(1,...vs.filter(v=>v!=null),...mt.filter(v=>v!=null),ref?ref.v:0)*1.08;
-  const bars=ks.map((k,i)=>{const v=vs[i],cur=k===p.k,fut=v==null&&k>DADOS_ATE.slice(0,7),mk=ref?ref.v:mt[i];
-    return `<div class="mm${cur?" cur":""}${fut?" fut":""}" title="${mesNome(k)}: ${v==null?"sem dado":fmtN(v)+" líquidos"}${mt[i]!=null?" · meta "+fmtN(mt[i]):""}"><div class="col">${mk!=null?`<b style="bottom:${mk/max*100}%"></b>`:""}${v!=null?`<em style="bottom:calc(${v/max*100}% + 4px)">${fmtN(v)}</em>`:""}<i style="height:${fut?(ref?ref.v:0)/max*100:(v||0)/max*100}%"></i></div><span>${MESES[i]}</span></div>`}).join("");
-  const leg=ref?ref.t:op==="ALL"?"":"traço: meta do mês";
+  const vs=ks.map(k=>liqMes(k,op)),mt=ks.map(k=>{const M=META[k];if(!M)return null;const v=op==="ALL"?(M.BPC||0)+(M.AA||0):M[op];return v>0?v:null});
+  const max=Math.max(1,...vs.filter(v=>v!=null),...mt.filter(v=>v!=null))*1.08;
+  const bars=ks.map((k,i)=>{const v=vs[i],cur=k===p.k,fut=v==null&&k>DADOS_ATE.slice(0,7),mk=mt[i];
+    return `<div class="mm${cur?" cur":""}${fut?" fut":""}" title="${mesNome(k)}: ${v==null?"sem dado":fmtN(v)+" líquidos"}${mt[i]!=null?" · meta "+fmtN(mt[i]):""}"><div class="col">${mk!=null?`<b style="bottom:${mk/max*100}%"></b>`:""}${v!=null?`<em style="bottom:calc(${v/max*100}% + 4px)">${fmtN(v)}</em>`:""}<i style="height:${fut?(mt[i]||0)/max*100:(v||0)/max*100}%"></i></div><span>${MESES[i]}</span></div>`}).join("");
+  const leg=mt.some(x=>x!=null)?"traço: meta do mês no Tracker"+(mt.slice(0,2).every(x=>x==null)?" (jan e fev sem meta registrada)":""):"";
   return `<section class="man"><span class="lbl">${lbl}</span><h2>${h2}</h2><p class="sub">${sub}</p>
     <div class="mms" role="img" aria-label="Contratos líquidos mês a mês em ${y}">${bars}</div>${leg?`<p class="mms-l">${p.parcial?"Mês em andamento até "+brc(DADOS_ATE)+" · ":""}${leg}</p>`:`<p class="mms-l">${p.parcial?"Mês em andamento até "+brc(DADOS_ATE):""}</p>`}</section>`;
 }
@@ -1213,7 +1247,6 @@ function vSimulador(){
   const p=P.find(x=>x.parcial);
   let h=`<div class="sec-h"><h2>Simulador · ${p?mesNome(p.k):"—"}</h2><p>${p?`E se o ritmo mudar até ${br(ultimoDia(p.k))}? Começa no ritmo real de ${br(p.ini)} a ${br(p.fim)}. Nada é salvo.`:""}</p></div>`;
   if(!p){document.getElementById("view").innerHTML=h+`<p class="note">Não há mês em andamento nos dados.</p>`;return}
-  if(st.p!==p)h+=`<p class="note">O simulador olha só o mês em andamento (${mesNome(p.k)}), qualquer que seja o mês escolhido no topo.</p>`;
   st.simP=p;st.sim=st.sim||{};
   const Bs=opsSel().map(op=>simBase(p,op)).filter(B=>B.r.meta);
   h+=`<div class="sim">${Bs.map(B=>{const op=B.op,v=st.sim[op]||(st.sim[op]={qd:B.qd,fe:B.fe,ch:B.ch});
@@ -1248,13 +1281,45 @@ function eventosMes(k,op){
   CAD.forEach(c=>{if(c.cad==="LID"||!okOp(c.op))return;const n=c.pessoa+" ("+c.op+")";
     if(dentro(c.de)&&c.de>desde)ev.push({d:c.de,tipo:"closer",t:n+" entrou"});
     if(dentro(c.ate))ev.push({d:c.ate,tipo:"closer",t:n+" saiu"})});
-  ANOT.forEach(a=>{if(dentro(a[0])&&okOp(a[1]))ev.push({d:a[0],tipo:"nota",t:a[2]+(a[1]!=="ALL"&&op==="ALL"?" ("+a[1]+")":"")})});
+  ANOT.forEach(a=>{if(dentro(a[0])&&okOp(a[1]))ev.push({d:a[0],tipo:"nota",t:a[2]+(a[1]!=="ALL"&&op==="ALL"?" ("+a[1]+")":""),nota:a})});
   return ev.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0).map((e,i)=>({...e,n:i+1}));
+}
+/* v5.7 (18/11/2026): anotar pela tela. Quem tem o link (chave) pode anotar; grava na aba "anotacoes" pelo doPost do Apps Script. */
+const chaveLink=()=>(typeof HASH_K!=="undefined"&&HASH_K)||window.PB_K||"";
+async function postAnot(corpo){
+  const r=await fetch(API_PB,{method:"POST",credentials:"omit",body:JSON.stringify({k:chaveLink(),...corpo})}).then(x=>x.json());
+  if(!r.ok)throw new Error(r.erro||"falhou");ANOT=r.anotacoes||ANOT;render();
+}
+function ligarAnotacao(){
+  /* v5.9: lápis e lixeira nas anotações */
+  document.querySelectorAll(".evs li[data-l]").forEach(li=>{
+    const ln=+li.dataset.l,a=ANOT.find(x=>x[3]===ln);if(!a)return;
+    li.querySelector('[data-ac="apagar"]').onclick=async()=>{if(!confirm("Apagar a anotação de "+brc(a[0])+"?\n\n"+a[2]))return;
+      try{await postAnot({a:"apagar",linha:ln,t0:a[2]})}catch(err){alert("Não apagou: "+err.message)}};
+    li.querySelector('[data-ac="editar"]').onclick=()=>{
+      li.innerHTML=`<form class="ev-form ev-edit"><input type="date" value="${a[0]}" aria-label="Data" required><select aria-label="Operação"><option value="ALL"${a[1]==="ALL"?" selected":""}>Todas</option><option value="BPC"${a[1]==="BPC"?" selected":""}>BPC</option><option value="AA"${a[1]==="AA"?" selected":""}>AA</option></select><input type="text" maxlength="140" value="${esc(a[2])}" aria-label="O que aconteceu" required><span class="ev-bts"><button type="submit" class="ordbtn">Salvar</button><button type="button" class="ordbtn ev-cancel">Cancelar</button></span><span class="ev-msg" role="status"></span></form>`;
+      const f=li.querySelector("form"),[iD,iO,iT]=[f.querySelector('input[type=date]'),f.querySelector("select"),f.querySelector('input[type=text]')];
+      f.querySelector(".ev-cancel").onclick=()=>render();
+      f.onsubmit=async e=>{e.preventDefault();const m=f.querySelector(".ev-msg");m.textContent="Gravando…";
+        try{await postAnot({a:"editar",linha:ln,t0:a[2],d:iD.value,op:iO.value,t:iT.value.trim()})}catch(err){m.textContent="Não gravou: "+err.message+"."}};
+      iT.focus()};
+  });
+  const f=document.getElementById("evForm");if(!f)return;
+  f.onsubmit=async e=>{e.preventDefault();const b=document.getElementById("evB"),m=document.getElementById("evMsg"),t=document.getElementById("evT").value.trim();
+    if(t.length<3){m.textContent="Escreva o que aconteceu.";return}
+    b.disabled=true;m.textContent="Gravando…";
+    try{const r=await fetch(API_PB,{method:"POST",credentials:"omit",body:JSON.stringify({k:chaveLink(),d:document.getElementById("evD").value,op:document.getElementById("evOp").value,t})}).then(x=>x.json());
+      if(!r.ok)throw new Error(r.erro||"falhou");ANOT=r.anotacoes||ANOT;render();const m2=document.getElementById("evMsg");if(m2)m2.textContent="Anotado."}
+    catch(err){b.disabled=false;m.textContent="Não gravou: "+(err.message||"tente de novo")+"."}};
 }
 function eventosH(k,op,ate){
   const ev=eventosMes(k,op),nm=MESES_L[+k.slice(5,7)-1],tag={feriado:"feriado",closer:"time",nota:"anotação"};
-  return `<div class="blk evs"><span class="lbl">O que aconteceu em ${nm}</span>${ev.length?`<ol>${ev.map(e=>`<li><span class="ev-n">${e.n}</span><span class="ev-d">${brc(e.d)}</span><span class="ev-t">${esc(e.t)}</span><span class="ev-k">${tag[e.tipo]}</span></li>`).join("")}</ol>`:`<p class="note">Nenhum evento no mês.</p>`}
-    <p class="note">Para acrescentar: aba "anotacoes" do arquivo PB · Painel de Gestão (data, operação, texto curto, sem nome de cliente). Entra na atualização seguinte.</p></div>`;
+  return `<div class="blk evs"><span class="lbl">O que aconteceu em ${nm}</span>${ev.length?`<ol>${ev.map(e=>`<li${e.nota&&e.nota[3]&&chaveLink()?` data-l="${e.nota[3]}"`:""}><span class="ev-n">${e.n}</span><span class="ev-d">${brc(e.d)}</span><span class="ev-t">${esc(e.t)}</span><span class="ev-k">${e.nota&&e.nota[3]&&chaveLink()?`<button type="button" class="ev-ic" data-ac="editar" title="Editar anotação" aria-label="Editar anotação"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M11.3 2.3a1.5 1.5 0 0 1 2.1 2.1L5.6 12.2 2.5 13l.8-3.1z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg></button><button type="button" class="ev-ic" data-ac="apagar" title="Apagar anotação" aria-label="Apagar anotação"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.5h5.8l.6-8.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`:""}<span class="ev-tag">${tag[e.tipo]}</span></span></li>`).join("")}</ol>`:`<p class="note">Nenhum evento no mês.</p>`}
+    ${chaveLink()?`<form class="ev-form" id="evForm" autocomplete="off"><input type="date" id="evD" value="${DADOS_ATE}" min="${k}-01" max="${ultimoDia(k)}" aria-label="Data" required>
+      <select id="evOp" aria-label="Operação"><option value="ALL">Todas</option><option value="BPC"${op==="BPC"?" selected":""}>BPC</option><option value="AA"${op==="AA"?" selected":""}>AA</option></select>
+      <input type="text" id="evT" maxlength="140" placeholder="O que aconteceu? (sem nome de cliente)" aria-label="O que aconteceu" required>
+      <button type="submit" class="ordbtn" id="evB">Anotar</button><span class="ev-msg" id="evMsg" role="status"></span></form>`:""}
+    <p class="note">Anotações também podem ser escritas ou corrigidas na aba "anotacoes" do arquivo PB · Painel de Gestão. Texto curto, sem nome de cliente.</p></div>`;
 }
 /* Anúncios: gasto por dia de cada anúncio e a última mudança em 30 dias */
 function gastoDia(op,cod,a,b){const m={};for(const x of BASE)if(x.m==="ad_inv"&&x.op===op&&x.cod===cod&&x.d>=a&&x.d<=b)m[x.d]=(m[x.d]||0)+x.v;return m}
@@ -1315,7 +1380,7 @@ function vComercial(){
   h+=`<div class="blk" id="semanasBlk"></div>`;
   h+=`<div class="two"><div class="card"><h3>Contratos líquidos acumulados no mês</h3><p class="sub">Tracejado: ritmo da meta pelos dias úteis</p><div class="legend" id="lgA"></div><div class="chart" id="chA"></div></div>
       <div class="card"><h3>Contratos líquidos · meses fechados</h3><p class="sub">O mês em andamento fica fora para não comparar parcial com fechado</p><div class="legend" id="lgB"></div><div class="chart" id="chB"></div></div></div>`;
-  h+=eventosH(p.k,st.op);
+  h+=eventosH(p.k,st.op);setTimeout(ligarAnotacao,0);
   /* v5.1: resumo em 3 frases (diretoria) */
   let resumoH="";
   if(p.parcial){const RS=opsSel().map(op=>rumoMeta(p,op)).filter(r=>r.meta).sort((x,y)=>(x.sinal||0)-(y.sinal||0)),AI2=st.op==="ALL"?anoInfo(p.k.slice(0,4)):null,fr=[];
@@ -1407,6 +1472,14 @@ function vOperacoes(){
 }
 
 /* ===== Closers ===== */
+/* v5.7 (18/11/2026): 9 números da closer (pedido do Kevin), em 3 linhas: volume, conversão e checklist. Siglas curtas; o nome completo vai no title. */
+const fmtDias=v=>v==null||!isFinite(v)?"—":v.toLocaleString("pt-BR",{maximumFractionDigits:1})+" d";
+function gradeCloser(a){
+  const c=(sig,nome,val)=>`<span title="${nome}"><small>${sig}</small><b>${val}</b></span>`;
+  return c("Leads","Leads recebidos (Datacrazy)",fmtN(a.leads))+c("Qualif.","Qualificados",fmtN(a.q))+c("TxQ","Taxa de qualificação: qualificados ÷ leads",fmtP(a.pq))
+    +c("Contratos","Contratos fechados (antes de churn)",fmtN(a.c))+c("Aprov.","Aproveitamento: contratos ÷ qualificados",fmtP(a.pf))+c("TxC","Taxa de conversão total: contratos ÷ leads",fmtP(a.pcv))
+    +c("Checklists","Checklists concluídos (o que vale para a comissão)",fmtN(a.chk))+c("% Checklist","Conclusão: checklists concluídos ÷ contratos do período",fmtP(a.pchk))+c("Tempo chk.","Tempo médio do contrato à conclusão do checklist (dias corridos)",fmtDias(a.tchk));
+}
 function vClosers(){
   const p=st.p;
   /* v5.1: só quem participou do período (no time e com algum movimento); no mês em andamento, meta = esperado pela curva da TV */
@@ -1418,23 +1491,27 @@ function vClosers(){
   /* v5.1: ranking com destaque */
   const RK=L.filter(l=>l.meta).sort((x,y)=>(y.pm||0)-(x.pm||0)),comQ=RK.filter(l=>l.a.q>=5);
   const melhorConv=comQ.length?comQ.reduce((m,l)=>(l.a.pf||0)>(m.a.pf||0)?l:m):null,maisQ=RK.length?RK.reduce((m,l)=>l.a.q>m.a.q?l:m):null;
+  /* v5.8: selos de taxa só com volume mínimo (30 leads; 5 contratos para o checklist) */
+  const maior=(L2,f)=>L2.length?L2.reduce((m,l)=>(f(l)||0)>(f(m)||0)?l:m):null,comL=RK.filter(l=>l.a.leads>=30),comC=RK.filter(l=>l.a.c>=5);
+  const maiorTxC=maior(comL,l=>l.a.pcv),maiorTxQ=maior(comL,l=>l.a.pq),maiorChk=maior(comC,l=>l.a.pchk);
   const anel=(v,cor)=>{const r=34,c=2*Math.PI*r,f=Math.min(v||0,1);return `<svg class="anel" viewBox="0 0 84 84" aria-hidden="true" style="--glow:${cor}"><circle cx="42" cy="42" r="${r}" class="a-bg"/><circle cx="42" cy="42" r="${r}" class="a-fg" style="stroke:${cor};stroke-dasharray:${c};stroke-dashoffset:${c*(1-f)}"/></svg><span class="anel-v">${fmtP(v)}</span>`};
   if(RK.length)h+=`<div class="rank">${RK.map((l,i)=>{const cor=(l.pm||0)>=1?css("--good"):(l.pm||0)>=.9?css("--warn"):css("--bad"),dest=[];
     if(i===0&&RK.length>1)dest.push("Maior % do esperado");if(melhorConv&&l===melhorConv&&RK.length>1)dest.push("Melhor conversão");if(maisQ&&l===maisQ&&RK.length>1)dest.push("Mais qualificados");
+    if(maiorTxC&&l===maiorTxC&&RK.length>1)dest.push("Maior TxC");if(maiorTxQ&&l===maiorTxQ&&RK.length>1)dest.push("Maior TxQ");if(maiorChk&&l===maiorChk&&RK.length>1)dest.push("Maior % de conclusão");
     return `<div class="rk${i===0?" top":""}" style="--cv:${css(l.c.cv)}"><div class="rk-h"><span class="pos">${i+1}º</span><span class="av">${esc(String(l.c.pessoa).charAt(0))}</span><span class="nm"><b>${esc(l.c.pessoa)}</b><small>${l.c.op==="BPC"?"BPC / LOAS":"Auxílio-Acidente"}</small></span></div>
       <div class="rk-m"><div class="anel-w">${anel(l.pm,cor)}</div><div class="rk-n"><b>${fmtN(l.a.liq)}</b><small>de ${l.meta.toLocaleString("pt-BR",{maximumFractionDigits:1})} ${p.parcial?"esperados":"na meta"}</small></div></div>
-      <div class="rk-s"><span><small>Qualificados</small><b>${fmtN(l.a.q)}</b></span><span><small>Fechamento</small><b>${fmtP(l.a.pf)}</b></span><span><small>Checklists</small><b>${fmtN(l.a.chk)}</b></span></div>
+      <div class="rk-s rk-g">${gradeCloser(l.a)}</div>
       ${dest.length?`<div class="rk-d">${dest.map(d=>`<span>${d}</span>`).join("")}</div>`:""}</div>`}).join("")}</div>`;
-  h+=`<div class="tbl-w"><table class="wide"><thead><tr><th>Closer</th><th>Leads</th><th>Qualificados</th><th>% qualif.</th><th>Contratos</th><th>Churns</th><th>Líquidos</th><th>% fech.</th><th>Meta</th><th>% da meta</th>${p.parcial?"<th>Previsão do mês</th>":""}<th>Checklists</th><th>Em aberto hoje</th><th>Críticos</th></tr></thead><tbody>
+  h+=`<div class="tbl-w"><table class="wide cl"><thead><tr><th>Closer</th><th>Leads</th><th>Qualif.</th><th title="taxa de qualificação: qualificados ÷ leads">TxQ</th><th>Contratos</th><th title="contratos ÷ qualificados">Aprov.</th><th title="taxa de conversão total: contratos ÷ leads">TxC</th><th>Churns</th><th>Líquidos</th><th>Meta</th><th>% da meta</th>${p.parcial?"<th>Previsão do mês</th>":""}<th>Checklists</th><th title="checklists concluídos ÷ contratos">% checklist</th><th title="dias do contrato à conclusão">Tempo chk.</th><th>Em aberto hoje</th><th>Críticos</th></tr></thead><tbody>
     ${L.map(l=>`<tr><td class="who"><span class="dot" style="background:${css(l.c.cv)}"></span><span>${l.c.pessoa}${l.c.ate&&l.c.ate<p.fim?` <span class="hist">(histórico)</span>`:""}</span> <span class="tag">${l.c.cad}</span></td>
-      <td>${fmtN(l.a.leads)}</td><td>${fmtN(l.a.q)}</td><td>${fmtP(l.a.pq)}</td><td>${fmtN(l.a.c)}</td><td>${fmtN(l.a.ch)}</td><td><b>${fmtN(l.a.liq)}</b></td><td>${fmtP(l.a.pf)}</td><td>${l.meta?fmtN(l.meta):"—"}</td><td>${l.meta?farol(l.pm):"—"}</td>${p.parcial?`<td>${(()=>{const v=l.c.cad==="LID"?null:previsao(p,x=>x.cad===l.c.cad,[l.c.cad]);return v&&v.meta?`${fmtN(v.prev)} de ${fmtN(v.meta)} ${farol(v.pm)}`:"—"})()}</td>`:""}<td>${fmtN(l.a.chk)}</td><td>${PEND[l.c.cad]?fmtN(PEND[l.c.cad].aberto):"—"}</td><td>${PEND[l.c.cad]&&PEND[l.c.cad].critico?`<span class="d-bad">${fmtN(PEND[l.c.cad].critico)}</span>`:PEND[l.c.cad]?"0":"—"}</td></tr>`).join("")}
-    <tr class="tot"><td>Time</td><td>${fmtN(T.leads)}</td><td>${fmtN(T.q)}</td><td>${fmtP(T.pq)}</td><td>${fmtN(T.c)}</td><td>${fmtN(T.ch)}</td><td>${fmtN(T.liq)}</td><td>${fmtP(T.pf)}</td><td>${fmtN(Tm)}</td><td>${farol(div(T.liq,Tm))}</td>${p.parcial?`<td>${(()=>{const v=previsao(p,x=>lista.some(c=>c.cad===x.cad),lista.map(c=>c.cad));return v&&v.meta?`${fmtN(v.prev)} de ${fmtN(v.meta)} ${farol(v.pm)}`:"—"})()}</td>`:""}<td>${fmtN(T.chk)}</td><td>${fmtN(lista.reduce((s,c)=>s+(PEND[c.cad]?PEND[c.cad].aberto:0),0))}</td><td>${fmtN(lista.reduce((s,c)=>s+(PEND[c.cad]?PEND[c.cad].critico:0),0))}</td></tr>
+      <td>${fmtN(l.a.leads)}</td><td>${fmtN(l.a.q)}</td><td>${fmtP(l.a.pq)}</td><td>${fmtN(l.a.c)}</td><td>${fmtP(l.a.pf)}</td><td>${fmtP(l.a.pcv)}</td><td>${fmtN(l.a.ch)}</td><td><b>${fmtN(l.a.liq)}</b></td><td>${l.meta?fmtN(l.meta):"—"}</td><td>${l.meta?farol(l.pm):"—"}</td>${p.parcial?`<td>${(()=>{const v=l.c.cad==="LID"?null:previsao(p,x=>x.cad===l.c.cad,[l.c.cad]);return v&&v.meta?`${fmtN(v.prev)} de ${fmtN(v.meta)} ${farol(v.pm)}`:"—"})()}</td>`:""}<td>${fmtN(l.a.chk)}</td><td>${fmtP(l.a.pchk)}</td><td>${fmtDias(l.a.tchk)}</td><td>${PEND[l.c.cad]?fmtN(PEND[l.c.cad].aberto):"—"}</td><td>${PEND[l.c.cad]&&PEND[l.c.cad].critico?`<span class="d-bad">${fmtN(PEND[l.c.cad].critico)}</span>`:PEND[l.c.cad]?"0":"—"}</td></tr>`).join("")}
+    <tr class="tot"><td>Time</td><td>${fmtN(T.leads)}</td><td>${fmtN(T.q)}</td><td>${fmtP(T.pq)}</td><td>${fmtN(T.c)}</td><td>${fmtP(T.pf)}</td><td>${fmtP(T.pcv)}</td><td>${fmtN(T.ch)}</td><td>${fmtN(T.liq)}</td><td>${fmtN(Tm)}</td><td>${farol(div(T.liq,Tm))}</td>${p.parcial?`<td>${(()=>{const v=previsao(p,x=>lista.some(c=>c.cad===x.cad),lista.map(c=>c.cad));return v&&v.meta?`${fmtN(v.prev)} de ${fmtN(v.meta)} ${farol(v.pm)}`:"—"})()}</td>`:""}<td>${fmtN(T.chk)}</td><td>${fmtP(T.pchk)}</td><td>${fmtDias(T.tchk)}</td><td>${fmtN(lista.reduce((s,c)=>s+(PEND[c.cad]?PEND[c.cad].aberto:0),0))}</td><td>${fmtN(lista.reduce((s,c)=>s+(PEND[c.cad]?PEND[c.cad].critico:0),0))}</td></tr>
     ${(()=>{/* v5.2: líquidos fora das cadeiras (fecha com o total da operação; no mês fechado, pelo fechamento oficial) */
-      const OP=kpis(p.ini,p.fim,filtroOp(st.op)).liq,dif=OP-T.liq,nc=13+(p.parcial?1:0);if(!dif)return "";
-      const cel=v=>`<td></td><td></td><td></td><td></td><td></td><td><b>${fmtN(v)}</b></td>`+"<td></td>".repeat(nc-7);
+      const OP=kpis(p.ini,p.fim,filtroOp(st.op)).liq,dif=OP-T.liq,nc=16+(p.parcial?1:0);if(!dif)return "";
+      const cel=v=>"<td></td>".repeat(7)+`<td><b>${fmtN(v)}</b></td>`+"<td></td>".repeat(nc-8);
       return `<tr class="conc"><td>Fora das cadeiras / a conciliar<div class="sub2">${p.parcial?"líquidos da operação sem closer no recorte":"no fechamento, o total da operação é maior que a soma das cadeiras"}</div></td>${cel(dif)}</tr>
       <tr class="tot"><td>Total ${st.op==="ALL"?"do comercial":st.op}${p.parcial?"":" (fechamento)"}</td>${cel(OP)}</tr>`})()}
-  </tbody></table></div><p class="note">Leads = Datacrazy (responsável atual). Checklists = "o que vale para a comissão" da Central, pela data de conclusão. Kevin (líder) entra no total do time, sem meta. "Em aberto hoje" e "Críticos" são o retrato da Central na última atualização (risco crítico = 15 dias ou mais em aberto).</p>`;
+  </tbody></table></div><details class="how"><summary>Como ler esta tela</summary><p class="note">Leads = Datacrazy (responsável atual). TxQ = taxa de qualificação (qualificados ÷ leads); Aprov. = aproveitamento (contratos ÷ qualificados); TxC = taxa de conversão total (contratos ÷ leads); % checklist = checklists concluídos ÷ contratos do período; Tempo chk. = média de dias corridos entre a data do contrato e a conclusão do checklist. Checklists = "o que vale para a comissão" da Central, pela data de conclusão. Kevin (líder) entra no total do time, sem meta. "Em aberto hoje" e "Críticos" são o retrato da Central na última atualização (risco crítico = 15 dias ou mais em aberto).</p></details>`;
   document.getElementById("view").innerHTML=h;
 }
 
@@ -1521,6 +1598,8 @@ function vAnuncios(){
   const p=st.p,ate=corteAnuncios();
   const opts=[["mes",`${mesNome(p.k)} até ${brc(p.fim<ate?p.fim:ate)}`],["7","Últimos 7 dias"],["14","Últimos 14 dias"],["30","Últimos 30 dias"]];
   if(!st.adp)st.adp="30";if(!st.adc)st.adc="contrato";
+  /* v5.10: trocar de mês no topo leva Anúncios para "mês escolhido" (mês fechado) ou de volta aos 30 dias (mês em andamento) */
+  if(st.adpK!==p.k){if(st.adpK)st.adp=p.parcial?"30":"mes";st.adpK=p.k}
   const temSafra=BASE.some(x=>x.m==="s_leads"),porLead=st.adc==="lead"&&temSafra;
   const ateM=porLead?addDias(ate,-14):ate;   /* data do lead: só leads com 14 dias ou mais */
   const fim=st.adp==="mes"?(p.fim<ateM?p.fim:ateM):ateM, ini=st.adp==="mes"?p.ini:addDias(ateM,-(+st.adp)+1);
@@ -1572,10 +1651,11 @@ function vAnuncios(){
     const L7op=Object.values(L7).filter(o=>o.op===op),so7=L7op.find(o=>o.cod==="S/ inf"),pSem=div(so7?so7.leads:0,L7op.reduce((t,o)=>t+(o.cod==="sem código"?0:o.leads),0));
     const semLigacao=porLead&&!BASE.some(x=>x.m==="s_c"&&x.op===op);
     h+=`<div class="blk"><span class="lbl">${op==="BPC"?"BPC / LOAS":"Auxílio-Acidente"} · ${st.adk?`${A.length} de ${A0.length}`:A.length} ${nomeItens}</span>
+    ${ini<"2026-10-03"?`<div class="insight"><span class="badge b-x">histórico</span><span><b>Antes de outubro só há gasto e conversas por anúncio</b>, de uma carga única da Meta (01/01 a 30/09/2026). Leads, qualificados e contratos por anúncio começam em 03/10, então custo por qualificado e por contrato ficam em branco nesses meses. Os nomes sem número no começo (vídeos, por exemplo) aparecem como estão na Meta.</span></div>`:""}
     ${semLigacao?`<div class="insight"><span class="badge b-x">sem dado</span><span><b>A base da TP ainda não liga os contratos do ${op} aos leads.</b> Pela data do lead, os contratos do ${op} aparecem zerados: para o ${op}, use "Contratos por: data do contrato".</span></div>`:""}
     ${pSem!=null&&pSem>.25?`<div class="insight"><span class="badge b-x">atenção</span><span><b>${fmtP(pSem)} dos leads de ${op} chegaram sem origem nos últimos 7 dias</b> (${br(ini7)} a ${br(ate)}; código do anúncio vazio no Datacrazy ou no Pipedrive). Leads, qualificados e contratos por anúncio ficam subcontados: antes de pausar ou frear, confira se o anúncio tem conversas na Meta. Pausar, Frear e Refazer aparecem com "?" enquanto isso.</span></div>`:""}
     <div class="tbl-w"><table class="wide ads"><thead><tr><th>${porCamp?"Família":"Anúncio"}</th>${ORD_AD.map(([k,t])=>{const on=(st.ads||"inv")===k,d=st.adsd||ORD_AD.find(x=>x[0]===k)[2];return `<th class="srt${on?" on":""}" data-k="${k}" title="Ordenar por ${t}">${t}${on?(d<0?" ↓":" ↑"):""}</th>`}).join("")}</tr></thead><tbody>
-    ${ordenaAds(A,ac).map(o=>{const a=ac(o);return `<tr><td><span class="code">${esc(o.cod)}</span>${o.ads&&o.ads.length?`<div class="sub2">${o.ads.length} anúncio${o.ads.length>1?"s":""}: ${esc(o.ads.join(", "))}</div>`:""}${o.topNq?`<div class="sub2">mais perde por ${esc(o.topNq[0])}</div>`:""}${porCamp?"":ultimaMudanca(op,o.cod,ate)}</td>
+    ${ordenaAds(A,ac).map(o=>{const a=ac(o);return `<tr><td><span class="code">${esc(o.cod)}</span>${o.ads&&o.ads.length?`<div class="sub2">${o.ads.length} anúncio${o.ads.length>1?"s":""}: ${esc(o.ads.join(", "))}</div>`:""}${o.topNq?`<div class="sub2">mais perde por ${esc(o.topNq[0])}</div>`:""}${porCamp||fim<addDias(ate,-29)?"":ultimaMudanca(op,o.cod,ate)}</td>
       <td><div class="invc"><span>${fmtR0(o.inv)}</span><i style="width:${(o.inv||0)/maxInv*100}%;background:${opCor(op)}"></i></div></td>
       <td>${fmtN(o.leads)}</td><td class="${cor(o.cpl,med.cpl)}">${fmtR(o.cpl)}</td>
       <td><b>${fmtN(o.q)}</b></td><td class="${cor(o.cpq,med.cpq)}">${fmtR0(o.cpq)}</td>
@@ -1621,6 +1701,7 @@ function vMotivos(){
     return `<div class="reasons">${ord(t).map(([m,v])=>{const sh=v/tot,sa=at?(antT[m]||0)/at:null;
     return `<div class="rs"><span>${esc(m)}</span><span class="bar"><span style="width:${sh*100}%;background:${col}"></span></span><span class="n"><b>${fmtP(sh)}</b> · ${fmtN(v)}${sa!=null?` <span class="${sh>sa+.03?"d-bad":sh<sa-.03?"d-good":"d-flat"}" title="antes: ${fmtP(sa)}">${sh>sa+.03?"▲":sh<sa-.03?"▼":"="}</span>`:""}</span></div>`}).join("")}</div>`};
   let h=`<div class="sec-h"><h2>Motivos · ${mesNome(p.k)}</h2><p>${br(p.ini)} a ${br(p.fim)} · seta compara a fatia de cada motivo com ${vsTxt(p)} · BPC e AA separados, porque os motivos são outros</p></div>
+  ${p.ini<"2026-10-01"?`<div class="insight"><span class="badge b-x">histórico</span><span><b>Maio a setembro vêm de uma carga única do Pipedrive</b> (perdas depois de qualificado; maio só a partir de 25/05). Não há motivo de não qualificação nesse período. Até 07/07 o motivo era texto livre, então há nomes parecidos para a mesma causa. A origem do anúncio veio vazia ("S/ inf") em 85% do AA e 32% do BPC: compare por operação, não por anúncio.</span></div>`:""}
     <div class="filters"><label class="lbl" for="adf">Anúncio</label><select id="adf"><option value="ALL">Todos os anúncios</option>${cods.map(c=>`<option ${c===st.ad?"selected":""}>${c}</option>`).join("")}</select></div>`;
   const dest=[],nqCards=[],peCards=[],heats=[];
   ops.forEach(op=>{
@@ -1684,7 +1765,7 @@ function desenharTopo(){
   const anosDados=[...new Set(P.map(p=>p.k.slice(0,4)))].sort(),anos=[...anosDados,String(+anosDados[anosDados.length-1]+1)];
   const ops=SO_UMA_OP.includes(st.v)?[["BPC","BPC"],["AA","AA"]]:[["ALL","BPC + AA"],["BPC","BPC"],["AA","AA"]];
   c2.innerHTML=`<div class="seg ano" role="group" aria-label="Ano">${anos.map(y=>`<button type="button" data-y="${y}" class="${y===ano?"on":""}" ${anosDados.includes(y)?"":"disabled"} aria-pressed="${y===ano}">${y}</button>`).join("")}</div>
-    <div class="mrow" role="group" aria-label="Mês">${MES.map((m,i)=>{const k=ano+"-"+String(i+1).padStart(2,"0"),p=P.find(x=>x.k===k);return `<button type="button" class="mchip${p===st.p?" on":""}${p&&p.parcial?" parc":""}" ${p?`data-i="${P.indexOf(p)}"`:"disabled"} aria-pressed="${p===st.p}">${m}</button>`}).join("")}</div>
+    <div class="mrow" role="group" aria-label="Mês">${MES.map((m,i)=>{const k=ano+"-"+String(i+1).padStart(2,"0"),p=P.find(x=>x.k===k);const ok=p&&mesLiberado(p);return `<button type="button" class="mchip${p===st.p?" on":""}${p&&p.parcial?" parc":""}" ${ok?`data-i="${P.indexOf(p)}"`:"disabled"} ${p&&!ok?`title="${st.v==="simulador"?"O simulador olha só o mês em andamento":st.v==="motivos"&&mesComBase(p)?"Sem motivo registrado neste mês":"Neste mês só há dados de anúncios (aba Anúncios)"}"`:""} aria-pressed="${p===st.p}">${m}</button>`}).join("")}</div>
     <div class="seg" role="group" aria-label="Operação">${ops.map(([o,t])=>`<button type="button" data-o="${o}" class="${st.op===o?"on":""}" aria-pressed="${st.op===o}">${t}</button>`).join("")}</div>`;
   cr.innerHTML=`<span class="selo">${st.p.parcial?"Parcial · até "+brc(st.p.fim):"Fechado"}</span><button type="button" class="tema" id="temaBtn" title="Tema: ${NOME_TEMA[TEMA]} (clique para trocar)">${ICO[TEMA]}<span>${NOME_TEMA[TEMA]}</span></button>`;
   c2.querySelectorAll(".mchip[data-i]").forEach(b=>b.onclick=()=>{selMes.value=b.dataset.i;selMes.dispatchEvent(new Event("change"))});
@@ -1710,12 +1791,26 @@ function marcarZeros(){document.querySelectorAll("#view td, #view .kpi .v, #view
   if(st.dir==="lv")document.querySelectorAll("#view table.heat td.h").forEach(e=>{if(parseInt(e.textContent,10)>=30)e.classList.add("alto")})}
 new MutationObserver(()=>marcarZeros()).observe(document.getElementById("view"),{childList:true});
 const SO_UMA_OP=["anuncios","motivos"];
+/* v5.7: meses que cada aba aceita. Simulador: só o mês em andamento. Motivos: só meses com motivo registrado na operação escolhida. */
+const _mcb={};
+function mesComBase(p){if(_mcb[p.k]==null)_mcb[p.k]=BASE.some(x=>x.d>=p.ini&&x.d<=p.fim&&!x.m.startsWith("ad_"));return _mcb[p.k]}
+function mesLiberado(p,v,op){
+  v=v||st.v;op=op||st.op;if(!p)return false;
+  if(v==="simulador")return !!p.parcial;
+  /* v5.10: jan e fev só têm gasto e conversas por anúncio (histórico da Meta); as outras abas ficam travadas nesses meses */
+  if(v!=="anuncios"&&!mesComBase(p))return false;
+  if(v==="motivos")return BASE.some(x=>(x.m==="nq"||x.m==="perda"||x.m==="pc")&&x.d>=p.ini&&x.d<=p.fim&&(op==="ALL"||x.op===op));
+  return true;
+}
 function render(){
   if(!st.p)return;
   /* v5.1: Anúncios e Motivos mostram uma operação por vez; ao sair, volta para a escolha anterior */
   const opf_=document.getElementById("opf");
   if(SO_UMA_OP.includes(st.v)){if(st.op==="ALL"){st.opVolta="ALL";st.op=st.opPag||"BPC";opf_.value=st.op}}
-  else if(st.opVolta){st.op=st.opVolta;st.opVolta=null;opf_.value=st.op}   /* v4.0: troca de tema antes de os números chegarem não redesenha a página vazia */
+  else if(st.opVolta){st.op=st.opVolta;st.opVolta=null;opf_.value=st.op}
+  /* v5.7: aba com mês travado vai para o mês liberado mais recente; ao sair, volta ao mês de antes */
+  if(!mesLiberado(st.p)){const q=P.find(x=>mesLiberado(x));if(q){if(!st.pVolta)st.pVolta=st.p;st.p=q;selMes.value=P.indexOf(q)}}
+  else if(st.pVolta&&!["simulador","motivos"].includes(st.v)){st.p=st.pVolta;st.pVolta=null;selMes.value=P.indexOf(st.p)}   /* v4.0: troca de tema antes de os números chegarem não redesenha a página vazia */
   document.documentElement.dataset.dir=st.dir;
   document.querySelectorAll(".dirs button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.d===st.dir));
   const ref=ATUALIZADO&&/^\d{2}\/\d{2}\/\d{4}/.test(ATUALIZADO)?addDias(ATUALIZADO.slice(6,10)+"-"+ATUALIZADO.slice(3,5)+"-"+ATUALIZADO.slice(0,2),-1):DADOS_ATE;
