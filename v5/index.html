@@ -1657,6 +1657,7 @@ function vMotivos(){
     return `<div class="reasons">${ord(t).map(([m,v])=>{const sh=v/tot,sa=at?(antT[m]||0)/at:null;
     return `<div class="rs"><span>${esc(m)}</span><span class="bar"><span style="width:${sh*100}%;background:${col}"></span></span><span class="n"><b>${fmtP(sh)}</b> · ${fmtN(v)}${sa!=null?` <span class="${sh>sa+.03?"d-bad":sh<sa-.03?"d-good":"d-flat"}" title="antes: ${fmtP(sa)}">${sh>sa+.03?"▲":sh<sa-.03?"▼":"="}</span>`:""}</span></div>`}).join("")}</div>`};
   let h=`<div class="sec-h"><h2>Motivos · ${mesNome(p.k)}</h2><p>${br(p.ini)} a ${br(p.fim)} · seta compara a fatia de cada motivo com ${vsTxt(p)} · BPC e AA separados, porque os motivos são outros</p></div>
+  ${p.ini<"2026-10-01"?`<div class="insight"><span class="badge b-x">histórico</span><span><b>Maio a setembro vêm de uma carga única do Pipedrive</b> (perdas depois de qualificado; maio só a partir de 25/05). Não há motivo de não qualificação nesse período. Até 07/07 o motivo era texto livre, então há nomes parecidos para a mesma causa. A origem do anúncio veio vazia ("S/ inf") em 85% do AA e 32% do BPC: compare por operação, não por anúncio.</span></div>`:""}
     <div class="filters"><label class="lbl" for="adf">Anúncio</label><select id="adf"><option value="ALL">Todos os anúncios</option>${cods.map(c=>`<option ${c===st.ad?"selected":""}>${c}</option>`).join("")}</select></div>`;
   const dest=[],nqCards=[],peCards=[],heats=[];
   ops.forEach(op=>{
