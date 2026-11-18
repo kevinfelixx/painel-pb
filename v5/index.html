@@ -621,6 +621,13 @@ details.so{margin:8px 0 12px}
 .so-c{display:flex;flex-direction:column;gap:2px;min-width:64px}
 .so-c small{font-size:11px;color:var(--ink-3);white-space:nowrap}.so-c b{font-size:15px;font-weight:800;white-space:nowrap}
 .so .c-good{color:var(--good)}.so .c-warn{color:var(--warn)}.so .c-bad{color:var(--bad)}
+/* v5.13: canais */
+.can h3{margin:0 0 10px;font-size:16px}
+.card.can table.wide{min-width:0;width:100%;table-layout:auto}
+.card.can th{white-space:normal;line-height:1.2;vertical-align:bottom}
+.card.can th,.card.can td{padding:8px 6px}
+.card.can td:first-child{white-space:normal}
+.card.can{overflow-x:auto}
 </style>
 
 <header class="top">
@@ -1352,6 +1359,37 @@ function semOrigemH(op){
   let sem="";for(let i=5;i>=0;i--){const f=addDias(ate,-7*i),a=addDias(f,-6);sem+=cel(brc(a),tx(a,f))}
   return `<details class="how so"><summary>Leads sem origem, mês a mês</summary><div class="so-l"><span class="lbl">Por mês</span>${meses}</div><div class="so-l"><span class="lbl">Semanas até ${brc(ate)}</span>${sem}</div><p class="note">Leads de ${op} que chegaram sem o código do anúncio (vazio no Datacrazy ou no Pipedrive) ÷ leads com código. Até 15% verde, até 25% âmbar, acima disso vermelho. * mês em andamento. A fonte por anúncio começa em 03/10/2026.</p></details>`;
 }
+/* v5.13 (18/11/2026, Kevin + Gabriel): canal de origem do contrato. Regra do Kevin: Meta = códigos de anúncio e nomes de anúncio da Meta;
+   Google = "Google…"; Orgânico = Indicação, Retorno, Recuperação, 2º Filho, Instagram, Social Selling, Site, Presencial, Nº 1270;
+   Sem origem = "S/ inf" ou vazio; o resto fica em Outros. Contrato bruto (antes de churn), pela data do contrato. Contratos do Tracker que não
+   aparecem com origem entram em "Sem ligação com a origem". Investimento (Tracker) é todo da Meta; o Google não tem gasto nas fontes do painel. */
+const ORGANICO=/^(indica|retorno|recupera|2\s*[º°o]\s*filho|instagram|social selling|site|presencial|n[º°o]\s*1270)/i;
+function canal(cod){
+  const c=String(cod||"").trim();
+  if(!c||/^s\/?\s*inf|^sem c[oó]digo/i.test(c))return "sem";
+  if(ehAnuncio(c)||/^(fb\s*\+\s*ig|vd\b|vid\b|ads\b|meta\b)/i.test(c))return "meta";
+  if(/google/i.test(c))return "google";
+  if(ORGANICO.test(c))return "org";
+  return "out";
+}
+const CANAIS=[["meta","Meta (tráfego pago)"],["google","Google"],["org","Orgânico"],["out","Outros"],["sem","Sem origem"],["nl","Sem ligação com a origem"]];
+function porCanal(a,b,op){
+  const r={meta:0,google:0,org:0,out:0,sem:0,nl:0};
+  for(const x of BASE){if(x.m!=="ad_c"||x.d<a||x.d>b||(op!=="ALL"&&x.op!==op))continue;r[canal(x.cod)]+=x.v}
+  const t=soma(a,b,op==="ALL"?null:(x=>x.op===op)),ct=t.contratos||0,soma6=r.meta+r.google+r.org+r.out+r.sem;
+  if(ct>soma6)r.nl=ct-soma6;
+  return r;
+}
+function custoPago(a,b,op){const t=soma(a,b,op==="ALL"?null:(x=>x.op===op)),c=porCanal(a,b,op).meta;return c?(t.invest||0)/c:null}
+function canaisH(p){
+  const ops=opsSel(),tem=BASE.some(x=>x.m==="ad_c"&&x.d>=p.ini&&x.d<=p.fim);if(!tem)return "";
+  const tab=op=>{const r=porCanal(p.ini,p.fim,op),tot=Object.values(r).reduce((s,v)=>s+v,0),inv=soma(p.ini,p.fim,x=>x.op===op).invest||0;
+    return `<div class="card can"><h3>${op==="BPC"?"BPC / LOAS":"Auxílio-Acidente"}</h3><table class="wide cl"><thead><tr><th>Canal</th><th>Contratos</th><th>% do total</th><th>Investimento</th><th>Custo por contrato</th></tr></thead><tbody>
+      ${CANAIS.filter(([k])=>r[k]>0||k==="meta"||k==="org").map(([k,t])=>`<tr><td>${t}</td><td>${fmtN(r[k])}</td><td>${fmtP(div(r[k],tot))}</td><td>${k==="meta"?fmtR0(inv):k==="google"?"sem dado":"—"}</td><td>${k==="meta"&&r[k]?fmtR0(inv/r[k]):"—"}</td></tr>`).join("")}
+      <tr class="tot"><td>Total</td><td>${fmtN(tot)}</td><td>100%</td><td>${fmtR0(inv)}</td><td>${tot?fmtR0(inv/tot):"—"}</td></tr></tbody></table></div>`};
+  return `<div class="blk"><span class="lbl">De onde vêm os contratos · ${mesNome(p.k)}</span><div class="two">${ops.map(tab).join("")}</div>
+    <details class="how"><summary>Como ler</summary><p class="note">Contrato bruto (antes de churn), pela data do contrato, classificado pelo código de origem do negócio. Meta = anúncios da Meta; Google = campanhas do Google (o painel ainda não tem o gasto do Google); Orgânico = indicação, retorno, recuperação, 2º filho, Instagram, social selling, site, presencial e Nº 1270; Sem origem = código vazio. "Sem ligação com a origem" são contratos do Tracker que não aparecem ligados a um negócio com origem. Investimento é o do Tracker, todo da Meta. Antes de 03/10 a origem vem do Espelho do RG; depois, do Funil da TP.</p></details></div>`;
+}
 /* ===== Comercial ===== */
 function vComercial(){
   let tvH="";   /* tema Lovable: o painel da meta (estilo TV) vai para o topo da página */
@@ -1369,7 +1407,7 @@ function vComercial(){
     ${tile("Investimento",fmtR0(a.inv),delta(a.inv,b.inv,true)+` <span>${fmtR0(b.inv)} antes</span>`,sInv,kc,ledOf(a.inv,b.inv,true))}
     ${tile("Conversas iniciadas (Meta)",fmtN(a.conv),delta(a.conv,b.conv)+` <span>${fmtN(b.conv)} antes</span>`,sConv,kc,ledOf(a.conv,b.conv))}
     ${tile("Custo por conversa",fmtR(a.cpc),delta(a.cpc,b.cpc,true)+` <span>${fmtR(b.cpc)} antes</span>`,"",kc,ledOf(a.cpc,b.cpc,true))}
-    ${tile("Custo por contrato líquido",fmtR0(a.cac),delta(a.cac,b.cac,true)+` <span>${fmtR0(b.cac)} antes</span>`,"",kc,ledOf(a.cac,b.cac,true))}
+    ${(()=>{const ca=custoPago(p.ini,p.fim,st.op),cb=custoPago(p.antIni,p.antFim,st.op);return tile("Custo por contrato · Meta",fmtR0(ca),delta(ca,cb,true)+` <span>${fmtR0(cb)} antes · todos os contratos ${fmtR0(a.cac)}</span>`,"",kc,ledOf(ca,cb,true))})()}
   </div></div>`;
   h+=`<div class="blk"><span class="lbl">Funil comercial</span><div class="grid-k">
     ${tile("Leads recebidos (Datacrazy)",fmtN(a.leads),delta(a.leads,b.leads)+` <span>${fmtN(b.leads)} antes</span>`,sLeads,kc,ledOf(a.leads,b.leads))}
@@ -1377,6 +1415,7 @@ function vComercial(){
     ${tile("Contratos líquidos",fmtN(a.liq),farol(pm,p.parcial)+` <span>${p.parcial?"esperado "+meta.toLocaleString("pt-BR",{maximumFractionDigits:1})+" até "+brc(p.fim):"meta "+fmtN(meta)+" no mês"}</span>`,"",kc,ledMeta(pm))}
     ${tile("Checklists concluídos",fmtN(a.chk),delta(a.chk,b.chk)+` <span>${fmtN(b.chk)} antes</span>`,"",kc,ledOf(a.chk,b.chk))}
   </div></div>`;
+  h+=canaisH(p);
   if(p.parcial){const lin=[["Comercial inteiro",null,"ALL"],["BPC / LOAS",x=>x.op==="BPC","BPC"],["Auxílio-Acidente",x=>x.op==="AA","AA"]].filter((x,i)=>st.op==="ALL"||(st.op==="BPC"&&i===1)||(st.op==="AA"&&i===2));
     const RM=opsSel().map(op=>rumoMeta(p,op)).filter(r=>r.meta),f1=v=>v==null?"—":v.toLocaleString("pt-BR",{maximumFractionDigits:1});
     const TOT=st.op==="ALL"?rumoMeta(p,"ALL"):null;
