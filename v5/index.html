@@ -1477,7 +1477,7 @@ function vComercial(){
   document.getElementById("lgA").innerHTML=ops.map(op=>`<span><i style="background:${opCor(op)}"></i>${op}</span>`).join("")+ops.map(op=>`<span><i style="background:transparent;border:1px dashed ${opCor(op)}"></i>Ritmo da meta ${op} (${fmtN(metaOpPeriodo(p.k+"-01",ultimoDia(p.k),op))} no mês)</span>`).join("")+``;
   lineChart(document.getElementById("chA"),series,xs,"Contratos líquidos acumulados por dia",eventosMes(p.k,st.op).map(e=>({i:xs.indexOf(e.d),n:e.n,t:e.t})).filter(m=>m.i>=0));
   const fech=P.filter(x=>!x.parcial).slice(0,6).reverse();
-  const stacks=ops.map(op=>({label:op,color:opCor(op),vals:fech.map(m=>{const t=soma(m.ini,m.fim,x=>x.op===op);return (t.contratos||0)-(t.churns||0)})}));
+  const stacks=ops.map(op=>({label:op,color:opCor(op),vals:fech.map(m=>{const v=liqMes(m.k,op);if(v!=null)return v;const t=soma(m.ini,m.fim,x=>x.op===op);return (t.contratos||0)-(t.churns||0)})}));   /* v5.15b (19/11, PL 00): mesmo número das barras do ano (fechamento oficial; abr/mai congelados) */
   document.getElementById("lgB").innerHTML=ops.map(op=>`<span><i style="background:${opCor(op)}"></i>${op}</span>`).join("");
   stackCols(document.getElementById("chB"),fech.map(m=>mesNome(m.k)),stacks,"Contratos líquidos por mês fechado");
 }
