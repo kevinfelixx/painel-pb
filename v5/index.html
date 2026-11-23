@@ -641,6 +641,8 @@ details.so{margin:8px 0 12px}
 .wk dd{line-height:1.25}
 .wk-s{text-align:right}
 .wk[aria-disabled="true"] .wh{flex-direction:column;align-items:flex-start;gap:2px}
+/* v5.18b: rótulos da grade da closer sem "…" (regra: nada cortado); quebram linha se faltar espaço */
+.rk-g small{display:block;white-space:normal;overflow:visible;text-overflow:clip;letter-spacing:.02em;line-height:1.2;overflow-wrap:anywhere}
 </style>
 
 <header class="top">
