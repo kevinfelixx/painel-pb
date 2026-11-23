@@ -634,6 +634,7 @@ details.so{margin:8px 0 12px}
 :root[data-dir="lv"] .op.bpc .op-h,:root[data-dir="lv"] .op.aa .op-h{background:transparent;box-shadow:none}
 .rk.top::after{background:#C9A84C;opacity:.22}
 .rk.top .av{box-shadow:0 0 0 3px rgba(201,168,76,.5)}
+.wk-s{display:block;font-size:11px;font-weight:600;color:var(--ink-3);line-height:1.2;margin-top:1px;white-space:nowrap}
 </style>
 
 <header class="top">
@@ -1387,6 +1388,10 @@ function porCanal(a,b,op){
   if(ct>soma6)r.nl=ct-soma6;
   return r;
 }
+/* v5.16 (23/11/2026, TP 00 com ok do Kevin): custo da Meta só sobre o que veio de anúncio da Meta. Qualificados por anúncio (ad_q) existem desde 03/10; antes, null. */
+function metaQC(a,b,op){let q=0,temQ=false;for(const x of BASE){if(x.m!=="ad_q"||x.d<a||x.d>b||(op!=="ALL"&&x.op!==op))continue;temQ=true;if(canal(x.cod)==="meta")q+=x.v}
+  const inv=soma(a,b,op==="ALL"?null:(x=>x.op===op)).invest||0,c=porCanal(a,b,op).meta;
+  return {q:temQ?q:null,c,cpq:temQ&&q?inv/q:null,cac:c?inv/c:null}}
 function custoPago(a,b,op){const t=soma(a,b,op==="ALL"?null:(x=>x.op===op)),c=porCanal(a,b,op).meta;return c?(t.invest||0)/c:null}
 function canaisH(p){
   const ops=opsSel(),tem=BASE.some(x=>x.m==="ad_c"&&x.d>=p.ini&&x.d<=p.fim);if(!tem)return "";
@@ -1483,7 +1488,7 @@ function vComercial(){
 }
 function renderSemanas(){
   const p=st.p,f=filtroOp(st.op),ws=semanas(p);
-  const dados=ws.map(w=>w.futura?null:kpis(w.ini,w.fimDado,f));
+  const dados=ws.map(w=>w.futura?null:{...kpis(w.ini,w.fimDado,f),mt:metaQC(w.ini,w.fimDado,st.op)});
   if(st.wk==null||!dados[st.wk-1]){let i=dados.length-1;while(i>0&&(!dados[i]||ws[i].parcial))i--;st.wk=ws[i].n}
   const card=(w,k,i)=>{
     if(!k)return `<div class="wk" aria-disabled="true" style="opacity:.45"><div class="wh"><b>S${w.n}</b><small>${brc(w.ini)} a ${brc(w.fim)}</small></div><span class="tag">ainda não começou</span></div>`;
@@ -1492,9 +1497,9 @@ function renderSemanas(){
     return `<button type="button" class="wk" data-w="${w.n}" aria-pressed="${st.wk===w.n}"><div class="wh"><b>S${w.n}</b><small>${brc(w.ini)} a ${brc(w.fim)}</small></div>
       ${w.dias<7?`<span class="short">semana curta · ${w.dias} ${w.dias>1?"dias":"dia"}</span>`:w.parcial?`<span class="short">em andamento · até ${brc(DADOS_ATE)}</span>`:""}
       <dl>${dl("Investimento",fmtR0(k.inv),[k.inv,prev&&prev.inv],true)}${dl("Conversas",fmtN(k.conv),[k.conv,prev&&prev.conv])}${dl("Custo/conversa",fmtR(k.cpc),[k.cpc,prev&&prev.cpc],true)}
-      ${dl("Qualificados",fmtN(k.q),[k.q,prev&&prev.q])}${dl("Custo/qualif.",fmtR0(k.cpq),[k.cpq,prev&&prev.cpq],true)}${dl("Contratos líq.",fmtN(k.liq),[k.liq,prev&&prev.liq])}${dl("Custo/contrato",fmtR0(k.cac),[k.cac,prev&&prev.cac],true)}</dl></button>`};
+      ${dl("Qualificados",fmtN(k.q)+(k.mt.q!=null?`<small class="wk-s">${fmtN(k.mt.q)} da Meta</small>`:""),[k.q,prev&&prev.q])}${dl("Custo/qualif. Meta",fmtR0(k.mt.cpq)+`<small class="wk-s">todos ${fmtR0(k.cpq)}</small>`,[k.mt.cpq,prev&&prev.mt.cpq],true)}${dl("Contratos líq.",fmtN(k.liq)+`<small class="wk-s">${fmtN(k.mt.c)} da Meta</small>`,[k.liq,prev&&prev.liq])}${dl("Custo/contrato Meta",fmtR0(k.mt.cac)+`<small class="wk-s">todos ${fmtR0(k.cac)}</small>`,[k.mt.cac,prev&&prev.mt.cac],true)}</dl></button>`};
   const sel=ws[st.wk-1],k=dados[st.wk-1];
-  const linhas=opsSel().map(op=>{const x=kpis(sel.ini,sel.fimDado,y=>y.op===op);return `${op==="BPC"?"BPC":"AA"}: investimento ${fmtR(x.inv)}, ${fmtN(x.conv)} conversas (${fmtR(x.cpc)} por conversa), ${fmtN(x.q)} qualificados (${fmtR(x.cpq)} por qualificado), ${fmtN(x.liq)} contratos líquidos (${fmtR(x.cac)} por contrato).`});
+  const linhas=opsSel().map(op=>{const x=kpis(sel.ini,sel.fimDado,y=>y.op===op),m=metaQC(sel.ini,sel.fimDado,op);return `${op==="BPC"?"BPC":"AA"}: investimento na Meta ${fmtR(x.inv)}, ${fmtN(x.conv)} conversas (${fmtR(x.cpc)} por conversa), ${fmtN(x.q)} qualificados${m.q!=null?`, ${fmtN(m.q)} da Meta (${fmtR(m.cpq)} por qualificado da Meta; ${fmtR(x.cpq)} contando todos)`:` (${fmtR(x.cpq)} por qualificado)`}, ${fmtN(x.liq)} contratos líquidos, ${fmtN(m.c)} da Meta (${fmtR(m.cac)} por contrato da Meta; ${fmtR(x.cac)} contando todos).`});
   let dest="";
   if(!semGasto()){const ateA=corteAnuncios(),fimA=sel.fimDado<ateA?sel.fimDado:ateA;
     if(fimA>=sel.ini){const LA=porAnuncio(sel.ini,fimA).filter(o=>ehAnuncio(o.cod)&&o.inv!=null);
