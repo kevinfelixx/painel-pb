@@ -635,6 +635,14 @@ details.so{margin:8px 0 12px}
 .rk.top::after{background:#C9A84C;opacity:.22}
 .rk.top .av{box-shadow:0 0 0 3px rgba(201,168,76,.5)}
 .wk-s{display:block;font-size:11px;font-weight:600;color:var(--ink-3);line-height:1.2;margin-top:1px;white-space:nowrap}
+/* v5.18b (23/11/2026, Kevin: "informações estourando"): cartão da semana com largura mínima de 214 px, rótulo que quebra linha e valor que nunca vaza; semana que não começou fica estreita. */
+.wk dl{grid-template-columns:minmax(0,1fr) auto;column-gap:8px;row-gap:5px}
+.wk dt{white-space:normal;line-height:1.25;min-width:0}
+.wk dd{line-height:1.25}
+.wk-s{text-align:right}
+.wk[aria-disabled="true"] .wh{flex-direction:column;align-items:flex-start;gap:2px}
+/* v5.18b: rótulos da grade da closer sem "…" (regra: nada cortado); quebram linha se faltar espaço */
+.rk-g small{display:block;white-space:normal;overflow:visible;text-overflow:clip;letter-spacing:.02em;line-height:1.2;overflow-wrap:anywhere}
 </style>
 
 <header class="top">
@@ -1510,7 +1518,7 @@ function renderSemanas(){
       if(bons.length||ruins.length)dest=`\n\nAnúncios da semana (até ${br(fimA)}):`+(bons.length?`\nMenor custo por qualificado (gasto de R$ 100 ou mais): ${bons.map(o=>`${o.cod} (${fmtR(o.cpq)}, ${fmtN(o.q)} qualificados)`).join("; ")}.`:"")+(ruins.length?`\nMaior gasto sem contrato: ${ruins.map(o=>`${o.cod} (${fmtR(o.inv)})`).join("; ")}.`:"")}}
   const txt=`Resumo da semana ${sel.n} de ${mesNome(p.k)} (${br(sel.ini)} a ${br(sel.fimDado)})${sel.dias<7?", semana curta de "+sel.dias+(sel.dias>1?" dias":" dia"):""}\n\n${linhas.join("\n")}\n\nTotal: ${fmtR(k.inv)} investidos, ${fmtN(k.conv)} conversas, ${fmtN(k.q)} qualificados e ${fmtN(k.liq)} contratos líquidos. Dados até ${br(DADOS_ATE)}.${dest}`;
   document.getElementById("semanasBlk").innerHTML=`<div class="sec-h"><span class="lbl">Semanas do mês · segunda a domingo</span><p>Seta só quando as duas semanas têm 7 dias. Clique numa semana para o resumo da agência.</p></div>
-    <div class="weeks" style="--nw:${ws.length}">${ws.map((w,i)=>card(w,dados[i],i)).join("")}</div>
+    <div class="weeks" style="grid-template-columns:${ws.map((w,i)=>dados[i]?"minmax(214px,1fr)":"minmax(88px,.4fr)").join(" ")}">${ws.map((w,i)=>card(w,dados[i],i)).join("")}</div>
     <div class="copybox"><pre id="resumo">${esc(txt)}</pre><button type="button" class="btn" id="copiar">Copiar resumo da semana ${sel.n}</button></div>`;
   document.querySelectorAll(".wk[data-w]").forEach(b=>b.onclick=()=>{st.wk=+b.dataset.w;renderSemanas()});
   document.getElementById("copiar").onclick=e=>{const btn=e.currentTarget;navigator.clipboard.writeText(txt).then(()=>{btn.textContent="Resumo copiado"},()=>{const r=document.createRange();r.selectNodeContents(document.getElementById("resumo"));const s=getSelection();s.removeAllRanges();s.addRange(r);btn.textContent="Texto selecionado, use Copiar"})};
