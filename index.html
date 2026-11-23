@@ -958,7 +958,7 @@ const ultimoDia=k=>{const [y,m]=k.split("-").map(Number);return iso(new Date(y,m
 const FERIADOS=new Set(["2026-01-01","2026-04-03","2026-04-21","2026-05-01","2026-09-07","2026-10-12","2026-11-02","2026-11-15","2026-11-20","2026-12-24","2026-12-25","2026-12-31",
   "2027-01-01","2027-03-26","2027-04-21","2027-05-01","2027-09-07","2027-10-12","2027-11-02","2027-11-15","2027-11-20","2027-12-25"]);
 /* v5.17 (23/11/2026, Kevin via PL 00; fonte: memoria/geral/feriados.md): 24/12 e 31/12 sem expediente no comercial. */
-const SEM_EXP=new Set(["2026-12-24","2026-12-31"]);
+let FER_MOT={};   /* v5.18: motivo de cada dia não útil, vindo da aba feriados (a lista acima é só reserva) */
 const diasUteisF=(a,b)=>{let n=0;for(let x=D(a);x<=D(b);x.setDate(x.getDate()+1)){const w=x.getDay();if(w&&w<6&&!FERIADOS.has(iso(x)))n++}return n};
 const diasUteis=(a,b)=>{let n=0;for(let x=D(a);x<=D(b);x.setDate(x.getDate()+1)){const w=x.getDay();if(w&&w<6)n++}return n};
 const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
@@ -1300,7 +1300,7 @@ function vSimulador(){
    Em Anúncios: a última mudança de cada anúncio em 30 dias, detectada pelo gasto diário (v5.6a: o histórico da TP foi aposentado). */
 function eventosMes(k,op){
   const ini=k+"-01",fim=ultimoDia(k),ev=[],dentro=d=>d&&d>=ini&&d<=fim,okOp=o=>op==="ALL"||o==="ALL"||o===op;
-  FERIADOS.forEach(d=>{if(dentro(d)&&diasUteis(d,d))ev.push({d,tipo:"feriado",t:SEM_EXP.has(d)?"Sem expediente no comercial (dia não útil)":"Feriado nacional (dia não útil)"})});
+  FERIADOS.forEach(d=>{if(dentro(d)&&diasUteis(d,d))ev.push({d,tipo:"feriado",t:(FER_MOT[d]||"Feriado")+" (dia não útil)"})});
   const desde=BASE_INI();
   CAD.forEach(c=>{if(c.cad==="LID"||!okOp(c.op))return;const n=c.pessoa+" ("+c.op+")";
     if(dentro(c.de)&&c.de>desde)ev.push({d:c.de,tipo:"closer",t:n+" entrou"});
@@ -1920,7 +1920,7 @@ function render(){
 }
 function boot(json){
   const d=typeof json==="string"?JSON.parse(json):json;
-  DADOS_ATE=d.dadosAte;FUNIL_ATE=d.funilAte||"";AN_ATE=d.metaAnunciosAte||"";PEND=d.pendentes||{};REG=d.regua||null;ATUALIZADO=d.atualizadoEm||"";PERDAS_ST=d.perdasCloser||"";ANO=d.ano||null;LIQ_F=d.liqFechados||{};AVISOS=d.avisos||"";META=d.meta||{};ANOT=d.anotacoes||[];
+  DADOS_ATE=d.dadosAte;FUNIL_ATE=d.funilAte||"";AN_ATE=d.metaAnunciosAte||"";PEND=d.pendentes||{};REG=d.regua||null;ATUALIZADO=d.atualizadoEm||"";PERDAS_ST=d.perdasCloser||"";ANO=d.ano||null;LIQ_F=d.liqFechados||{};AVISOS=d.avisos||"";META=d.meta||{};ANOT=d.anotacoes||[];if(d.feriados&&d.feriados.d&&d.feriados.d.length){FERIADOS.clear();d.feriados.d.forEach(x=>FERIADOS.add(x));FER_MOT=d.feriados.m||{}}
   const cores={BPC:["--bpc","--bpc-2"],AA:["--aa","--aa-2"]},usados={BPC:0,AA:0};
   CAD=(d.cad||[]).map(c=>{const op=c.op==="BPC+AA"?"BPC":c.op;let cv="--ink-3";if(c.cad!=="LID"&&cores[op])cv=cores[op][Math.min(usados[op]++,1)];return {...c,op,cv}});
   BASE=(d.base||[]).map(r=>({d:r[0],op:r[1],cad:r[2]||undefined,cod:r[3]||undefined,m:r[4],v:+r[5],mot:r[6]||undefined}));
