@@ -955,8 +955,10 @@ const div=(a,b)=>(a==null||!b)?null:a/b;
 const ultimoDia=k=>{const [y,m]=k.split("-").map(Number);return iso(new Date(y,m,0,12))};
 /* v4.0: dia útil da ficha da IC (segunda a sexta sem feriado nacional), usado só no bloco "Vamos bater a meta" (V4.4 a V4.7).
    O rateio da meta e a página Closers seguem sem feriados, como no Tracker. Carnaval e Corpus Christi são ponto facultativo e não entram. */
-const FERIADOS=new Set(["2026-01-01","2026-04-03","2026-04-21","2026-05-01","2026-09-07","2026-10-12","2026-11-02","2026-11-15","2026-11-20","2026-12-25",
+const FERIADOS=new Set(["2026-01-01","2026-04-03","2026-04-21","2026-05-01","2026-09-07","2026-10-12","2026-11-02","2026-11-15","2026-11-20","2026-12-24","2026-12-25","2026-12-31",
   "2027-01-01","2027-03-26","2027-04-21","2027-05-01","2027-09-07","2027-10-12","2027-11-02","2027-11-15","2027-11-20","2027-12-25"]);
+/* v5.17 (23/11/2026, Kevin via PL 00; fonte: memoria/geral/feriados.md): 24/12 e 31/12 sem expediente no comercial. */
+const SEM_EXP=new Set(["2026-12-24","2026-12-31"]);
 const diasUteisF=(a,b)=>{let n=0;for(let x=D(a);x<=D(b);x.setDate(x.getDate()+1)){const w=x.getDay();if(w&&w<6&&!FERIADOS.has(iso(x)))n++}return n};
 const diasUteis=(a,b)=>{let n=0;for(let x=D(a);x<=D(b);x.setDate(x.getDate()+1)){const w=x.getDay();if(w&&w<6)n++}return n};
 const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
@@ -1284,7 +1286,7 @@ function vSimulador(){
         ${ctl("fe","Fechamento",0,100,.5,v.fe*100,fmtP(v.fe),fmtP(B.fe))}
         ${ctl("ch","Churn",0,50,.5,v.ch*100,fmtP(v.ch),fmtP(B.ch))}
       </div></section>`}).join("")}</div>
-    <details class="how"><summary>Como é calculado</summary><p class="note">Projeção = contratos líquidos até ${brc(p.fim)} + qualificados por dia útil × fechamento × (1 − churn) × dias úteis que restam no mês, contando hoje. Fechamento = contratos ÷ qualificados do mesmo período; churn = churns ÷ contratos. O ponto de partida é o ritmo de ${br(p.ini)} a ${br(p.fim)}. Meta do mês da operação no Tracker. Dia útil: segunda a sexta sem feriado nacional.</p></details>`;
+    <details class="how"><summary>Como é calculado</summary><p class="note">Projeção = contratos líquidos até ${brc(p.fim)} + qualificados por dia útil × fechamento × (1 − churn) × dias úteis que restam no mês, contando hoje. Fechamento = contratos ÷ qualificados do mesmo período; churn = churns ÷ contratos. O ponto de partida é o ritmo de ${br(p.ini)} a ${br(p.fim)}. Meta do mês da operação no Tracker. Dia útil: segunda a sexta sem feriado nacional nem dia sem expediente.</p></details>`;
   document.getElementById("view").innerHTML=h;
   const V=document.getElementById("view");
   V.oninput=e=>{const t=e.target;if(!t.matches||!t.matches(".sim input[type=range]"))return;const op=t.dataset.op,k=t.dataset.k,v=st.sim[op];
@@ -1298,7 +1300,7 @@ function vSimulador(){
    Em Anúncios: a última mudança de cada anúncio em 30 dias, detectada pelo gasto diário (v5.6a: o histórico da TP foi aposentado). */
 function eventosMes(k,op){
   const ini=k+"-01",fim=ultimoDia(k),ev=[],dentro=d=>d&&d>=ini&&d<=fim,okOp=o=>op==="ALL"||o==="ALL"||o===op;
-  FERIADOS.forEach(d=>{if(dentro(d)&&diasUteis(d,d))ev.push({d,tipo:"feriado",t:"Feriado nacional (dia não útil)"})});
+  FERIADOS.forEach(d=>{if(dentro(d)&&diasUteis(d,d))ev.push({d,tipo:"feriado",t:SEM_EXP.has(d)?"Sem expediente no comercial (dia não útil)":"Feriado nacional (dia não útil)"})});
   const desde=BASE_INI();
   CAD.forEach(c=>{if(c.cad==="LID"||!okOp(c.op))return;const n=c.pessoa+" ("+c.op+")";
     if(dentro(c.de)&&c.de>desde)ev.push({d:c.de,tipo:"closer",t:n+" entrou"});
@@ -1460,7 +1462,7 @@ function vComercial(){
       <div class="rm-foot"><span>Ritmo atual <b>${f1(r.ritmo)}</b> por dia útil</span><span>Projeção <b>${r.prev!=null?fmtN(r.prev):"—"}</b>${r.pf!=null?" ("+fmtP(r.pf)+")":""}</span>${r.ant!=null?`<span>${mesNome(r.antIni.slice(0,7))} no mesmo ponto <b>${fmtN(r.ant)}</b> ${delta(r.real,r.ant)}</span>`:""}</div>
     </div>`).join("")}</div>
       ${TOT?`<p class="note"><b>Comercial inteiro</b> (linha à parte, BPC + AA): ${fmtN(TOT.real)} de ${fmtN(TOT.meta)} · esperado até ${brc(p.fim)} ${f1(TOT.esp)} ${farol(TOT.sinal,1)} · por dia ${TOT.falta?fmtN(TOT.porDia):"meta batida"} · projeção linear ${fmtN(TOT.prev)} · mês anterior nos mesmos dias úteis: ${TOT.ant!=null?fmtN(TOT.ant):"—"}</p>`:""}
-      <details class="how"><summary>Como é calculado</summary><p class="note">Fichas V4.1 a V4.7 da IC (17/11). Farol = realizado ÷ esperado até ${brc(p.fim)} pela curva da TV: dias úteis da 1ª metade do mês pesam 0,9 e os da 2ª metade 1,1 (abaixo de 90% vermelho, 90 a 99,9% âmbar, a partir de 100% verde). Por dia = falta ÷ dias úteis restantes contando hoje, arredondado para cima. Projeção linear (realizado + ritmo × dias restantes) é só apoio, sem farol. Contratos líquidos = contratos − churns, a mesma conta do Tracker (C2_LIQUIDOS). Meta da operação no Tracker${RM.filter(r=>r.mCad!=null&&Math.round(r.mCad)!==Math.round(r.meta)).map(r=>` (${r.op}: ${fmtN(r.meta)}; a soma das metas das closers dá ${fmtN(r.mCad)})`).join("")}. Dia útil: segunda a sexta sem feriado nacional${(()=>{const fs=[...FERIADOS].filter(d=>d.slice(0,7)===p.k&&diasUteis(d,d));return fs.length?" ("+fs.map(brc).join(" e ")+" fora)":""})()}.</p></details></div>`}
+      <details class="how"><summary>Como é calculado</summary><p class="note">Fichas V4.1 a V4.7 da IC (17/11). Farol = realizado ÷ esperado até ${brc(p.fim)} pela curva da TV: dias úteis da 1ª metade do mês pesam 0,9 e os da 2ª metade 1,1 (abaixo de 90% vermelho, 90 a 99,9% âmbar, a partir de 100% verde). Por dia = falta ÷ dias úteis restantes contando hoje, arredondado para cima. Projeção linear (realizado + ritmo × dias restantes) é só apoio, sem farol. Contratos líquidos = contratos − churns, a mesma conta do Tracker (C2_LIQUIDOS). Meta da operação no Tracker${RM.filter(r=>r.mCad!=null&&Math.round(r.mCad)!==Math.round(r.meta)).map(r=>` (${r.op}: ${fmtN(r.meta)}; a soma das metas das closers dá ${fmtN(r.mCad)})`).join("")}. Dia útil: segunda a sexta sem feriado nacional nem dia sem expediente${(()=>{const fs=[...FERIADOS].filter(d=>d.slice(0,7)===p.k&&diasUteis(d,d));return fs.length?" ("+fs.map(brc).join(" e ")+" fora)":""})()}.</p></details></div>`}
   else tvH=fechadoOpsH(p);   /* v5.13: mês fechado também mostra a meta por operação */
   h+=`<div class="blk" id="semanasBlk"></div>`;
   h+=`<div class="two"><div class="card"><h3>Contratos líquidos acumulados no mês</h3><p class="sub">Tracejado: ritmo da meta pelos dias úteis</p><div class="legend" id="lgA"></div><div class="chart" id="chA"></div></div>
