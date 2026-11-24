@@ -1306,9 +1306,12 @@ function vSimulador(){
 /* ===== v5.6 (17/11/2026) Anotações (decisões do Kevin): automáticas (feriado nacional em dia de semana, closer que entrou ou saiu)
    + as do Kevin na aba "anotacoes" do arquivo do painel. No Comercial: marcas no gráfico do mês e lista "O que aconteceu".
    Em Anúncios: a última mudança de cada anúncio em 30 dias, detectada pelo gasto diário (v5.6a: o histórico da TP foi aposentado). */
+/* v5.19 (24/11/2026, Kevin): períodos que explicam o ritmo (fonte: memoria/geral/feriados.md, férias coletivas). Os dias seguem úteis e a meta é cheia. */
+const PERIODOS=[{ini:"2026-12-18",volta:"2027-01-04",t:"Começam as férias coletivas (até 03/01): expediente opcional, checklist concluído paga em dobro; dias seguem úteis e a meta é cheia",tv:"Volta das férias coletivas"}];
 function eventosMes(k,op){
   const ini=k+"-01",fim=ultimoDia(k),ev=[],dentro=d=>d&&d>=ini&&d<=fim,okOp=o=>op==="ALL"||o==="ALL"||o===op;
   FERIADOS.forEach(d=>{if(dentro(d)&&diasUteis(d,d))ev.push({d,tipo:"feriado",t:(FER_MOT[d]||"Feriado")+" (dia não útil)"})});
+  PERIODOS.forEach(x=>{if(dentro(x.ini))ev.push({d:x.ini,tipo:"feriado",t:x.t});if(dentro(x.volta))ev.push({d:x.volta,tipo:"feriado",t:x.tv})});
   const desde=BASE_INI();
   CAD.forEach(c=>{if(c.cad==="LID"||!okOp(c.op))return;const n=c.pessoa+" ("+c.op+")";
     if(dentro(c.de)&&c.de>desde)ev.push({d:c.de,tipo:"closer",t:n+" entrou"});
