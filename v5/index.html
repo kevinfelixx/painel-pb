@@ -643,6 +643,28 @@ details.so{margin:8px 0 12px}
 .wk[aria-disabled="true"] .wh{flex-direction:column;align-items:flex-start;gap:2px}
 /* v5.18b: rótulos da grade da closer sem "…" (regra: nada cortado); quebram linha se faltar espaço */
 .rk-g small{display:block;white-space:normal;overflow:visible;text-overflow:clip;letter-spacing:.02em;line-height:1.2;overflow-wrap:anywhere}
+/* v5.19b: celular. Topo recolhido numa linha só (logo + mês/operação + tema). Anúncios em cartões na largura toda, valor sem quebrar "R$" do número. */
+@media (max-width:700px){
+  html{overflow-anchor:none}   /* mesmo comportamento do Safari do iPhone, que não reancora a rolagem */
+  header.top.compacto .brand-t{display:none}
+  header.top.compacto .wrap{flex-wrap:nowrap;padding-block:8px;gap:10px}
+  header.top.compacto .topo-mini{white-space:nowrap}
+}
+@media (max-width:600px){
+  table.ads,table.ads tbody{display:block;width:100%}
+  table.ads tr.adr{width:100%;box-sizing:border-box}
+  table.ads tr.adr td[data-l]{white-space:nowrap;align-items:baseline}
+  table.ads tr.adr td[data-l="Últimos 7 dias"]{grid-column:1/-1;white-space:normal}
+  table.ads tr.adr td.ad-n .sub2{max-width:none}
+  /* canais em cartões: nome do canal em cima, 4 números em grade com rótulo */
+  .card.can table,.card.can tbody{display:block;width:100%}
+  .card.can thead{display:none}
+  .card.can tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 14px;padding:10px 2px;border-bottom:1px solid var(--line)}
+  .card.can td{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:0;border:0;white-space:nowrap;text-align:right}
+  .card.can td:first-child{grid-column:1/-1;font-weight:700;text-align:left}
+  .card.can td[data-l]::before{content:attr(data-l);color:var(--ink-3);font-size:12px;font-weight:400}
+  .card.can tr.can-np td:nth-child(4),.card.can tr.can-np td:nth-child(5){display:none}   /* orgânico e sem origem: investimento e custo "não se aplica" saem no celular */
+}
 </style>
 
 <header class="top">
@@ -1413,8 +1435,8 @@ function canaisH(p){
       invC=k=>k==="meta"?fmtR0(inv):k==="google"?(gInv!=null?fmtR0(gInv):"aguardando a TP"):"não se aplica",
       cacC=k=>k==="meta"?(r.meta?fmtR0(inv/r.meta):"—"):k==="google"?(gInv!=null&&r.google?fmtR0(gInv/r.google):"—"):"não se aplica";
     return `<div class="card can"><h3>${op==="BPC"?"BPC / LOAS":"Auxílio-Acidente"}</h3><table class="wide cl"><thead><tr><th>Canal</th><th>Contratos</th><th>% do total</th><th>Investimento</th><th>Custo por contrato do canal</th></tr></thead><tbody>
-      ${CANAIS.filter(([k])=>r[k]>0||k==="meta"||k==="google"||k==="org").map(([k,t])=>`<tr${["meta","google"].includes(k)?"":` class="can-np"`}><td>${t}</td><td>${fmtN(r[k])}</td><td>${fmtP(div(r[k],tot))}</td><td>${invC(k)}</td><td>${["meta","google"].includes(k)?`<b>${cacC(k)}</b>`:cacC(k)}</td></tr>`).join("")}
-      <tr class="tot"><td>Total</td><td>${fmtN(tot)}</td><td>100%</td><td>${fmtR0(inv+(gInv||0))}</td><td title="Não se soma custo de canais diferentes">—</td></tr></tbody></table></div>`};
+      ${CANAIS.filter(([k])=>r[k]>0||k==="meta"||k==="google"||k==="org").map(([k,t])=>`<tr${["meta","google"].includes(k)?"":` class="can-np"`}><td>${t}</td><td data-l="Contratos">${fmtN(r[k])}</td><td data-l="% do total">${fmtP(div(r[k],tot))}</td><td data-l="Investimento">${invC(k)}</td><td data-l="Custo/contrato">${["meta","google"].includes(k)?`<b>${cacC(k)}</b>`:cacC(k)}</td></tr>`).join("")}
+      <tr class="tot"><td>Total</td><td data-l="Contratos">${fmtN(tot)}</td><td data-l="% do total">100%</td><td data-l="Investimento">${fmtR0(inv+(gInv||0))}</td><td data-l="Custo/contrato" title="Não se soma custo de canais diferentes">—</td></tr></tbody></table></div>`};
   return `<div class="blk"><span class="lbl">De onde vêm os contratos · ${mesNome(p.k)}</span><div class="two">${ops.map(tab).join("")}</div>
     <details class="how"><summary>Como ler</summary><p class="note">Contrato bruto (antes de churn), pela data do contrato, classificado pelo código de origem do negócio. Meta = anúncios da Meta; Google = campanhas do Google (o painel ainda não tem o gasto do Google); Orgânico = indicação, retorno, recuperação, 2º filho, Instagram, social selling, site, presencial e Nº 1270; Sem origem = código vazio. "Sem ligação com a origem" são contratos do Tracker que não aparecem ligados a um negócio com origem. Custo por contrato só existe para canal pago: investimento do canal ÷ contratos do canal. Orgânico não tem custo aqui (salários e comissões ficam de fora), e o total não mistura canais. Investimento da Meta é o do Tracker; o do Google vem do script da TP dentro do Google Ads (as "conversões" do Google são cliques no botão de WhatsApp, não leads nem contratos). A conta do Google ficou parada de out/2025 a 17/08/2026: contrato do Google antes de 18/08/2026 aparece sem gasto correspondente. Antes de 03/10 a origem vem do Espelho do RG; depois, do Funil da TP.</p></details></div>`;
 }
@@ -1863,7 +1885,9 @@ const ICO={auto:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stro
 const NOME_TEMA={auto:"Automático",claro:"Claro",escuro:"Escuro"};
 /* ===== v5: topo em pílulas (os seletores originais continuam por baixo, escondidos) ===== */
 /* v5.14: no celular o topo recolhe depois de rolar 120 px e volta ao chegar no começo */
-window.addEventListener("scroll",()=>{const h=document.querySelector("header.top");if(!h)return;h.classList.toggle("compacto",innerWidth<=700&&scrollY>120)},{passive:true});
+/* v5.19b (24/11/2026, gravação do Kevin no iPhone): o topo encolhia e a página subia, voltando a abrir (pisca). Agora recolhe só depois de rolar mais que a altura do topo aberto e volta a abrir perto do topo. */
+window.addEventListener("scroll",()=>{const h=document.querySelector("header.top");if(!h)return;if(innerWidth>700){h.classList.remove("compacto");return}
+  const c=h.classList.contains("compacto");if(!c&&scrollY>h.offsetHeight+60)h.classList.add("compacto");else if(c&&scrollY<20)h.classList.remove("compacto")},{passive:true});   /* recolhe só depois de passar a altura do topo aberto, então a subida da página não o reabre */
 function desenharTopo(){
   const c2=document.getElementById("ctl2"),cr=document.getElementById("ctlr");if(!c2||!P||!st.p)return;
   const ordem=P.slice().reverse();
