@@ -329,11 +329,11 @@ table.pcl tr.saiu td{border-top:1px dashed var(--line);color:var(--ink-2)}
 .selo::before{content:"";width:7px;height:7px;border-radius:50%;background:#C9A84C}
 .tema{display:inline-flex;align-items:center;gap:6px;padding:7px 11px}
 .tema svg{width:16px;height:16px}
-/* v5.20: modo privacidade. Tapa só os valores em R$ (a página marca cada um com a classe rs). Contagens, % e faróis ficam à vista. */
-.rs{transition:filter .15s}
-html.priv .rs{filter:blur(.32em);user-select:none;-webkit-user-select:none}
+/* v5.20: modo privacidade. Tapa só os valores em R$ (a página marca cada um com a classe pvr). Contagens, % e faróis ficam à vista. */
+.pvr{transition:filter .15s}
+html.priv .pvr{filter:blur(.32em);user-select:none;-webkit-user-select:none}
 #privBtn[aria-pressed="true"]{border-color:var(--gold);color:var(--ink)}
-@media print{html.priv .rs{filter:blur(.32em)}}
+@media print{html.priv .pvr{filter:blur(.32em)}}
 :root[data-dir="lv"] nav.tabs{flex-basis:100%;gap:22px}
 :root[data-dir="lv"] nav.tabs a{position:relative;transition:color .2s}
 :root[data-dir="lv"] nav.tabs a[aria-current="page"]{box-shadow:none}
@@ -1891,17 +1891,17 @@ function aplicarPriv(){document.documentElement.classList.toggle("priv",PRIV);co
   b.setAttribute("aria-pressed",PRIV);b.title=PRIV?"Valores em R$ ocultos (clique ou tecla P para mostrar)":"Ocultar os valores em R$ (clique ou tecla P)";b.innerHTML=ICO_OLHO[PRIV?1:0]+"<span>"+(PRIV?"R$ oculto":"Ocultar R$")+"</span>"}
 function setPriv(v){PRIV=v;try{localStorage.setItem("pbPriv",v?"1":"0")}catch(_){}aplicarPriv()}
 document.addEventListener("keydown",e=>{if(e.ctrlKey||e.metaKey||e.altKey||e.key.toLowerCase()!=="p")return;const t=e.target&&e.target.tagName;if(t==="INPUT"||t==="TEXTAREA"||t==="SELECT"||(e.target&&e.target.isContentEditable))return;e.preventDefault();setPriv(!PRIV)});
-/* Marca cada valor em R$ do texto da página com <span class="rs">. Texto de cópia e cálculos não passam por aqui; só o que é desenhado. */
+/* Marca cada valor em R$ do texto da página com <span class="pvr">. Texto de cópia e cálculos não passam por aqui; só o que é desenhado. */
 const RS_RE=/R\$[\s\u00a0]?-?\d[\d.,]*/g;
 function marcarRS(n){
   if(!n)return;
   if(n.nodeType===3){
     const pai=n.parentNode;if(!pai||!/R\$/.test(n.nodeValue))return;
-    if(pai.closest&&pai.closest(".rs"))return;
+    if(pai.closest&&pai.closest(".pvr"))return;
     if(/^(SCRIPT|STYLE|TEXTAREA|OPTION|SELECT|INPUT)$/i.test(pai.nodeName))return;
-    if(pai.namespaceURI==="http://www.w3.org/2000/svg"){pai.classList.add("rs");return}
+    if(pai.namespaceURI==="http://www.w3.org/2000/svg"){pai.classList.add("pvr");return}
     const t=n.nodeValue;RS_RE.lastIndex=0;let m,i=0,fr=null;
-    while((m=RS_RE.exec(t))){fr=fr||document.createDocumentFragment();if(m.index>i)fr.appendChild(document.createTextNode(t.slice(i,m.index)));const sp=document.createElement("span");sp.className="rs";sp.textContent=m[0];fr.appendChild(sp);i=m.index+m[0].length}
+    while((m=RS_RE.exec(t))){fr=fr||document.createDocumentFragment();if(m.index>i)fr.appendChild(document.createTextNode(t.slice(i,m.index)));const sp=document.createElement("span");sp.className="pvr";sp.textContent=m[0];fr.appendChild(sp);i=m.index+m[0].length}
     if(fr){if(i<t.length)fr.appendChild(document.createTextNode(t.slice(i)));pai.replaceChild(fr,n)}
     return}
   if(n.nodeType!==1)return;
