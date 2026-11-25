@@ -334,6 +334,7 @@ table.pcl tr.saiu td{border-top:1px dashed var(--line);color:var(--ink-2)}
 html.priv .pvr{filter:blur(.32em);user-select:none;-webkit-user-select:none}
 #privBtn[aria-pressed="true"]{border-color:var(--gold);color:var(--ink)}
 @media print{html.priv .pvr{filter:blur(.32em)}}
+html.ag nav.tabs a[data-v="simulador"]{display:none}   /* v5.22: link da agência não tem o Simulador */
 :root[data-dir="lv"] nav.tabs{flex-basis:100%;gap:22px}
 :root[data-dir="lv"] nav.tabs a{position:relative;transition:color .2s}
 :root[data-dir="lv"] nav.tabs a[aria-current="page"]{box-shadow:none}
@@ -1079,7 +1080,7 @@ const filtroOp=op=>op==="ALL"?null:(x=>x.op===op);
 const opsSel=()=>st.op==="ALL"?["BPC","AA"]:[st.op];
 
 /* ===== estado ===== */
-let P=[];
+let P=[];let AGENCIA=false;   /* v5.22: link da agência (chave própria): sem Simulador, sem nomes de closer, sem anotar; "Closers" vira "Médias" */
 let PERDAS_ST="";
 /* v4.1 (24/11/2026): "por que perdemos" por closer (aba 📉 Perdas por closer da TP; métricas pc e pc_regua).
    Fichas da IC: "Sumiu" fica fora do ranking, na coluna "não respondeu à régua"; "IA / sem dona" separado das closers. */
@@ -1109,7 +1110,7 @@ addEventListener("hashchange",()=>{route();render()});
 /* Abas por clique: dentro do Apps Script a página roda numa moldura e o link "#aba" não pode mudar o endereço */
 document.querySelectorAll("nav.tabs a").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();st.v=a.dataset.v;window.scrollTo(0,0);render()}));
 matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",()=>{aplicarTema();render()});
-function route(){const h=location.hash.slice(1);st.v=["comercial","operacoes","closers","anuncios","motivos","simulador"].includes(h)?h:"comercial"}
+function route(){const h=location.hash.slice(1);st.v=["comercial","operacoes","closers","anuncios","motivos","simulador"].includes(h)&&!(AGENCIA&&h==="simulador")?h:"comercial"}
 document.getElementById("protoBar").hidden=!PROTOTIPO;
 
 /* ===== gráficos ===== */
@@ -1340,14 +1341,14 @@ function eventosMes(k,op){
   FERIADOS.forEach(d=>{if(dentro(d)&&diasUteis(d,d))ev.push({d,tipo:"feriado",t:(FER_MOT[d]||"Feriado")+" (dia não útil)"})});
   PERIODOS.forEach(x=>{if(dentro(x.ini))ev.push({d:x.ini,tipo:"feriado",t:x.t});if(dentro(x.volta))ev.push({d:x.volta,tipo:"feriado",t:x.tv})});
   const desde=BASE_INI();
-  CAD.forEach(c=>{if(c.cad==="LID"||!okOp(c.op))return;const n=c.pessoa+" ("+c.op+")";
+  if(!AGENCIA)CAD.forEach(c=>{if(c.cad==="LID"||!okOp(c.op))return;const n=c.pessoa+" ("+c.op+")";
     if(dentro(c.de)&&c.de>desde)ev.push({d:c.de,tipo:"closer",t:n+" entrou"});
     if(dentro(c.ate))ev.push({d:c.ate,tipo:"closer",t:n+" saiu"})});
   ANOT.forEach(a=>{if(dentro(a[0])&&okOp(a[1]))ev.push({d:a[0],tipo:"nota",t:a[2]+(a[1]!=="ALL"&&op==="ALL"?" ("+a[1]+")":""),nota:a})});
   return ev.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0).map((e,i)=>({...e,n:i+1}));
 }
 /* v5.7 (18/11/2026): anotar pela tela. Quem tem o link (chave) pode anotar; grava na aba "anotacoes" pelo doPost do Apps Script. */
-const chaveLink=()=>(typeof HASH_K!=="undefined"&&HASH_K)||window.PB_K||"";
+const chaveLink=()=>AGENCIA?"":(typeof HASH_K!=="undefined"&&HASH_K)||window.PB_K||"";   /* link da agência não anota */
 async function postAnot(corpo){
   const r=await fetch(API_PB,{method:"POST",credentials:"omit",body:JSON.stringify({k:chaveLink(),...corpo})}).then(x=>x.json());
   if(!r.ok)throw new Error(r.erro||"falhou");ANOT=r.anotacoes||ANOT;render();
@@ -1599,11 +1600,11 @@ function vOperacoes(){
 /* ===== Closers ===== */
 /* v5.7 (18/11/2026): 9 números da closer (pedido do Kevin), em 3 linhas: volume, conversão e checklist. Siglas curtas; o nome completo vai no title. */
 const fmtDias=v=>v==null||!isFinite(v)?"—":v.toLocaleString("pt-BR",{maximumFractionDigits:1})+" d";
-function gradeCloser(a){
+function gradeCloser(a,semTempo){
   const c=(sig,nome,val)=>`<span title="${nome}"><small>${sig}</small><b>${val}</b></span>`;
   return c("Leads","Leads recebidos (Datacrazy)",fmtN(a.leads))+c("Qualif.","Qualificados",fmtN(a.q))+c("TxQ","Taxa de qualificação: qualificados ÷ leads",fmtP(a.pq))
     +c("Contratos","Contratos fechados (antes de churn)",fmtN(a.c))+c("Aprov.","Aproveitamento: contratos ÷ qualificados",fmtP(a.pf))+c("TxC","Taxa de conversão total: contratos ÷ leads",fmtP(a.pcv))
-    +c("Checklists","Checklists concluídos (o que vale para a comissão)",fmtN(a.chk))+c("% Checklist","Conclusão: checklists concluídos ÷ contratos do período",fmtP(a.pchk))+c("Tempo chk.","Tempo médio do contrato à conclusão do checklist (dias corridos)",fmtDias(a.tchk));
+    +c("Checklists","Checklists concluídos (o que vale para a comissão)",fmtN(a.chk))+c("% Checklist","Conclusão: checklists concluídos ÷ contratos do período",fmtP(a.pchk))+(semTempo?"":c("Tempo chk.","Tempo médio do contrato à conclusão do checklist (dias corridos)",fmtDias(a.tchk)));
 }
 function vClosers(){
   const p=st.p;
@@ -1640,6 +1641,18 @@ function vClosers(){
   document.getElementById("view").innerHTML=h;
 }
 
+/* v5.22 (25/11/2026): aba "Médias" do link da agência, no lugar de Closers. Média por closer de cada operação, sem mostrar ninguém.
+   O servidor manda, por dia e operação, a soma de cada número dividida pelas closers ativas naquele dia (mc_leads, mc_q, mc_c, mc_chk). */
+function vMedias(){
+  const p=st.p;
+  let h=`<div class="sec-h"><h2>Média por closer · ${mesNome(p.k)}</h2><p>${br(p.ini)} a ${br(p.fim)} · média das closers de cada operação no período, sem mostrar ninguém em separado</p></div><div class="rank">`;
+  opsSel().forEach(op=>{
+    const t=soma(p.ini,p.fim,x=>x.op===op),leads=t.mc_leads||0,q=t.mc_q||0,c=t.mc_c||0,chk=t.mc_chk||0;
+    const a={leads,q,c,chk,pq:div(q,leads),pf:div(c,q),pcv:div(c,leads),pchk:div(chk,c)};
+    h+=`<div class="rk top" style="--cv:${css(op==="BPC"?"--bpc":"--aa")}"><div class="rk-h"><span class="nm"><b>${op==="BPC"?"BPC / LOAS":"Auxílio-Acidente"}</b><small>média por closer</small></span></div><div class="rk-s rk-g">${gradeCloser(a,true)}</div></div>`});
+  h+=`</div><p class="note">Leads = Datacrazy. TxQ = qualificados ÷ leads. Aprov. = contratos ÷ qualificados. TxC = contratos ÷ leads. % Checklist = checklists concluídos ÷ contratos do período.</p>`;
+  document.getElementById("view").innerHTML=h;
+}
 /* ===== Anúncios ===== */
 /* Corte: gasto (Meta) e funil (TP 04) só se comparam até a data mais antiga das duas fontes. */
 const MIN_Q=3;
@@ -1872,7 +1885,7 @@ function vMotivos(){
       <p class="note">Perdidos pelo motivo que a closer marcou (ranking, 5 maiores motivos da operação; o número pequeno é a fatia na carteira daquela closer). "Sumiu" é o fim da régua de follow-up, não um motivo: fica na última coluna, fora do ranking. "IA / sem dona" = perdidos sem closer dona (IA ou sem responsável), separado das closers.</p></div>`;
   }).join("");
   if(pcBlk)h+=pcBlk;
-  else h+=`<div class="blk"><span class="lbl">Por que perdemos · por closer</span><p class="note">${PERDAS_ST==="aguardando a aba da TP"||!PERDAS_ST?"A fonte das perdas por closer ainda não está no ar: a TP publica a aba \"📉 Perdas por closer\" depois do ok do Kevin. Assim que ela entrar, este bloco se preenche sozinho na atualização das 08h.":"Sem perdas por closer no período ("+esc(PERDAS_ST)+")."}</p></div>`;
+  else if(!AGENCIA)h+=`<div class="blk"><span class="lbl">Por que perdemos · por closer</span><p class="note">${PERDAS_ST==="aguardando a aba da TP"||!PERDAS_ST?"A fonte das perdas por closer ainda não está no ar: a TP publica a aba \"📉 Perdas por closer\" depois do ok do Kevin. Assim que ela entrar, este bloco se preenche sozinho na atualização das 08h.":"Sem perdas por closer no período ("+esc(PERDAS_ST)+")."}</p></div>`;
   if(heats.length)h+=`<p class="note">Mapa: cada célula é a fatia dos não qualificados daquele anúncio. Cor mais forte, motivo mais concentrado. Compare com a linha da média.</p>`+heats.join("");
   document.getElementById("view").innerHTML=h;
   document.getElementById("adf").onchange=e=>{st.ad=e.target.value;vMotivos()};
@@ -1980,11 +1993,12 @@ function render(){
   document.getElementById("cut").innerHTML=`Dados até <strong>${br(DADOS_ATE)}</strong><span class="srcs"> · ${fonte("Tracker",DADOS_ATE)}${fonte("Funil TP",FUNIL_ATE)}${fonte("Meta por anúncio",AN_ATE)}</span> · ${ATUALIZADO?"atualizado em "+esc(ATUALIZADO):"atualiza às 08h00"}${AVISOS?` · <span class="d-bad" title="${esc(AVISOS)}">fonte com aviso</span>`:""}`;
   document.querySelectorAll("nav.tabs a").forEach(a=>a.setAttribute("aria-current",a.dataset.v===st.v?"page":"false"));
   document.getElementById("view").classList.toggle("largo",st.v==="anuncios");
-  ({comercial:vComercial,operacoes:vOperacoes,closers:vClosers,anuncios:vAnuncios,motivos:vMotivos,simulador:vSimulador})[st.v]();
+  ({comercial:vComercial,operacoes:vOperacoes,closers:AGENCIA?vMedias:vClosers,anuncios:vAnuncios,motivos:vMotivos,simulador:vSimulador})[st.v]();
   marcarZeros();desenharTopo();entrada();
 }
 function boot(json){
   const d=typeof json==="string"?JSON.parse(json):json;
+  AGENCIA=!!d.agencia;if(AGENCIA){document.documentElement.classList.add("ag");const tc=document.querySelector('nav.tabs a[data-v="closers"]');if(tc){tc.textContent="Médias";tc.title="Média por closer da operação"}}
   DADOS_ATE=d.dadosAte;FUNIL_ATE=d.funilAte||"";AN_ATE=d.metaAnunciosAte||"";PEND=d.pendentes||{};REG=d.regua||null;ATUALIZADO=d.atualizadoEm||"";PERDAS_ST=d.perdasCloser||"";ANO=d.ano||null;LIQ_F=d.liqFechados||{};AVISOS=d.avisos||"";META=d.meta||{};ANOT=d.anotacoes||[];if(d.feriados&&d.feriados.d&&d.feriados.d.length){FERIADOS.clear();d.feriados.d.forEach(x=>FERIADOS.add(x));FER_MOT=d.feriados.m||{}}
   const cores={BPC:["--bpc","--bpc-2"],AA:["--aa","--aa-2"]},usados={BPC:0,AA:0};
   CAD=(d.cad||[]).map(c=>{const op=c.op==="BPC+AA"?"BPC":c.op;let cv="--ink-3";if(c.cad!=="LID"&&cores[op])cv=cores[op][Math.min(usados[op]++,1)];return {...c,op,cv}});
